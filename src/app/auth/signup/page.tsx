@@ -82,10 +82,13 @@ export default function SignUpPage() {
         redirect: false,
       });
 
-      if (signInResult?.ok) {
+      if (signInResult?.ok && !signInResult?.error) {
+        // Successfully signed in, redirect to profile setup
         router.push('/profile/setup');
       } else {
-        router.push('/auth/signin?message=Registration successful, please sign in');
+        // Auto sign-in failed, show success message and redirect to signin
+        console.log('Auto sign-in failed:', signInResult?.error);
+        router.push('/auth/signin?message=Registration successful! Please sign in with your new account.');
       }
     } catch (error) {
       console.error('Registration error:', error);
