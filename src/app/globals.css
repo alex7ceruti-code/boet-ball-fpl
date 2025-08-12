@@ -1,26 +1,326 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
+  /* Base colors */
   --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --foreground: #1a1a1a;
+  --card: #ffffff;
+  --card-foreground: #1a1a1a;
+  
+  /* Springbok Green Palette */
+  --springbok-50: #f0fdf4;
+  --springbok-100: #dcfce7;
+  --springbok-200: #bbf7d0;
+  --springbok-300: #86efac;
+  --springbok-400: #4ade80;
+  --springbok-500: #22c55e;
+  --springbok-600: #16a34a;
+  --springbok-700: #15803d;
+  --springbok-800: #166534;
+  --springbok-900: #14532d;
+  
+  /* SA Gold Palette */
+  --sa-gold-400: #facc15;
+  --sa-gold-500: #eab308;
+  --sa-gold-600: #ca8a04;
+  
+  /* Primary theme colors */
+  --primary: #007A3D;
+  --primary-foreground: #ffffff;
+  --secondary: var(--springbok-50);
+  --secondary-foreground: var(--springbok-900);
+  --muted: var(--springbok-100);
+  --muted-foreground: #6b7280;
+  --accent: var(--sa-gold-500);
+  --accent-foreground: #1a1a1a;
+  --border: #e5e7eb;
+  --input: #e5e7eb;
+  --ring: var(--springbok-600);
+  
+  /* Status colors */
+  --success: var(--springbok-600);
+  --warning: #f59e0b;
+  --error: #dc2626;
+  --info: #2563eb;
+  
+  /* Neutral palette */
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+  
+  /* Typography */
+  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-accent: 'Poppins', 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+  
+  /* Typography Scale */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+  
+  /* Spacing Scale */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.05);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 10px 10px -5px rgb(0 0 0 / 0.04);
+  
+  /* Border Radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
-    --foreground: #ededed;
+    --foreground: #fafafa;
+    --card: #1a1a1a;
+    --card-foreground: #fafafa;
+    --primary: #D2691E;
+    --primary-foreground: #ffffff;
+    --secondary: #1a1a1a;
+    --secondary-foreground: #fafafa;
+    --muted: #1a1a1a;
+    --muted-foreground: #9ca3af;
+    --border: #262626;
+    --input: #262626;
+    --ring: #D2691E;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+* {
+  border-color: hsl(var(--border));
 }
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-primary);
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Premium Component Styles */
+
+/* Premium Card Design */
+.premium-card {
+  background: linear-gradient(145deg, #ffffff, #f8fafc);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  transition: all 0.2s ease;
+}
+
+.premium-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Premium Buttons */
+.btn-primary {
+  background: linear-gradient(135deg, var(--springbok-600), var(--springbok-700));
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  font-family: var(--font-primary);
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(22, 163, 74, 0.2);
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--springbok-700), var(--springbok-800));
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(22, 163, 74, 0.3);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, var(--sa-gold-500), var(--sa-gold-600));
+  color: var(--gray-900);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  font-family: var(--font-primary);
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(234, 179, 8, 0.2);
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, var(--sa-gold-600), #b45309);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(234, 179, 8, 0.3);
+}
+
+.btn-secondary:active {
+  transform: scale(0.98);
+}
+
+/* Premium Badges */
+.premium-badge {
+  background: linear-gradient(135deg, var(--sa-gold-500), #f59e0b);
+  color: var(--gray-900);
+  font-weight: 700;
+  font-size: var(--text-xs);
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Premium Content Areas */
+.premium-content {
+  border: 2px solid var(--sa-gold-500);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(145deg, #fffbeb, #fef3c7);
+  position: relative;
+  padding: 1.5rem;
+}
+
+.premium-content::before {
+  content: "⭐ Premium";
+  position: absolute;
+  top: -10px;
+  left: 16px;
+  background: var(--sa-gold-500);
+  color: var(--gray-900);
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: 700;
+}
+
+/* Loading States */
+.skeleton {
+  background: linear-gradient(90deg, var(--gray-100) 25%, var(--gray-200) 50%, var(--gray-100) 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+  border-radius: var(--radius-md);
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Springbok Loading Animation */
+.springbok-spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid var(--springbok-200);
+  border-top: 3px solid var(--springbok-600);
+  border-radius: 50%;
+  animation: springbok-spin 1s linear infinite;
+}
+
+@keyframes springbok-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Pulse Animation for Live Data */
+.pulse-green {
+  animation: pulse-green 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-green {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* South African Cultural Patterns */
+.sa-pattern-bg {
+  background-image: radial-gradient(circle at 1px 1px, rgba(22, 163, 74, 0.1) 1px, transparent 0);
+  background-size: 20px 20px;
+}
+
+.track-divider {
+  border-top: 2px dashed rgba(22, 163, 74, 0.3);
+  position: relative;
+}
+
+/* Time-based Backgrounds */
+.morning-bg {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+}
+
+.afternoon-bg {
+  background: linear-gradient(135deg, #dbeafe, #93c5fd);
+}
+
+.evening-bg {
+  background: linear-gradient(135deg, #fed7aa, #fdba74);
+}
+
+/* Utility Classes */
+.text-springbok { color: var(--springbok-600); }
+.text-sa-gold { color: var(--sa-gold-500); }
+.bg-springbok { background-color: var(--springbok-600); }
+.bg-sa-gold { background-color: var(--sa-gold-500); }
+.border-springbok { border-color: var(--springbok-600); }
+.border-sa-gold { border-color: var(--sa-gold-500); }
+
+/* Touch-friendly Design */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Mobile Enhancements */
+@media (max-width: 768px) {
+  .mobile-padding {
+    padding: 1rem;
+  }
+  
+  .mobile-text-lg {
+    font-size: var(--text-lg);
+  }
+}
+
+/* Custom styles with inline approach to avoid Tailwind v4 conflicts */
