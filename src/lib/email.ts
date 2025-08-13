@@ -230,3 +230,38 @@ export const sendEmailVerificationReminder = async (
     return { success: false, error };
   }
 };
+
+// Generic sendEmail function for admin emails
+export interface EmailOptions {
+  to: string;
+  subject: string;
+  html: string;
+  text?: string;
+}
+
+export const sendEmail = async (options: EmailOptions) => {
+  try {
+    const data = await resend.emails.send({
+      from: 'Boet Ball FPL <noreply@boetball.co.za>',
+      to: [options.to],
+      subject: options.subject,
+      html: options.html,
+      text: options.text,
+    });
+
+    console.log('Email sent successfully:', {
+      to: options.to,
+      subject: options.subject,
+      messageId: data.data?.id
+    });
+
+    return { success: true, data };
+  } catch (error) {
+    console.error('Email sending failed:', {
+      to: options.to,
+      subject: options.subject,
+      error
+    });
+    return { success: false, error };
+  }
+};
