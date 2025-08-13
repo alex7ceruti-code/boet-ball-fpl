@@ -17,7 +17,9 @@ import {
   AlertCircle,
   Loader2,
   Crown,
-  Heart
+  Heart,
+  FileText,
+  Tag
 } from 'lucide-react';
 import { SignUpFormData } from '@/types/auth';
 import { getSlangPhrase } from '@/utils/slang';
@@ -30,6 +32,8 @@ export default function SignUpPage() {
     password: '',
     confirmPassword: '',
     marketingOptIn: false,
+    termsAccepted: false,
+    promoCode: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -75,20 +79,26 @@ export default function SignUpPage() {
         throw new Error(data.error || 'Registration failed');
       }
 
-      // Auto-sign in after successful registration
-      const signInResult = await signIn('credentials', {
-        email: formData.email,
-        password: formData.password,
-        redirect: false,
-      });
-
-      if (signInResult?.ok && !signInResult?.error) {
-        // Successfully signed in, redirect to profile setup
-        router.push('/profile/setup');
+      // Show success message and redirect to appropriate page
+      if (data.emailSent) {
+        // Email verification sent, redirect to check email message
+        router.push('/auth/verify-email?message=check-inbox&email=' + encodeURIComponent(formData.email));
       } else {
-        // Auto sign-in failed, show success message and redirect to signin
-        console.log('Auto sign-in failed:', signInResult?.error);
-        router.push('/auth/signin?message=Registration successful! Please sign in with your new account.');
+        // Email not configured, try auto sign-in
+        const signInResult = await signIn('credentials', {
+          email: formData.email,
+          password: formData.password,
+          redirect: false,
+        });
+
+        if (signInResult?.ok && !signInResult?.error) {
+          // Successfully signed in, redirect to profile setup
+          router.push('/profile/setup');
+        } else {
+          // Auto sign-in failed, show success message and redirect to signin
+          console.log('Auto sign-in failed:', signInResult?.error);
+          router.push('/auth/signin?message=Registration successful! Please sign in with your new account.');
+        }
       }
     } catch (error) {
       console.error('Registration error:', error);
@@ -262,20 +272,68 @@ export default function SignUpPage() {
                 </div>
               </div>
 
-              {/* Marketing Opt-in */}
-              <div className="flex items-center gap-3">
-                <input
-                  id="marketingOptIn"
-                  name="marketingOptIn"
-                  type="checkbox"
-                  checked={formData.marketingOptIn}
-                  onChange={handleInputChange}
-                  className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
-                />
-                <label htmlFor="marketingOptIn" className="text-sm text-gray-600 flex items-center gap-2">
-                  <Heart className="w-4 h-4 text-red-400" />
-                  Send me FPL tips, updates, and SA banter
+              {/* Promo Code Field */}
+              <div>
+                <label htmlFor="promoCode" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Promo Code <span className="text-gray-400 font-normal">(Optional)</span>
                 </label>
+                <div className="relative">
+                  <input
+                    id="promoCode"
+                    name="promoCode"
+                    type="text"
+                    value={formData.promoCode}
+                    onChange={handleInputChange}
+                    className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all bg-white text-gray-900 placeholder-gray-500 shadow-sm"
+                    placeholder="Enter promo code for special offers"
+                  />
+                  <Tag className="w-5 h-5 text-gray-400 absolute left-3 top-3.5" />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Get early access to premium features!</p>
+              </div>
+
+              {/* Terms Acceptance */}
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <input
+                    id="termsAccepted"
+                    name="termsAccepted"
+                    type="checkbox"
+                    required
+                    checked={formData.termsAccepted}
+                    onChange={handleInputChange}
+                    className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500 mt-0.5"
+                  />
+                  <label htmlFor="termsAccepted" className="text-sm text-gray-700 flex items-start gap-2">
+                    <FileText className="w-4 h-4 text-green-500 mt-0.5" />
+                    <span>
+                      I accept the{' '}
+                      <Link href="/terms" target="_blank" className="text-green-600 hover:text-green-700 underline font-semibold">
+                        Terms of Service
+                      </Link>{' '}
+                      and{' '}
+                      <Link href="/privacy" target="_blank" className="text-green-600 hover:text-green-700 underline font-semibold">
+                        Privacy Policy
+                      </Link>
+                    </span>
+                  </label>
+                </div>
+                
+                {/* Marketing Opt-in */}
+                <div className="flex items-center gap-3">
+                  <input
+                    id="marketingOptIn"
+                    name="marketingOptIn"
+                    type="checkbox"
+                    checked={formData.marketingOptIn}
+                    onChange={handleInputChange}
+                    className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                  />
+                  <label htmlFor="marketingOptIn" className="text-sm text-gray-600 flex items-center gap-2">
+                    <Heart className="w-4 h-4 text-red-400" />
+                    Send me FPL tips, updates, and SA banter
+                  </label>
+                </div>
               </div>
 
               {/* Submit Button */}

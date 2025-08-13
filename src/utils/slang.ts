@@ -106,6 +106,27 @@ export const slang = {
     later: ["Just now just now", "Later hey", "In a bit", "When I get a chance"],
     never: ["Ja right", "When pigs fly", "Not in this lifetime", "Maybe next century"],
     urgent: ["Chop chop!", "Make it snappy!", "Sharp sharp!", "Move it boet!"],
+    hurry: ["Sharp sharp!", "Chop chop!", "Move it boet!", "Make it snappy!"],
+  },
+  
+  // Additional categories for the app
+  greetings: {
+    hello: ["Howzit", "Sawubona", "Sharp", "Heyyy", "Hoe gaan dit?"],
+    hey: ["Hey boet", "Eish hey", "Sharp hey", "Howzit china"],
+    howzit: ["Howzit boet!", "Howzit my china!", "Sharp, howzit!"],
+    welcome: ["Welcome boet!", "Sharp, welcome!", "Lekker to have you!"],
+  },
+  
+  success: {
+    general: ["Lekker!", "Sharp!", "Sorted!", "Too much!"],
+    celebration: ["Lekker boet!", "Sharp!", "Eish!", "Too much!"],
+    dataLoaded: ["Data loaded, boet!", "All sorted now!", "Looking sharp!"],
+  },
+  
+  strategy: {
+    general: ["Sharp strategy", "Lekker plan", "Solid thinking", "Good call boet"],
+    bold: ["Bold move china", "Risky but lekker", "Going for broke"],
+    safe: ["Playing it safe", "Solid choice", "Can't go wrong there"],
   },
 };
 
@@ -232,4 +253,9 @@ export function getFPLSlang(category: keyof typeof fplSlang, key?: string): stri
     return (data as any)[key];
   }
   return "Sorted!";
+}
+
+// Alias for getSASlang - same as getSlangPhrase but more descriptive
+export function getSASlang(category: keyof typeof slang, subcategory?: string): string {
+  return getSlangPhrase(category, subcategory);
 }

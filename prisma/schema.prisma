@@ -46,6 +46,10 @@ model User {
   image             String?
   password          String?   // For email/password auth
   
+  // Email verification
+  emailVerificationToken String? @unique
+  emailVerificationExpires DateTime?
+  
   // Profile information
   fplTeamId         Int?      // User's FPL Team ID
   favoriteTeam      Int?      // Premier League team they support
@@ -58,11 +62,16 @@ model User {
   subscriptionStart DateTime? 
   subscriptionEnd   DateTime?
   isActive          Boolean   @default(true)
+  promoCodeUsed     String?   // Track which promo code was used
   
   // Marketing and communication
   marketingOptIn    Boolean   @default(false)
   lastLoginAt       DateTime?
   loginCount        Int       @default(0)
+  
+  // Terms acceptance
+  termsAcceptedAt   DateTime?
+  termsVersion      String?
   
   // Relations
   accounts          Account[]
@@ -196,6 +205,32 @@ model AdminUser {
   @@map("admin_users")
 }
 
+// Promo code system for future premium features
+model PromoCode {
+  id            String   @id @default(cuid())
+  code          String   @unique
+  description   String?
+  discountType  DiscountType
+  discountValue Int      // Percentage or amount in cents
+  
+  // Usage limits
+  maxUses       Int?     // NULL = unlimited
+  currentUses   Int      @default(0)
+  
+  // Validity
+  validFrom     DateTime @default(now())
+  validUntil    DateTime?
+  isActive      Boolean  @default(true)
+  
+  // Restrictions
+  newUsersOnly  Boolean  @default(false)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@map("promo_codes")
+}
+
 // Enums
 enum SubscriptionType {
   FREE
@@ -227,4 +262,10 @@ enum AdminRole {
   ADMIN
   EDITOR
   WRITER
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+  FREE_TRIAL
 }

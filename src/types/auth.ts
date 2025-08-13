@@ -20,6 +20,8 @@ export interface SignUpFormData {
   password: string;
   confirmPassword: string;
   marketingOptIn: boolean;
+  termsAccepted: boolean;
+  promoCode: string;
 }
 
 export interface SignInFormData {
