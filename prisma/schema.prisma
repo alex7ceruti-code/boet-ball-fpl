@@ -52,6 +52,8 @@ model User {
   
   // Profile information
   fplTeamId         Int?      // User's FPL Team ID
+  miniLeague1Id     Int?      // First Mini League ID
+  miniLeague2Id     Int?      // Second Mini League ID
   favoriteTeam      Int?      // Premier League team they support
   location          String?   // For South African cultural features
   createdAt         DateTime  @default(now())

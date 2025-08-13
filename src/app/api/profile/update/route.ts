@@ -14,7 +14,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, fplTeamId, favoriteTeam, location, preferences } = await request.json();
+    const { name, fplTeamId, miniLeague1Id, miniLeague2Id, favoriteTeam, location, preferences } = await request.json();
 
     // Update user profile
     await db.user.update({
@@ -22,6 +22,8 @@ export async function POST(request: Request) {
       data: {
         name: name || null,
         fplTeamId: fplTeamId ? parseInt(fplTeamId) : null,
+        miniLeague1Id: miniLeague1Id ? parseInt(miniLeague1Id) : null,
+        miniLeague2Id: miniLeague2Id ? parseInt(miniLeague2Id) : null,
         favoriteTeam: favoriteTeam ? parseInt(favoriteTeam) : null,
         location: location || null,
       },
@@ -54,7 +56,7 @@ export async function POST(request: Request) {
     }
 
     // Track analytics
-    const updateData = { name, fplTeamId, favoriteTeam, location, preferences };
+    const updateData = { name, fplTeamId, miniLeague1Id, miniLeague2Id, favoriteTeam, location, preferences };
     await db.userAnalytics.create({
       data: {
         userId: session.user.id,

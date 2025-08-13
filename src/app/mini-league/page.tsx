@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import { 
   useBootstrapData, 
   useMiniLeague, 
@@ -91,6 +92,7 @@ const getPerformanceIcon = (rank: number, total: number) => {
 };
 
 export default function MiniLeague() {
+  const { data: session } = useSession();
   const { data: bootstrap, isLoading: bootstrapLoading, error: bootstrapError } = useBootstrapData();
   const { current: currentGW } = useCurrentGameweek();
   
@@ -101,6 +103,18 @@ export default function MiniLeague() {
   
   // Fetch league data only when league ID is submitted
   const { data: leagueData, isLoading: leagueLoading, error: leagueError } = useMiniLeague(submittedLeagueId);
+
+  // Get saved mini-league IDs from user profile
+  const savedMiniLeagues = useMemo(() => {
+    const leagues = [];
+    if (session?.user?.miniLeague1Id) {
+      leagues.push({ id: session.user.miniLeague1Id, label: 'Mini League 1' });
+    }
+    if (session?.user?.miniLeague2Id) {
+      leagues.push({ id: session.user.miniLeague2Id, label: 'Mini League 2' });
+    }
+    return leagues;
+  }, [session?.user?.miniLeague1Id, session?.user?.miniLeague2Id]);
   
   const handleLeagueIdSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -170,11 +184,49 @@ export default function MiniLeague() {
             </p>
           </div>
 
+          {/* Saved Mini Leagues */}
+          {savedMiniLeagues.length > 0 && (
+            <div className="bg-white rounded-2xl p-8 shadow-xl border border-gray-100 mb-6">
+              <div className="flex items-center gap-3 mb-6">
+                <Star className="w-6 h-6 text-green-600" />
+                <h2 className="text-2xl font-bold text-gray-800">Your Saved Leagues</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {savedMiniLeagues.map((league) => (
+                  <button
+                    key={league.id}
+                    onClick={() => setSubmittedLeagueId(league.id)}
+                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-green-500 hover:bg-green-50 transition-all group"
+                  >
+                    <div className="text-left">
+                      <div className="font-semibold text-gray-800 group-hover:text-green-700">
+                        {league.label}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        ID: {league.id}
+                      </div>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-green-600" />
+                  </button>
+                ))}
+              </div>
+              <div className="mt-6 p-4 bg-yellow-50 rounded-xl border border-yellow-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <Info className="w-5 h-5 text-yellow-600" />
+                  <h4 className="font-bold text-yellow-800">Saved from Profile</h4>
+                </div>
+                <p className="text-sm text-yellow-700">
+                  These leagues are saved in your profile settings. You can edit them in your profile page.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* League ID Input Form */}
           <div className="bg-white rounded-2xl p-8 shadow-xl border border-gray-100">
             <div className="flex items-center gap-3 mb-6">
               <Trophy className="w-6 h-6 text-green-600" />
-              <h2 className="text-2xl font-bold text-gray-800">Enter Your Mini League</h2>
+              <h2 className="text-2xl font-bold text-gray-800">{savedMiniLeagues.length > 0 ? 'Or Enter Different League' : 'Enter Your Mini League'}</h2>
             </div>
             
             <form onSubmit={handleLeagueIdSubmit} className="space-y-6">

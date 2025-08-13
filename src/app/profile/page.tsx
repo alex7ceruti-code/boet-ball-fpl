@@ -55,6 +55,8 @@ export default function ProfilePage() {
     name: '',
     email: '',
     fplTeamId: '',
+    miniLeague1Id: '',
+    miniLeague2Id: '',
     favoriteTeam: '',
     location: '',
     preferences: {
@@ -81,9 +83,11 @@ export default function ProfilePage() {
       setFormData({
         name: session.user.name || '',
         email: session.user.email || '',
-        fplTeamId: '', // We'll fetch this from API
-        favoriteTeam: '',
-        location: '',
+        fplTeamId: session.user.fplTeamId?.toString() || '',
+        miniLeague1Id: session.user.miniLeague1Id?.toString() || '',
+        miniLeague2Id: session.user.miniLeague2Id?.toString() || '',
+        favoriteTeam: session.user.favoriteTeam?.toString() || '',
+        location: session.user.location || '',
         preferences: {
           slangIntensity: session.user.preferences?.slangIntensity || 'MODERATE',
           emailNotifications: session.user.preferences?.emailNotifications ?? true,
@@ -301,6 +305,32 @@ export default function ProfilePage() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500"
                       placeholder="e.g. 123456"
                     />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Mini League 1 ID</label>
+                    <input
+                      type="number"
+                      value={formData.miniLeague1Id}
+                      onChange={(e) => handleInputChange('miniLeague1Id', e.target.value)}
+                      disabled={!isEditing}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500"
+                      placeholder="e.g. 789012"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Your primary mini league</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Mini League 2 ID</label>
+                    <input
+                      type="number"
+                      value={formData.miniLeague2Id}
+                      onChange={(e) => handleInputChange('miniLeague2Id', e.target.value)}
+                      disabled={!isEditing}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500"
+                      placeholder="e.g. 345678"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Optional second mini league</p>
                   </div>
 
                   <div>

@@ -11,6 +11,7 @@ import {
   Heart,
   Calendar,
   User,
+  Users,
   Crown,
   AlertCircle,
   CheckCircle2,
@@ -124,13 +125,20 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                News Admin Dashboard
+                Admin Dashboard
               </h1>
               <p className="text-gray-600">
-                Manage articles, content, and analytics for Boet Ball FPL
+                Manage content, users, and analytics for Boet Ball FPL
               </p>
             </div>
             <div className="flex items-center gap-3">
+              <button
+                onClick={() => router.push('/admin/users')}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+              >
+                <Users className="w-5 h-5" />
+                Manage Users
+              </button>
               <button
                 onClick={() => router.push('/admin/create')}
                 className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
@@ -139,6 +147,60 @@ export default function AdminDashboard() {
                 Create Article
               </button>
             </div>
+          </div>
+        </div>
+
+        {/* Admin Navigation */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div 
+            onClick={() => router.push('/admin/users')}
+            className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer group"
+          >
+            <div className="flex items-center mb-4">
+              <div className="p-3 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
+                <Users className="w-6 h-6 text-blue-600" />
+              </div>
+              <div className="ml-4">
+                <h3 className="text-lg font-semibold text-gray-900">User Management</h3>
+                <p className="text-sm text-gray-600">Manage users and profiles</p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-500">
+              View user details, FPL team IDs, mini-league memberships, and handle support requests.
+            </p>
+          </div>
+
+          <div 
+            onClick={() => router.push('/admin/create')}
+            className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer group"
+          >
+            <div className="flex items-center mb-4">
+              <div className="p-3 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
+                <Newspaper className="w-6 h-6 text-green-600" />
+              </div>
+              <div className="ml-4">
+                <h3 className="text-lg font-semibold text-gray-900">Content Creation</h3>
+                <p className="text-sm text-gray-600">Create and edit articles</p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-500">
+              Write FPL articles with SA flavor, manage drafts, and publish content for the community.
+            </p>
+          </div>
+
+          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 opacity-75">
+            <div className="flex items-center mb-4">
+              <div className="p-3 bg-purple-100 rounded-lg">
+                <BarChart3 className="w-6 h-6 text-purple-600" />
+              </div>
+              <div className="ml-4">
+                <h3 className="text-lg font-semibold text-gray-900">Analytics</h3>
+                <p className="text-sm text-gray-600">Coming soon</p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-500">
+              View user engagement, article performance, and app usage statistics.
+            </p>
           </div>
         </div>
 
