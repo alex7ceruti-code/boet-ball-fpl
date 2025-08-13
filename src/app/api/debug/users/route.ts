@@ -32,9 +32,14 @@ export async function GET(request: Request) {
     const preferences = await db.userPreferences.findMany({
       select: {
         userId: true,
-        theme: true,
         emailNotifications: true,
-        pushNotifications: true,
+        weeklyReports: true,
+        transferReminders: true,
+        darkMode: true,
+        compactView: true,
+        showAdvancedStats: true,
+        slangIntensity: true,
+        showSouthAfricanTime: true,
       }
     });
 

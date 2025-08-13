@@ -1,4 +1,4 @@
-import { NewsArticle, ArticleStatus, AdminRole } from '@/generated/prisma';
+import { NewsArticle, ArticleStatus, AdminRole } from '@prisma/client';
 
 export interface NewsArticleWithAuthor extends NewsArticle {
   author: {
@@ -66,6 +66,14 @@ export const DEFAULT_PERMISSIONS: Record<AdminRole, AdminPermissions> = {
     canManageAdmins: false,
   },
   EDITOR: {
+    canCreateArticles: true,
+    canEditAnyArticle: false,
+    canDeleteArticles: false,
+    canManageUsers: false,
+    canViewAnalytics: false,
+    canManageAdmins: false,
+  },
+  WRITER: {
     canCreateArticles: true,
     canEditAnyArticle: false,
     canDeleteArticles: false,

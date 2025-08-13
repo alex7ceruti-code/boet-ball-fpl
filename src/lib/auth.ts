@@ -1,11 +1,10 @@
 import { NextAuthOptions } from 'next-auth';
-import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import { db } from './db';
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(db),
+  secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: 'jwt',
   },
@@ -73,11 +72,15 @@ export const authOptions: NextAuthOptions = {
         try {
           const dbUser = await db.user.findUnique({
             where: { id: token.id as string },
+            include: {
+              adminUser: true,
+            },
           });
           
           if (dbUser) {
             token.isActive = dbUser.isActive;
             token.subscriptionType = dbUser.subscriptionType;
+            token.role = dbUser.adminUser?.role || null;
           }
         } catch (error) {
           console.error('Error fetching user in JWT callback:', error);
@@ -97,6 +100,7 @@ export const authOptions: NextAuthOptions = {
             where: { id: token.id as string },
             include: {
               preferences: true,
+              adminUser: true,
             },
           });
           
@@ -104,6 +108,7 @@ export const authOptions: NextAuthOptions = {
             session.user.subscriptionType = dbUser.subscriptionType;
             session.user.isActive = dbUser.isActive;
             session.user.preferences = dbUser.preferences;
+            session.user.role = dbUser.adminUser?.role || null;
           }
         } catch (error) {
           console.error('Error fetching user in session callback:', error);
@@ -113,18 +118,6 @@ export const authOptions: NextAuthOptions = {
         }
       }
       return session;
-    },
-  },
-  events: {
-    async signIn({ user, isNewUser }) {
-      if (isNewUser && user.email) {
-        // Create default preferences for new users
-        await db.userPreferences.create({
-          data: {
-            userId: user.id,
-          },
-        });
-      }
     },
   },
 };

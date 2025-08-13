@@ -41,7 +41,7 @@ export async function GET(
     }
 
     // Check if article is published or if user is admin
-    const isAdmin = session?.user?.role === 'ADMIN';
+    const isAdmin = session?.user?.role && ['SUPER_ADMIN', 'ADMIN', 'EDITOR'].includes(session.user.role);
     const isDraft = article.status === 'DRAFT';
     const isArchived = article.status === 'ARCHIVED';
     

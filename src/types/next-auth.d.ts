@@ -1,4 +1,4 @@
-import { SubscriptionType, UserPreferences } from '@/generated/prisma';
+import { SubscriptionType, UserPreferences, AdminRole } from '@prisma/client';
 import NextAuth from 'next-auth';
 
 declare module 'next-auth' {
@@ -11,6 +11,7 @@ declare module 'next-auth' {
       subscriptionType: SubscriptionType;
       isActive: boolean;
       preferences?: UserPreferences | null;
+      role?: AdminRole | null;
     };
   }
 
@@ -22,6 +23,7 @@ declare module 'next-auth' {
     subscriptionType?: SubscriptionType;
     isActive?: boolean;
     preferences?: UserPreferences | null;
+    role?: AdminRole | null;
   }
 }
 
@@ -30,5 +32,6 @@ declare module 'next-auth/jwt' {
     id: string;
     subscriptionType?: SubscriptionType;
     isActive?: boolean;
+    role?: AdminRole | null;
   }
 }

@@ -140,7 +140,7 @@ export default function ArticlePage() {
       .replace(/\n/g, '<br>');
   };
 
-  const isAdmin = session?.user?.role === 'ADMIN';
+  const isAdmin = session?.user?.role && ['SUPER_ADMIN', 'ADMIN', 'EDITOR'].includes(session.user.role);
   const isDraft = article?.status === 'DRAFT';
   const isArchived = article?.status === 'ARCHIVED';
 

@@ -1,4 +1,9 @@
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient } = require('../src/generated/prisma');
+const dotenv = require('dotenv');
+const path = require('path');
+
+// Load environment variables from .env.local
+dotenv.config({ path: path.join(__dirname, '..', '.env.local') });
 
 // Use the generated Prisma client from the proper path
 const prisma = new PrismaClient();
@@ -48,16 +53,28 @@ async function checkUsers() {
     const preferences = await prisma.userPreferences.findMany({
       select: {
         userId: true,
-        theme: true,
-        emailNotifications: true,
-        pushNotifications: true,
+        weeklyReports: true,
+        transferReminders: true,
+        darkMode: true,
+        compactView: true,
+        showAdvancedStats: true,
+        slangIntensity: true,
+        showSouthAfricanTime: true,
       }
     });
 
     if (preferences.length > 0) {
       console.log(`📊 Found preferences for ${preferences.length} user(s):\n`);
       preferences.forEach((pref, index) => {
-        console.log(`User ${pref.userId}: Theme=${pref.theme}, Email=${pref.emailNotifications}, Push=${pref.pushNotifications}`);
+        console.log(`User ${pref.userId}:`);
+        console.log(`  Weekly Reports: ${pref.weeklyReports}`);
+        console.log(`  Transfer Reminders: ${pref.transferReminders}`);
+        console.log(`  Dark Mode: ${pref.darkMode}`);
+        console.log(`  Compact View: ${pref.compactView}`);
+        console.log(`  Show Advanced Stats: ${pref.showAdvancedStats}`);
+        console.log(`  Slang Intensity: ${pref.slangIntensity}`);
+        console.log(`  Show SA Time: ${pref.showSouthAfricanTime}`);
+        console.log('');
       });
     }
 

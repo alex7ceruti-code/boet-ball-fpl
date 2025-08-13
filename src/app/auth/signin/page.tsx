@@ -45,9 +45,14 @@ function SignInForm() {
 
     try {
       console.log('Attempting to sign in with:', formData.email);
+      
+      // Get callback URL from search params or default to dashboard
+      const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+      
       const result = await signIn('credentials', {
         email: formData.email,
         password: formData.password,
+        callbackUrl,
         redirect: false,
       });
 
@@ -56,33 +61,22 @@ function SignInForm() {
       if (result?.error) {
         console.error('SignIn error:', result.error);
         setError(result.error === 'CredentialsSignin' ? 'Invalid email or password' : result.error);
+        setIsLoading(false);
         return;
       }
 
       if (result?.ok) {
-        console.log('Sign in successful, getting session...');
-        // Small delay to ensure session is set
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-        // Get the user session to check if they need profile setup
-        const session = await getSession();
-        console.log('Session after signin:', session);
-        
-        if (session?.user) {
-          // Redirect to dashboard by default
-          router.push('/dashboard');
-        } else {
-          console.warn('No session found after successful signin');
-          setError('Sign-in succeeded but session not found. Please try again.');
-        }
+        console.log('Sign in successful, redirecting...');
+        // Use window.location for a hard redirect to ensure proper session handling
+        window.location.href = callbackUrl;
       } else {
         console.warn('SignIn result not ok and no error:', result);
         setError('Sign-in failed. Please check your credentials.');
+        setIsLoading(false);
       }
     } catch (error) {
       console.error('Sign-in catch error:', error);
       setError('Sign-in failed. Please try again.');
-    } finally {
       setIsLoading(false);
     }
   };
