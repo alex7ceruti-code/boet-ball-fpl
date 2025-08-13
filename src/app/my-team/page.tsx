@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import { 
   useBootstrapData, 
   useFixtures, 
@@ -70,6 +71,7 @@ const getFormationArray = (picks: any[]) => {
 };
 
 export default function MyTeam() {
+  const { data: session } = useSession();
   const { data: bootstrap, isLoading: bootstrapLoading, error: bootstrapError } = useBootstrapData();
   const { data: fixtures, isLoading: fixturesLoading } = useFixtures();
   const { current: currentGW } = useCurrentGameweek();
@@ -79,6 +81,14 @@ export default function MyTeam() {
   const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
   const [showTransferSuggestions, setShowTransferSuggestions] = useState(false);
   const [activeTab, setActiveTab] = useState<'squad' | 'analysis' | 'transfers' | 'chips'>('squad');
+  
+  // Auto-load FPL Team ID from user profile
+  useEffect(() => {
+    if (session?.user?.fplTeamId && !submittedTeamId) {
+      setSubmittedTeamId(session.user.fplTeamId);
+      setTeamId(session.user.fplTeamId.toString());
+    }
+  }, [session, submittedTeamId]);
   
   // Fetch team data only when team ID is submitted
   const { data: teamData, isLoading: teamLoading, error: teamError } = useManagerTeam(submittedTeamId);
