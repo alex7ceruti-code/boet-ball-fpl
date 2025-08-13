@@ -103,7 +103,7 @@ export default function MyTeam() {
 
   if (bootstrapLoading || fixturesLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-springbok-50 via-green-50 to-emerald-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
           <p className="text-lg text-gray-600 font-medium">{getLoadingText()}</p>
@@ -134,7 +134,7 @@ export default function MyTeam() {
   // Show team ID input if no team is selected
   if (!submittedTeamId) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
+      <div className="min-h-screen bg-gradient-to-br from-springbok-50 via-green-50 to-emerald-50">
         <div className="max-w-2xl mx-auto px-6 py-16">
           {/* Header */}
           <div className="text-center mb-12">
@@ -212,7 +212,7 @@ export default function MyTeam() {
   // Show loading state while fetching team data
   if (teamLoading || picksLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-springbok-50 via-green-50 to-emerald-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
           <p className="text-lg text-gray-600 font-medium">{getLoadingText()}</p>
@@ -364,7 +364,7 @@ export default function MyTeam() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
+    <div className="min-h-screen bg-gradient-to-br from-springbok-50 via-green-50 to-emerald-50">
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="text-center mb-8">

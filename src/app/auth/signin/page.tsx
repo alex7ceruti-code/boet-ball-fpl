@@ -116,7 +116,7 @@ function SignInForm() {
         )}
 
         {/* Sign In Form */}
-        <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden">
           <div className="px-8 py-6">
             {error && (
               <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
@@ -139,7 +139,7 @@ function SignInForm() {
                     required
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-springbok-500 focus:border-transparent transition-colors bg-white text-gray-900 placeholder-gray-500"
+                    className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-springbok-500 focus:border-springbok-500 transition-all bg-gray-50 hover:bg-white focus:bg-white text-gray-900 placeholder-gray-400"
                     placeholder="your.email@example.com"
                   />
                   <Mail className="w-5 h-5 text-gray-400 absolute left-3 top-3.5" />
@@ -159,7 +159,7 @@ function SignInForm() {
                     required
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-springbok-500 focus:border-transparent transition-colors bg-white text-gray-900 placeholder-gray-500"
+                    className="w-full pl-10 pr-12 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-springbok-500 focus:border-springbok-500 transition-all bg-gray-50 hover:bg-white focus:bg-white text-gray-900 placeholder-gray-400"
                     placeholder="Enter your password"
                   />
                   <Lock className="w-5 h-5 text-gray-400 absolute left-3 top-3.5" />
@@ -187,7 +187,7 @@ function SignInForm() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-springbok-500 to-springbok-600 text-white py-3 rounded-lg font-semibold hover:from-springbok-600 hover:to-springbok-700 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-gradient-to-r from-springbok-600 to-springbok-700 text-white py-3 rounded-lg font-semibold hover:from-springbok-700 hover:to-springbok-800 focus:ring-4 focus:ring-springbok-200 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
               >
                 {isLoading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -200,12 +200,12 @@ function SignInForm() {
           </div>
 
           {/* Sign Up Link */}
-          <div className="bg-gray-50 px-8 py-4 border-t border-gray-200">
-            <p className="text-center text-sm text-gray-600">
+          <div className="bg-springbok-50 px-8 py-4 border-t border-springbok-100">
+            <p className="text-center text-sm text-gray-700">
               New to Boet Ball?{' '}
               <Link 
                 href="/auth/signup" 
-                className="text-springbok-600 hover:text-springbok-700 font-semibold transition-colors inline-flex items-center gap-1"
+                className="text-springbok-700 hover:text-springbok-800 font-semibold transition-colors inline-flex items-center gap-1 hover:underline"
               >
                 <UserPlus className="w-4 h-4" />
                 Join the family
