@@ -70,6 +70,7 @@ export default function SignUpPage() {
           email: formData.email,
           password: formData.password,
           marketingOptIn: formData.marketingOptIn,
+          promoCode: formData.promoCode,
         }),
       });
 
@@ -80,8 +81,11 @@ export default function SignUpPage() {
       }
 
       // Show success message and redirect to appropriate page
-      if (data.emailSent) {
-        // Email verification sent, redirect to check email message
+      if (data.emailSent && data.verificationToken) {
+        // Email verification sent, redirect with token
+        router.push('/auth/verify-email?token=' + data.verificationToken);
+      } else if (data.emailSent) {
+        // Email sent but no token (fallback)
         router.push('/auth/verify-email?message=check-inbox&email=' + encodeURIComponent(formData.email));
       } else {
         // Email not configured, try auto sign-in

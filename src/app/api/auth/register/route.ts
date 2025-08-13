@@ -105,6 +105,7 @@ export async function POST(request: Request) {
         : 'Account created successfully! Email verification is not configured.',
       emailSent,
       requiresVerification: true,
+      verificationToken: emailSent ? verificationToken : null,
     });
   } catch (error) {
     console.error('Registration error:', error);
