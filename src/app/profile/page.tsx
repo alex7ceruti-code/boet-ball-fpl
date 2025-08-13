@@ -359,6 +359,198 @@ export default function ProfilePage() {
               </div>
             )}
 
+            {/* Preferences Tab */}
+            {activeTab === 'preferences' && (
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-gray-800">User Preferences</h3>
+
+                <div className="space-y-6">
+                  {/* Slang Intensity */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      South African Slang Level
+                    </label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {SLANG_INTENSITY_OPTIONS.map((option) => (
+                        <div
+                          key={option.value}
+                          className={`border rounded-lg p-3 cursor-pointer transition-all ${
+                            formData.preferences.slangIntensity === option.value
+                              ? 'border-green-500 bg-green-50'
+                              : 'border-gray-300 hover:border-gray-400'
+                          }`}
+                          onClick={() => handleInputChange('preferences.slangIntensity', option.value)}
+                        >
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="radio"
+                              name="slangIntensity"
+                              value={option.value}
+                              checked={formData.preferences.slangIntensity === option.value}
+                              onChange={() => handleInputChange('preferences.slangIntensity', option.value)}
+                              className="text-green-600 focus:ring-green-500"
+                            />
+                            <div>
+                              <div className="font-medium text-gray-800">{option.label}</div>
+                              <div className="text-sm text-gray-600">{option.description}</div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Display Options */}
+                  <div className="border-t pt-6">
+                    <h4 className="text-lg font-medium text-gray-800 mb-4">Display Options</h4>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h5 className="font-medium text-gray-800">Show Advanced Stats</h5>
+                          <p className="text-sm text-gray-600">Display detailed FPL statistics and metrics</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={formData.preferences.showAdvancedStats}
+                            onChange={(e) => handleInputChange('preferences.showAdvancedStats', e.target.checked)}
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                        </label>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h5 className="font-medium text-gray-800">Compact View</h5>
+                          <p className="text-sm text-gray-600">Use a more condensed layout</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={formData.preferences.compactView}
+                            onChange={(e) => handleInputChange('preferences.compactView', e.target.checked)}
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                        </label>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h5 className="font-medium text-gray-800">Dark Mode</h5>
+                          <p className="text-sm text-gray-600">Switch to dark theme (coming soon)</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={formData.preferences.darkMode}
+                            onChange={(e) => handleInputChange('preferences.darkMode', e.target.checked)}
+                            className="sr-only peer"
+                            disabled
+                          />
+                          <div className="w-11 h-6 bg-gray-200 rounded-full opacity-50 cursor-not-allowed"></div>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Save Button */}
+                  <div className="flex justify-end pt-4 border-t">
+                    <button
+                      onClick={handleSave}
+                      disabled={isLoading}
+                      className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                    >
+                      {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                      Save Preferences
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Notifications Tab */}
+            {activeTab === 'notifications' && (
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-gray-800">Notification Settings</h3>
+
+                <div className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h5 className="font-medium text-gray-800">Email Notifications</h5>
+                        <p className="text-sm text-gray-600">Receive general updates and announcements</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.preferences.emailNotifications}
+                          onChange={(e) => handleInputChange('preferences.emailNotifications', e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                      </label>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h5 className="font-medium text-gray-800">Weekly FPL Reports</h5>
+                        <p className="text-sm text-gray-600">Get weekly summaries and insights</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.preferences.weeklyReports}
+                          onChange={(e) => handleInputChange('preferences.weeklyReports', e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                      </label>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h5 className="font-medium text-gray-800">Transfer Reminders</h5>
+                        <p className="text-sm text-gray-600">Notifications about upcoming deadline and transfer suggestions</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.preferences.transferReminders}
+                          onChange={(e) => handleInputChange('preferences.transferReminders', e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Email Frequency Info */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h4 className="font-medium text-blue-800 mb-2">📧 Email Frequency</h4>
+                    <div className="text-blue-700 text-sm space-y-1">
+                      <p>• <strong>General notifications</strong>: As needed (account updates, important news)</p>
+                      <p>• <strong>Weekly reports</strong>: Every Sunday after gameweek completion</p>
+                      <p>• <strong>Transfer reminders</strong>: 24 hours before deadline</p>
+                    </div>
+                  </div>
+
+                  {/* Save Button */}
+                  <div className="flex justify-end pt-4 border-t">
+                    <button
+                      onClick={handleSave}
+                      disabled={isLoading}
+                      className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                    >
+                      {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                      Save Notification Settings
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Account Tab */}
             {activeTab === 'account' && (
               <div className="space-y-6">
