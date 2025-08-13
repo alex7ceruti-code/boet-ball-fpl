@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 import { useBootstrapData, useCurrentGameweek, useGameweekFixtures } from '@/hooks/useFplData';
 import { getLoadingText, getSlangPhrase, formatSATime, getTimeBasedGreeting } from '@/utils/slang';
 import { getSATimeGreeting, getTimeBasedBg } from '@/lib/utils';
@@ -45,6 +46,7 @@ const formatKickoffSAST = (kickoffTime: string) => {
 };
 
 export default function LiveHomePage() {
+  const { data: session } = useSession();
   const { data: bootstrap, isLoading: bootstrapLoading, error: bootstrapError } = useBootstrapData();
   const { current: currentGW, next: nextGW } = useCurrentGameweek();
   const displayGW = currentGW || nextGW; // Use next GW if current is not active (season hasn't started)
@@ -338,13 +340,15 @@ export default function LiveHomePage() {
             </Button>
           </div>
           
-          {/* Coach Rassie Tips - Fixed Bottom Right */}
-          <CoachRassie 
-            context="mini-league-advice"
-            trigger="auto"
-            position="bottom-right"
-            className="fixed bottom-6 right-6 z-50"
-          />
+          {/* Coach Rassie Tips - Fixed Bottom Right (Only for authenticated users) */}
+          {session && (
+            <CoachRassie 
+              context="mini-league-advice"
+              trigger="auto"
+              position="bottom-right"
+              className="fixed bottom-6 right-6 z-50"
+            />
+          )}
         </div>
       </div>
     </div>

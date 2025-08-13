@@ -43,15 +43,22 @@ export function CoachRassie({
   const gradientClass = contextColors[context];
 
   useEffect(() => {
-    if (trigger === 'auto' && !hasShown) {
+    // Check if Coach Rassie has already shown this session
+    const sessionKey = `coach-rassie-shown-${context}`;
+    const hasShownThisSession = sessionStorage.getItem(sessionKey) === 'true';
+    setHasShown(hasShownThisSession);
+
+    if (trigger === 'auto' && !hasShownThisSession) {
       const timer = setTimeout(() => {
         setAdvice(getContextualMessage(context));
         setIsVisible(true);
         setHasShown(true);
+        // Mark as shown for this session
+        sessionStorage.setItem(sessionKey, 'true');
       }, 2000);
       return () => clearTimeout(timer);
     }
-  }, [context, trigger, hasShown]);
+  }, [context, trigger]);
 
   const handleShow = () => {
     if (!advice || Math.random() > 0.7) { // 30% chance to get new advice
