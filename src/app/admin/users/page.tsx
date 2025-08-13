@@ -841,6 +841,770 @@ export default function AdminUsersPage() {
             </div>
           </div>
         </div>
+
+        {/* Edit User Modal */}
+        {showEditModal && editingUser && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                  <Edit className="w-6 h-6" />
+                  Edit User: {editingUser.name || editingUser.email}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setEditingUser(null);
+                  }}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <EditUserForm 
+                user={editingUser}
+                onSave={async (updatedUser) => {
+                  try {
+                    setActionLoading(true);
+                    const response = await fetch(`/api/admin/users/${editingUser.id}`, {
+                      method: 'PUT',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(updatedUser),
+                    });
+                    
+                    if (!response.ok) {
+                      const errorData = await response.json();
+                      throw new Error(errorData.error || 'Failed to update user');
+                    }
+                    
+                    await fetchUsers(); // Refresh users list
+                    setShowEditModal(false);
+                    setEditingUser(null);
+                    setError(''); // Clear any previous errors
+                  } catch (err) {
+                    console.error('Error updating user:', err);
+                    setError(err instanceof Error ? err.message : 'Failed to update user');
+                  } finally {
+                    setActionLoading(false);
+                  }
+                }}
+                onCancel={() => {
+                  setShowEditModal(false);
+                  setEditingUser(null);
+                }}
+                isLoading={actionLoading}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Email Modal */}
+        {showEmailModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                  <Send className="w-6 h-6" />
+                  Send Email to {selectedUsers.length} User{selectedUsers.length !== 1 ? 's' : ''}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowEmailModal(false);
+                    if (selectedUsers.length === 1) setSelectedUsers([]);
+                  }}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <EmailModal 
+                userIds={selectedUsers}
+                onSend={async (emailData) => {
+                  await handleBulkAction('sendEmail', emailData);
+                }}
+                onCancel={() => {
+                  setShowEmailModal(false);
+                  if (selectedUsers.length === 1) setSelectedUsers([]);
+                }}
+                isLoading={actionLoading}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Bulk Actions Modal */}
+        {showBulkActions && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-lg">
+              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                  <Settings className="w-6 h-6" />
+                  Bulk Actions
+                </h3>
+                <button
+                  onClick={() => setShowBulkActions(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <BulkActionsModal 
+                selectedCount={selectedUsers.length}
+                onAction={async (action, data) => {
+                  await handleBulkAction(action, data);
+                }}
+                onCancel={() => setShowBulkActions(false)}
+                isLoading={actionLoading}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// EditUserForm Component
+interface EditUserFormProps {
+  user: User;
+  onSave: (updatedUser: Partial<User>) => void;
+  onCancel: () => void;
+  isLoading: boolean;
+}
+
+function EditUserForm({ user, onSave, onCancel, isLoading }: EditUserFormProps) {
+  const [formData, setFormData] = useState({
+    name: user.name || '',
+    email: user.email,
+    location: user.location || '',
+    fplTeamId: user.fplTeamId || '',
+    miniLeague1Id: user.miniLeague1Id || '',
+    miniLeague2Id: user.miniLeague2Id || '',
+    favoriteTeam: user.favoriteTeam || '',
+    subscriptionType: user.subscriptionType,
+    isActive: user.isActive,
+    marketingOptIn: user.marketingOptIn,
+    isAdmin: user.isAdmin,
+    adminRole: user.adminRole || '',
+  });
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Email is invalid';
+    }
+
+    if (formData.fplTeamId && isNaN(Number(formData.fplTeamId))) {
+      newErrors.fplTeamId = 'FPL Team ID must be a number';
+    }
+
+    if (formData.miniLeague1Id && isNaN(Number(formData.miniLeague1Id))) {
+      newErrors.miniLeague1Id = 'Mini League 1 ID must be a number';
+    }
+
+    if (formData.miniLeague2Id && isNaN(Number(formData.miniLeague2Id))) {
+      newErrors.miniLeague2Id = 'Mini League 2 ID must be a number';
+    }
+
+    if (formData.favoriteTeam && isNaN(Number(formData.favoriteTeam))) {
+      newErrors.favoriteTeam = 'Favorite Team must be a number';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    const updatedUser = {
+      ...formData,
+      fplTeamId: formData.fplTeamId ? Number(formData.fplTeamId) : null,
+      miniLeague1Id: formData.miniLeague1Id ? Number(formData.miniLeague1Id) : null,
+      miniLeague2Id: formData.miniLeague2Id ? Number(formData.miniLeague2Id) : null,
+      favoriteTeam: formData.favoriteTeam ? Number(formData.favoriteTeam) : null,
+      adminRole: formData.isAdmin ? formData.adminRole : null,
+    };
+
+    onSave(updatedUser);
+  };
+
+  const handleInputChange = (field: string, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="p-6 space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Personal Information */}
+        <div className="space-y-4">
+          <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+            <Database className="w-4 h-4" />
+            Personal Information
+          </h4>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Name
+            </label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => handleInputChange('name', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              placeholder="Enter full name"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email *
+            </label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => handleInputChange('email', e.target.value)}
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
+                errors.email ? 'border-red-500' : 'border-gray-300'
+              }`}
+              required
+            />
+            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Location
+            </label>
+            <input
+              type="text"
+              value={formData.location}
+              onChange={(e) => handleInputChange('location', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              placeholder="Enter location"
+            />
+          </div>
+        </div>
+
+        {/* FPL Information */}
+        <div className="space-y-4">
+          <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+            <Globe className="w-4 h-4" />
+            FPL Information
+          </h4>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              FPL Team ID
+            </label>
+            <input
+              type="text"
+              value={formData.fplTeamId}
+              onChange={(e) => handleInputChange('fplTeamId', e.target.value)}
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
+                errors.fplTeamId ? 'border-red-500' : 'border-gray-300'
+              }`}
+              placeholder="Enter FPL Team ID"
+            />
+            {errors.fplTeamId && <p className="text-red-500 text-xs mt-1">{errors.fplTeamId}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Mini League 1 ID
+            </label>
+            <input
+              type="text"
+              value={formData.miniLeague1Id}
+              onChange={(e) => handleInputChange('miniLeague1Id', e.target.value)}
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
+                errors.miniLeague1Id ? 'border-red-500' : 'border-gray-300'
+              }`}
+              placeholder="Enter Mini League 1 ID"
+            />
+            {errors.miniLeague1Id && <p className="text-red-500 text-xs mt-1">{errors.miniLeague1Id}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Mini League 2 ID
+            </label>
+            <input
+              type="text"
+              value={formData.miniLeague2Id}
+              onChange={(e) => handleInputChange('miniLeague2Id', e.target.value)}
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
+                errors.miniLeague2Id ? 'border-red-500' : 'border-gray-300'
+              }`}
+              placeholder="Enter Mini League 2 ID"
+            />
+            {errors.miniLeague2Id && <p className="text-red-500 text-xs mt-1">{errors.miniLeague2Id}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Favorite Team ID
+            </label>
+            <input
+              type="text"
+              value={formData.favoriteTeam}
+              onChange={(e) => handleInputChange('favoriteTeam', e.target.value)}
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
+                errors.favoriteTeam ? 'border-red-500' : 'border-gray-300'
+              }`}
+              placeholder="Enter Favorite Team ID"
+            />
+            {errors.favoriteTeam && <p className="text-red-500 text-xs mt-1">{errors.favoriteTeam}</p>}
+          </div>
+        </div>
+      </div>
+
+      {/* Account Settings */}
+      <div className="border-t pt-6">
+        <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <Settings className="w-4 h-4" />
+          Account Settings
+        </h4>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Subscription Type
+              </label>
+              <select
+                value={formData.subscriptionType}
+                onChange={(e) => handleInputChange('subscriptionType', e.target.value as 'FREE' | 'PREMIUM')}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              >
+                <option value="FREE">Free</option>
+                <option value="PREMIUM">Premium</option>
+              </select>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="isActive"
+                  checked={formData.isActive}
+                  onChange={(e) => handleInputChange('isActive', e.target.checked)}
+                  className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                />
+                <label htmlFor="isActive" className="ml-2 text-sm text-gray-700">
+                  Account Active
+                </label>
+              </div>
+
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="marketingOptIn"
+                  checked={formData.marketingOptIn}
+                  onChange={(e) => handleInputChange('marketingOptIn', e.target.checked)}
+                  className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                />
+                <label htmlFor="marketingOptIn" className="ml-2 text-sm text-gray-700">
+                  Marketing Opt-in
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="isAdmin"
+                checked={formData.isAdmin}
+                onChange={(e) => handleInputChange('isAdmin', e.target.checked)}
+                className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
+              />
+              <label htmlFor="isAdmin" className="ml-2 text-sm text-gray-700">
+                Admin User
+              </label>
+            </div>
+
+            {formData.isAdmin && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Admin Role
+                </label>
+                <input
+                  type="text"
+                  value={formData.adminRole}
+                  onChange={(e) => handleInputChange('adminRole', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  placeholder="Enter admin role (e.g., Super Admin, Moderator)"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="border-t pt-6 flex items-center justify-end gap-3">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="px-6 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+          disabled={isLoading}
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+        >
+          {isLoading && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />}
+          {isLoading ? 'Saving...' : 'Save Changes'}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+// EmailModal Component
+interface EmailModalProps {
+  userIds: string[];
+  onSend: (emailData: { subject: string; message: string; type: string }) => Promise<void>;
+  onCancel: () => void;
+  isLoading: boolean;
+}
+
+function EmailModal({ userIds, onSend, onCancel, isLoading }: EmailModalProps) {
+  const [formData, setFormData] = useState({
+    subject: '',
+    message: '',
+    type: 'general',
+  });
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const emailTemplates = {
+    general: {
+      subject: 'Update from Boet Ball FPL',
+      message: 'Hello,\n\nWe wanted to reach out with an important update...\n\nBest regards,\nThe Boet Ball Team'
+    },
+    welcome: {
+      subject: 'Welcome to Boet Ball FPL!',
+      message: 'Welcome to Boet Ball FPL!\n\nWe\'re excited to have you as part of our community...\n\nBest regards,\nThe Boet Ball Team'
+    },
+    premium: {
+      subject: 'Your Premium Features Await!',
+      message: 'Hello,\n\nYour premium subscription gives you access to exclusive features...\n\nBest regards,\nThe Boet Ball Team'
+    },
+    reminder: {
+      subject: 'Don\'t Miss Out - Boet Ball FPL',
+      message: 'Hello,\n\nWe noticed you haven\'t been active recently...\n\nBest regards,\nThe Boet Ball Team'
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    
+    if (!formData.subject.trim()) {
+      newErrors.subject = 'Subject is required';
+    }
+    
+    if (!formData.message.trim()) {
+      newErrors.message = 'Message is required';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleTemplateChange = (templateKey: string) => {
+    const template = emailTemplates[templateKey as keyof typeof emailTemplates];
+    if (template) {
+      setFormData({
+        ...formData,
+        type: templateKey,
+        subject: template.subject,
+        message: template.message,
+      });
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+    
+    await onSend(formData);
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="p-6 space-y-6">
+      <div className="bg-blue-50 p-4 rounded-lg">
+        <p className="text-sm text-blue-700">
+          This email will be sent to <strong>{userIds.length}</strong> user{userIds.length !== 1 ? 's' : ''}.
+        </p>
+      </div>
+
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Email Template
+          </label>
+          <select
+            value={formData.type}
+            onChange={(e) => handleTemplateChange(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          >
+            <option value="general">General Update</option>
+            <option value="welcome">Welcome Message</option>
+            <option value="premium">Premium Features</option>
+            <option value="reminder">Activity Reminder</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Subject *
+          </label>
+          <input
+            type="text"
+            value={formData.subject}
+            onChange={(e) => handleInputChange('subject', e.target.value)}
+            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+              errors.subject ? 'border-red-500' : 'border-gray-300'
+            }`}
+            placeholder="Enter email subject"
+          />
+          {errors.subject && <p className="text-red-500 text-xs mt-1">{errors.subject}</p>}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Message *
+          </label>
+          <textarea
+            value={formData.message}
+            onChange={(e) => handleInputChange('message', e.target.value)}
+            rows={8}
+            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+              errors.message ? 'border-red-500' : 'border-gray-300'
+            }`}
+            placeholder="Enter email message"
+          />
+          {errors.message && <p className="text-red-500 text-xs mt-1">{errors.message}</p>}
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="border-t pt-6 flex items-center justify-end gap-3">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="px-6 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+          disabled={isLoading}
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+        >
+          {isLoading && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />}
+          <Send className="w-4 h-4" />
+          {isLoading ? 'Sending...' : 'Send Email'}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+// BulkActionsModal Component
+interface BulkActionsModalProps {
+  selectedCount: number;
+  onAction: (action: string, data?: any) => Promise<void>;
+  onCancel: () => void;
+  isLoading: boolean;
+}
+
+function BulkActionsModal({ selectedCount, onAction, onCancel, isLoading }: BulkActionsModalProps) {
+  const [selectedAction, setSelectedAction] = useState('');
+  const [actionData, setActionData] = useState<any>({});
+
+  const actions = [
+    {
+      id: 'updateSubscription',
+      label: 'Update Subscription Type',
+      icon: Crown,
+      description: 'Change subscription level for selected users',
+      color: 'text-yellow-600',
+      bgColor: 'bg-yellow-50'
+    },
+    {
+      id: 'updateStatus',
+      label: 'Update Account Status',
+      icon: UserCheck,
+      description: 'Activate or deactivate user accounts',
+      color: 'text-green-600',
+      bgColor: 'bg-green-50'
+    },
+    {
+      id: 'deleteUsers',
+      label: 'Delete Users',
+      icon: Trash2,
+      description: 'Permanently delete user accounts (Super Admin only)',
+      color: 'text-red-600',
+      bgColor: 'bg-red-50'
+    }
+  ];
+
+  const handleActionSelect = (actionId: string) => {
+    setSelectedAction(actionId);
+    setActionData({});
+  };
+
+  const handleConfirm = async () => {
+    await onAction(selectedAction, actionData);
+  };
+
+  return (
+    <div className="p-6 space-y-6">
+      <div className="bg-blue-50 p-4 rounded-lg">
+        <p className="text-sm text-blue-700">
+          Perform bulk actions on <strong>{selectedCount}</strong> selected user{selectedCount !== 1 ? 's' : ''}.
+        </p>
+      </div>
+
+      <div className="space-y-3">
+        <h4 className="font-medium text-gray-900">Select Action:</h4>
+        {actions.map((action) => {
+          const IconComponent = action.icon;
+          return (
+            <label
+              key={action.id}
+              className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-colors ${
+                selectedAction === action.id
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              <input
+                type="radio"
+                name="bulkAction"
+                value={action.id}
+                checked={selectedAction === action.id}
+                onChange={() => handleActionSelect(action.id)}
+                className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+              />
+              <div className={`ml-3 p-2 rounded-lg ${action.bgColor}`}>
+                <IconComponent className={`w-5 h-5 ${action.color}`} />
+              </div>
+              <div className="ml-3">
+                <div className="font-medium text-gray-900">{action.label}</div>
+                <div className="text-sm text-gray-500">{action.description}</div>
+              </div>
+            </label>
+          );
+        })}
+      </div>
+
+      {/* Action-specific options */}
+      {selectedAction === 'updateSubscription' && (
+        <div className="border-t pt-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Subscription Type
+          </label>
+          <select
+            value={actionData.subscriptionType || ''}
+            onChange={(e) => setActionData({ subscriptionType: e.target.value })}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">Select subscription type</option>
+            <option value="FREE">Free</option>
+            <option value="PREMIUM">Premium</option>
+          </select>
+        </div>
+      )}
+
+      {selectedAction === 'updateStatus' && (
+        <div className="border-t pt-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Account Status
+          </label>
+          <select
+            value={actionData.isActive !== undefined ? actionData.isActive.toString() : ''}
+            onChange={(e) => setActionData({ isActive: e.target.value === 'true' })}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">Select status</option>
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+          </select>
+        </div>
+      )}
+
+      {selectedAction === 'deleteUsers' && (
+        <div className="border-t pt-4">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <AlertTriangle className="w-5 h-5 text-red-600 mr-2" />
+              <span className="font-medium text-red-800">Warning</span>
+            </div>
+            <p className="text-red-700 text-sm mt-1">
+              This action cannot be undone. Users will be permanently deleted from the system.
+            </p>
+          </div>
+          <div className="flex items-center mt-4">
+            <input
+              type="checkbox"
+              id="confirmDelete"
+              checked={actionData.confirmDelete || false}
+              onChange={(e) => setActionData({ confirmDelete: e.target.checked })}
+              className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
+            />
+            <label htmlFor="confirmDelete" className="ml-2 text-sm text-gray-700">
+              I understand this action is permanent and cannot be undone
+            </label>
+          </div>
+        </div>
+      )}
+
+      {/* Action Buttons */}
+      <div className="border-t pt-6 flex items-center justify-end gap-3">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="px-6 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+          disabled={isLoading}
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleConfirm}
+          disabled={!selectedAction || isLoading || (selectedAction === 'deleteUsers' && !actionData.confirmDelete)}
+          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+        >
+          {isLoading && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />}
+          {isLoading ? 'Processing...' : 'Apply Action'}
+        </button>
       </div>
     </div>
   );
