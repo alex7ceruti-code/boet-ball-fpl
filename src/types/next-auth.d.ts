@@ -12,6 +12,11 @@ declare module 'next-auth' {
       isActive: boolean;
       preferences?: UserPreferences | null;
       role?: AdminRole | null;
+      fplTeamId?: number | null;
+      miniLeague1Id?: number | null;
+      miniLeague2Id?: number | null;
+      favoriteTeam?: number | null;
+      location?: string | null;
     };
   }
 

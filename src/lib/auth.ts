@@ -105,10 +105,16 @@ export const authOptions: NextAuthOptions = {
           });
           
           if (dbUser) {
+            session.user.name = dbUser.name;
             session.user.subscriptionType = dbUser.subscriptionType;
             session.user.isActive = dbUser.isActive;
             session.user.preferences = dbUser.preferences;
             session.user.role = dbUser.adminUser?.role || null;
+            session.user.fplTeamId = dbUser.fplTeamId;
+            session.user.miniLeague1Id = dbUser.miniLeague1Id;
+            session.user.miniLeague2Id = dbUser.miniLeague2Id;
+            session.user.favoriteTeam = dbUser.favoriteTeam;
+            session.user.location = dbUser.location;
           }
         } catch (error) {
           console.error('Error fetching user in session callback:', error);

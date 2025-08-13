@@ -20,12 +20,12 @@ export async function POST(request: Request) {
     await db.user.update({
       where: { id: session.user.id },
       data: {
-        name: name || null,
-        fplTeamId: fplTeamId ? parseInt(fplTeamId) : null,
-        miniLeague1Id: miniLeague1Id ? parseInt(miniLeague1Id) : null,
-        miniLeague2Id: miniLeague2Id ? parseInt(miniLeague2Id) : null,
-        favoriteTeam: favoriteTeam ? parseInt(favoriteTeam) : null,
-        location: location || null,
+        name: name?.trim() || null,
+        fplTeamId: fplTeamId && fplTeamId.toString().trim() ? parseInt(fplTeamId.toString()) : null,
+        miniLeague1Id: miniLeague1Id && miniLeague1Id.toString().trim() ? parseInt(miniLeague1Id.toString()) : null,
+        miniLeague2Id: miniLeague2Id && miniLeague2Id.toString().trim() ? parseInt(miniLeague2Id.toString()) : null,
+        favoriteTeam: favoriteTeam && favoriteTeam.toString().trim() ? parseInt(favoriteTeam.toString()) : null,
+        location: location?.trim() || null,
       },
     });
 
