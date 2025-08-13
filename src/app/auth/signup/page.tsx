@@ -180,7 +180,7 @@ export default function SignUpPage() {
                     required
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-springbok-500 focus:border-springbok-500 transition-all bg-gray-50 hover:bg-white focus:bg-white text-gray-900 placeholder-gray-400"
+                    className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-springbok-500 focus:border-springbok-500 transition-all bg-white text-gray-900 placeholder-gray-500 shadow-sm"
                     placeholder="Enter your full name"
                   />
                   <User className="w-5 h-5 text-gray-400 absolute left-3 top-3.5" />
@@ -200,7 +200,7 @@ export default function SignUpPage() {
                     required
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-springbok-500 focus:border-springbok-500 transition-all bg-gray-50 hover:bg-white focus:bg-white text-gray-900 placeholder-gray-400"
+                    className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-springbok-500 focus:border-springbok-500 transition-all bg-white text-gray-900 placeholder-gray-500 shadow-sm"
                     placeholder="your.email@example.com"
                   />
                   <Mail className="w-5 h-5 text-gray-400 absolute left-3 top-3.5" />
@@ -220,7 +220,7 @@ export default function SignUpPage() {
                     required
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-12 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-springbok-500 focus:border-springbok-500 transition-all bg-gray-50 hover:bg-white focus:bg-white text-gray-900 placeholder-gray-400"
+                    className="w-full pl-10 pr-12 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-springbok-500 focus:border-springbok-500 transition-all bg-white text-gray-900 placeholder-gray-500 shadow-sm"
                     placeholder="Create a strong password"
                   />
                   <Lock className="w-5 h-5 text-gray-400 absolute left-3 top-3.5" />
@@ -248,7 +248,7 @@ export default function SignUpPage() {
                     required
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-12 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-springbok-500 focus:border-springbok-500 transition-all bg-gray-50 hover:bg-white focus:bg-white text-gray-900 placeholder-gray-400"
+                    className="w-full pl-10 pr-12 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-springbok-500 focus:border-springbok-500 transition-all bg-white text-gray-900 placeholder-gray-500 shadow-sm"
                     placeholder="Confirm your password"
                   />
                   <Shield className="w-5 h-5 text-gray-400 absolute left-3 top-3.5" />
