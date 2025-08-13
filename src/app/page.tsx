@@ -9,6 +9,7 @@ import { Button, Card, CardHeader, CardContent, Badge, LoadingSpinner, LiveIndic
 import { BoerieBurnerCard, SALoading, PriceChange } from '@/components/ui/SAComponents';
 import { CoachRassie } from '@/components/CoachRassie';
 import { getSASlang } from '@/utils/saTheme';
+import ArticleCarousel from '@/components/ArticleCarousel';
 
 // Team badge URLs (FPL standard format) - Higher resolution
 const getTeamBadgeUrl = (teamCode: number) => 
@@ -45,8 +46,9 @@ const formatKickoffSAST = (kickoffTime: string) => {
 
 export default function LiveHomePage() {
   const { data: bootstrap, isLoading: bootstrapLoading, error: bootstrapError } = useBootstrapData();
-  const { current: currentGW } = useCurrentGameweek();
-  const { data: fixtures, isLoading: fixturesLoading } = useGameweekFixtures(currentGW?.id || null);
+  const { current: currentGW, next: nextGW } = useCurrentGameweek();
+  const displayGW = currentGW || nextGW; // Use next GW if current is not active (season hasn't started)
+  const { data: fixtures, isLoading: fixturesLoading } = useGameweekFixtures(displayGW?.id || null);
 
   if (bootstrapLoading || fixturesLoading) {
     return (
@@ -97,7 +99,7 @@ export default function LiveHomePage() {
           <div className="mb-6">
             <div className="inline-flex items-center gap-2 bg-springbok-green text-white px-4 py-2 rounded-full text-sm font-semibold mb-4">
               <Calendar className="w-4 h-4" />
-              {currentGW ? `${currentGW.name} • ${currentGW.finished ? getSlangPhrase('gameweek', 'finished') : 'Live now!'}` : 'Loading...'}
+              {displayGW ? `${displayGW.name} • ${displayGW.finished ? getSlangPhrase('gameweek', 'finished') : displayGW.is_current ? 'Live now!' : 'Coming up!'}` : 'Loading...'}
             </div>
             <h1 className="text-4xl md:text-6xl font-black mb-4 text-gray-800">
               {getTimeBasedGreeting()} <br />
@@ -113,7 +115,7 @@ export default function LiveHomePage() {
               </span>
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-4">
-              {getSlangPhrase('gameweek', currentGW?.finished ? 'finished' : 'current')} - 
+              {getSlangPhrase('gameweek', displayGW?.finished ? 'finished' : displayGW?.is_current ? 'current' : 'upcoming')} - 
               {getSlangPhrase('culture', 'braai')} 🔥
             </p>
             <div className="inline-flex items-center gap-2 bg-springbok-green/10 border border-springbok-green/20 text-springbok-700 px-4 py-2 rounded-full text-sm font-medium">
@@ -123,15 +125,15 @@ export default function LiveHomePage() {
           </div>
 
           {/* Quick Stats */}
-          {currentGW && (
+          {displayGW && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-8">
               <Card variant="premium" padding="md" className="text-center">
-                <div className="text-2xl font-bold text-springbok-600">{currentGW.average_entry_score || 'TBC'}</div>
+                <div className="text-2xl font-bold text-springbok-600">{displayGW.average_entry_score || 'TBC'}</div>
                 <div className="text-sm text-gray-600">Average Score</div>
-                <LiveIndicator className="justify-center mt-2" text="Live" variant="green" />
+                <LiveIndicator className="justify-center mt-2" text={displayGW.is_current ? "Live" : "Soon"} variant={displayGW.is_current ? "green" : "blue"} />
               </Card>
               <Card variant="premium" padding="md" className="text-center">
-                <div className="text-2xl font-bold text-springbok-600">{currentGW.highest_score || 'TBC'}</div>
+                <div className="text-2xl font-bold text-springbok-600">{displayGW.highest_score || 'TBC'}</div>
                 <div className="text-sm text-gray-600">Highest Score</div>
                 <Badge variant="springbok" size="sm" className="mt-1">🏆 Best</Badge>
               </Card>
@@ -149,6 +151,16 @@ export default function LiveHomePage() {
           )}
         </div>
 
+        {/* Latest FPL Articles Carousel */}
+        <div className="max-w-7xl mx-auto mb-12">
+          <ArticleCarousel 
+            autoRotate={true}
+            rotationInterval={10000}
+            showControls={true}
+            className=""
+          />
+        </div>
+
         <div className="max-w-7xl mx-auto grid grid-cols-1 xl:grid-cols-3 gap-8">
           
           {/* Current GW Fixtures - Takes up 2/3 width */}
@@ -157,7 +169,7 @@ export default function LiveHomePage() {
               <div className="flex items-center gap-3 mb-6">
                 <MapPin className="w-6 h-6 text-braai-primary" />
                 <h2 className="text-2xl font-bold text-gray-800">
-                  {currentGW?.name} Fixtures
+                  {displayGW?.name || 'Upcoming'} Fixtures
                 </h2>
                 <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
                   All times SAST 🇿🇦
@@ -326,15 +338,13 @@ export default function LiveHomePage() {
             </Button>
           </div>
           
-          {/* Coach Rassie Tips */}
-          <div className="mt-12 flex justify-center">
-            <CoachRassie 
-              context="mini-league-advice"
-              trigger="auto"
-              position="center"
-              className="max-w-md"
-            />
-          </div>
+          {/* Coach Rassie Tips - Fixed Bottom Right */}
+          <CoachRassie 
+            context="mini-league-advice"
+            trigger="auto"
+            position="bottom-right"
+            className="fixed bottom-6 right-6 z-50"
+          />
         </div>
       </div>
     </div>

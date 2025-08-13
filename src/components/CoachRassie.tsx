@@ -26,7 +26,7 @@ const contextColors = {
   'transfer-suggestion': 'from-springbok-500 to-springbok-700',
   'chip-usage': 'from-purple-500 to-purple-700',
   'fixture-difficulty': 'from-blue-500 to-blue-700',
-  'mini-league-advice': 'from-springbok-600 to-springbok-800',
+  'mini-league-advice': 'from-springbok-500 to-springbok-700',
 };
 
 export function CoachRassie({ 
@@ -113,17 +113,17 @@ export function CoachRassie({
       <div className={cn('fixed z-40', positionClasses[position], className)}>
         <Button
           onClick={handleShow}
-          className={`rounded-full p-3 bg-gradient-to-br ${gradientClass} text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110`}
-          size="sm"
+          className={`rounded-full p-4 bg-gradient-to-br ${gradientClass} text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 border-2 border-white/20`}
+          size="lg"
         >
-          <IconComponent className="w-5 h-5" />
+          <IconComponent className="w-6 h-6" />
         </Button>
       </div>
 
       {/* Coach Advice Modal */}
       {isVisible && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-          <Card variant="premium" className="max-w-md w-full shadow-xl border-2 border-springbok-300">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <Card variant="premium" className="max-w-md w-full shadow-2xl border-2 border-springbok-300 bg-white/95 backdrop-blur-sm">
             <CardContent className="p-6">
               {/* Header */}
               <div className="flex items-center justify-between mb-4">
