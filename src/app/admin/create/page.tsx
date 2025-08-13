@@ -72,8 +72,11 @@ export default function CreateArticlePage() {
 
   // Handle file upload
   const handleFileUpload = async (file: File) => {
+    console.log('Starting file upload:', { name: file.name, size: file.size, type: file.type });
+    
     setImageUploading(true);
     setError('');
+    setSuccess('');
 
     try {
       // Validate file type
@@ -88,30 +91,47 @@ export default function CreateArticlePage() {
         throw new Error('File too large. Maximum size is 5MB.');
       }
 
-      const formData = new FormData();
-      formData.append('file', file);
+      console.log('File validation passed, creating FormData');
+      
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', file);
 
+      console.log('Sending upload request to /api/upload');
+      
       const response = await fetch('/api/upload', {
         method: 'POST',
-        body: formData,
+        body: uploadFormData,
       });
 
+      console.log('Upload response status:', response.status);
+      
       const data = await response.json();
+      console.log('Upload response data:', data);
 
       if (!response.ok) {
-        throw new Error(data.error || 'Upload failed');
+        throw new Error(data.error || `Upload failed with status ${response.status}`);
+      }
+
+      if (!data.url) {
+        throw new Error('No image URL returned from server');
       }
 
       // Set the uploaded image URL
       setFormData(prev => ({ ...prev, coverImage: data.url }));
-      setSuccess(`Image uploaded successfully! (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+      setSuccess(`Image uploaded successfully! (${(file.size / 1024 / 1024).toFixed(2)}MB)${data.method ? ` - ${data.method}` : ''}`);
       
-      // Clear success message after 3 seconds
-      setTimeout(() => setSuccess(''), 3000);
+      console.log('Upload completed successfully');
+      
+      // Clear success message after 5 seconds
+      setTimeout(() => setSuccess(''), 5000);
 
     } catch (error) {
       console.error('Upload error:', error);
-      setError(error instanceof Error ? error.message : 'Failed to upload image');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to upload image';
+      setError(`Upload failed: ${errorMessage}`);
+      
+      // Clear error message after 10 seconds
+      setTimeout(() => setError(''), 10000);
     } finally {
       setImageUploading(false);
     }

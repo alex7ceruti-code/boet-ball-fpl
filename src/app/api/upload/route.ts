@@ -1,34 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { writeFile } from 'fs/promises';
-import path from 'path';
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('Upload API called');
+    
     // Check authentication
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
+      console.log('No session found');
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
       );
     }
 
+    console.log('User authenticated:', session.user.id);
+
     // Get the form data
     const data = await request.formData();
     const file: File | null = data.get('file') as unknown as File;
 
     if (!file) {
+      console.log('No file found in form data');
       return NextResponse.json(
         { error: 'No file uploaded' },
         { status: 400 }
       );
     }
 
+    console.log('File received:', { name: file.name, size: file.size, type: file.type });
+
     // Validate file type
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
+      console.log('Invalid file type:', file.type);
       return NextResponse.json(
         { error: 'Invalid file type. Only JPEG, PNG, and WebP are allowed.' },
         { status: 400 }
@@ -38,57 +45,45 @@ export async function POST(request: NextRequest) {
     // Validate file size (max 5MB)
     const maxSize = 5 * 1024 * 1024; // 5MB in bytes
     if (file.size > maxSize) {
+      console.log('File too large:', file.size);
       return NextResponse.json(
         { error: 'File too large. Maximum size is 5MB.' },
         { status: 400 }
       );
     }
 
-    // Create unique filename
-    const timestamp = Date.now();
-    const randomString = Math.random().toString(36).substring(2, 15);
-    const fileExtension = path.extname(file.name);
-    const fileName = `cover-${timestamp}-${randomString}${fileExtension}`;
-
-    // Convert file to buffer
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    // Ensure upload directory exists
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'covers');
-    
-    // Write file to public/uploads/covers directory
-    const filePath = path.join(uploadDir, fileName);
-    
     try {
-      await writeFile(filePath, buffer);
-    } catch (error) {
-      console.error('Error writing file:', error);
+      // Convert file to base64 data URL (Vercel-compatible approach)
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const base64 = buffer.toString('base64');
+      const dataUrl = `data:${file.type};base64,${base64}`;
       
-      // Try to create directory and write again
-      const fs = require('fs');
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-      }
-      await writeFile(filePath, buffer);
+      console.log('File converted to base64, size:', dataUrl.length);
+
+      // For now, we'll return the data URL directly
+      // In production, you might want to upload to a cloud storage service
+      return NextResponse.json({
+        success: true,
+        url: dataUrl, // Using data URL instead of file path
+        filename: file.name,
+        size: file.size,
+        type: file.type,
+        method: 'base64' // Indicate this is a base64 approach
+      });
+      
+    } catch (conversionError) {
+      console.error('Error converting file to base64:', conversionError);
+      return NextResponse.json(
+        { error: 'Failed to process file' },
+        { status: 500 }
+      );
     }
-
-    // Return the public URL
-    const publicUrl = `/uploads/covers/${fileName}`;
-    const fullUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}${publicUrl}`;
-
-    return NextResponse.json({
-      success: true,
-      url: fullUrl,
-      filename: fileName,
-      size: file.size,
-      type: file.type
-    });
 
   } catch (error) {
     console.error('Upload error:', error);
     return NextResponse.json(
-      { error: 'Failed to upload file' },
+      { error: 'Failed to upload file: ' + (error instanceof Error ? error.message : 'Unknown error') },
       { status: 500 }
     );
   }
