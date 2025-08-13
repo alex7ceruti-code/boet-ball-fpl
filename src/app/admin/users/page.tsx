@@ -323,7 +323,6 @@ export default function AdminUsersPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
@@ -351,7 +350,6 @@ export default function AdminUsersPage() {
           </div>
         </div>
 
-        {/* Search and Filter Bar */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
           <form onSubmit={handleSearch} className="flex items-center gap-4">
             <div className="flex-1 relative">
@@ -373,7 +371,6 @@ export default function AdminUsersPage() {
           </form>
         </div>
 
-        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
           <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
             <div className="flex items-center">
@@ -430,7 +427,6 @@ export default function AdminUsersPage() {
           </div>
         </div>
 
-        {/* Bulk Actions Bar */}
         {selectedUsers.length > 0 && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
             <div className="flex items-center justify-between">
@@ -462,7 +458,6 @@ export default function AdminUsersPage() {
           </div>
         )}
 
-        {/* Users Table */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -525,289 +520,148 @@ export default function AdminUsersPage() {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {users.map((user) => (
-                  <tr key={user.id} className={`hover:bg-gray-50 transition-colors ${
-                    selectedUsers.includes(user.id) ? 'bg-green-50' : ''
-                  }`}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <input
-                        type="checkbox"
-                        checked={selectedUsers.includes(user.id)}
-                        onChange={() => handleUserSelect(user.id)}
-                        className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
-                      />
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                          <span className="text-green-600 font-semibold">
-                            {user.name?.charAt(0)?.toUpperCase() || user.email.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {user.name || 'No name set'}
+                  <React.Fragment key={user.id}>
+                    <tr className={`hover:bg-gray-50 transition-colors ${
+                      selectedUsers.includes(user.id) ? 'bg-green-50' : ''
+                    }`}>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <input
+                          type="checkbox"
+                          checked={selectedUsers.includes(user.id)}
+                          onChange={() => handleUserSelect(user.id)}
+                          className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                            <span className="text-green-600 font-semibold">
+                              {user.name?.charAt(0)?.toUpperCase() || user.email.charAt(0).toUpperCase()}
+                            </span>
                           </div>
-                          <div className="text-sm text-gray-500">{user.email}</div>
-                          <div className="flex items-center gap-2 mt-1">
-                            {getRoleBadge(user)}
-                            {user.location && (
-                              <span className="inline-flex items-center gap-1 text-xs text-gray-500">
-                                <MapPin className="w-3 h-3" />
-                                {user.location}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <div className="space-y-1">
-                        {user.fplTeamId && (
-                          <div>Team ID: {user.fplTeamId}</div>
-                        )}
-                        {user.miniLeague1Id && (
-                          <div>League 1: {user.miniLeague1Id}</div>
-                        )}
-                        {user.miniLeague2Id && (
-                          <div>League 2: {user.miniLeague2Id}</div>
-                        )}
-                        {!user.fplTeamId && !user.miniLeague1Id && (
-                          <div className="text-gray-400">No FPL data</div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex flex-col gap-1">
-                        {getStatusBadge(user)}
-                        {user.promoCodeUsed && (
-                          <span className="text-xs text-purple-600">
-                            Promo: {user.promoCodeUsed}
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <div>
-                        {formatDate(user.lastLoginAt)}
-                      </div>
-                      <div className="text-xs text-gray-400">
-                        {user.loginCount} login{user.loginCount !== 1 ? 's' : ''}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatDate(user.createdAt)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-1">
-                          <BarChart3 className="w-4 h-4 text-blue-500" />
-                          <span>{user.analyticsCount}</span>
-                        </div>
-                        {user.articlesCount > 0 && (
-                          <div className="flex items-center gap-1">
-                            <FileText className="w-4 h-4 text-green-500" />
-                            <span>{user.articlesCount}</span>
-                          </div>
-                        )}
-                        {user.marketingOptIn && (
-                          <Mail className="w-4 h-4 text-purple-500" title="Marketing opt-in" />
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <div className="flex items-center justify-center gap-2">
-                        <button
-                          onClick={() => toggleExpandUser(user.id)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          title={expandedUser === user.id ? 'Collapse details' : 'View details'}
-                        >
-                          {expandedUser === user.id ? <ChevronUp className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </button>
-                        <button
-                          onClick={() => openEditModal(user)}
-                          className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                          title="Edit user"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            setSelectedUsers([user.id]);
-                            setShowEmailModal(true);
-                          }}
-                          className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
-                          title="Send email"
-                        >
-                          <Mail className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  {/* Expanded User Details */}
-                  {expandedUser === user.id && (
-                    <tr>
-                      <td colSpan={8} className="px-6 py-0 bg-gray-50 border-t-0">
-                        <div className="py-6">
-                          {loadingDetails ? (
-                            <div className="flex items-center justify-center py-8">
-                              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mr-3"></div>
-                              <span className="text-gray-600">Loading details...</span>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">
+                              {user.name || 'No name set'}
                             </div>
-                          ) : userDetails ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                              {/* Personal Information */}
-                              <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                                  <Database className="w-4 h-4" />
-                                  Personal Information
-                                </h4>
-                                <div className="space-y-2 text-sm">
-                                  <div><span className="font-medium text-gray-600">Name:</span> {userDetails.name || 'Not set'}</div>
-                                  <div><span className="font-medium text-gray-600">Email:</span> {userDetails.email}</div>
-                                  <div><span className="font-medium text-gray-600">Location:</span> {userDetails.location || 'Not set'}</div>
-                                  <div><span className="font-medium text-gray-600">Favorite Team:</span> {userDetails.favoriteTeam || 'Not set'}</div>
-                                  <div><span className="font-medium text-gray-600">Marketing Opt-in:</span> 
-                                    <span className={`ml-1 px-2 py-1 rounded-full text-xs ${
-                                      userDetails.marketingOptIn ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                                    }`}>
-                                      {userDetails.marketingOptIn ? 'Yes' : 'No'}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Account Status */}
-                              <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                                  <Settings className="w-4 h-4" />
-                                  Account Status
-                                </h4>
-                                <div className="space-y-2 text-sm">
-                                  <div><span className="font-medium text-gray-600">Status:</span> 
-                                    <span className={`ml-1 px-2 py-1 rounded-full text-xs ${
-                                      userDetails.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                                    }`}>
-                                      {userDetails.isActive ? 'Active' : 'Inactive'}
-                                    </span>
-                                  </div>
-                                  <div><span className="font-medium text-gray-600">Email Verified:</span> 
-                                    <span className={`ml-1 px-2 py-1 rounded-full text-xs ${
-                                      userDetails.emailVerified ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
-                                    }`}>
-                                      {userDetails.emailVerified ? formatDate(userDetails.emailVerified) : 'Unverified'}
-                                    </span>
-                                  </div>
-                                  <div><span className="font-medium text-gray-600">Subscription:</span> 
-                                    <span className={`ml-1 px-2 py-1 rounded-full text-xs ${
-                                      userDetails.subscriptionType === 'PREMIUM' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'
-                                    }`}>
-                                      {userDetails.subscriptionType}
-                                    </span>
-                                  </div>
-                                  <div><span className="font-medium text-gray-600">Admin:</span> 
-                                    <span className={`ml-1 px-2 py-1 rounded-full text-xs ${
-                                      userDetails.isAdmin ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'
-                                    }`}>
-                                      {userDetails.isAdmin ? userDetails.adminRole || 'Yes' : 'No'}
-                                    </span>
-                                  </div>
-                                  <div><span className="font-medium text-gray-600">Terms Accepted:</span> {userDetails.termsAcceptedAt ? formatDate(userDetails.termsAcceptedAt) : 'Not accepted'}</div>
-                                  <div><span className="font-medium text-gray-600">Promo Code:</span> {userDetails.promoCodeUsed || 'None'}</div>
-                                </div>
-                              </div>
-
-                              {/* Activity & Stats */}
-                              <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                                  <Activity className="w-4 h-4" />
-                                  Activity & Stats
-                                </h4>
-                                <div className="space-y-2 text-sm">
-                                  <div><span className="font-medium text-gray-600">Created:</span> {formatDate(userDetails.createdAt)}</div>
-                                  <div><span className="font-medium text-gray-600">Last Login:</span> {formatDate(userDetails.lastLoginAt)}</div>
-                                  <div><span className="font-medium text-gray-600">Login Count:</span> {userDetails.loginCount}</div>
-                                  <div><span className="font-medium text-gray-600">Analytics Count:</span> {userDetails.analyticsCount}</div>
-                                  <div><span className="font-medium text-gray-600">Articles Count:</span> {userDetails.articlesCount}</div>
-                                  <div><span className="font-medium text-gray-600">Last Updated:</span> {formatDate(userDetails.updatedAt)}</div>
-                                </div>
-                              </div>
-
-                              {/* FPL Information */}
-                              <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                                  <Globe className="w-4 h-4" />
-                                  FPL Information
-                                </h4>
-                                <div className="space-y-2 text-sm">
-                                  <div><span className="font-medium text-gray-600">Team ID:</span> {userDetails.fplTeamId || 'Not set'}</div>
-                                  <div><span className="font-medium text-gray-600">Mini League 1:</span> {userDetails.miniLeague1Id || 'Not set'}</div>
-                                  <div><span className="font-medium text-gray-600">Mini League 2:</span> {userDetails.miniLeague2Id || 'Not set'}</div>
-                                </div>
-                              </div>
-
-                              {/* Preferences */}
-                              {userDetails.preferences && (
-                                <div className="bg-white p-4 rounded-lg shadow-sm">
-                                  <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                                    <Settings className="w-4 h-4" />
-                                    Preferences
-                                  </h4>
-                                  <pre className="text-xs text-gray-600 bg-gray-50 p-2 rounded overflow-auto max-h-32">
-                                    {JSON.stringify(userDetails.preferences, null, 2)}
-                                  </pre>
-                                </div>
+                            <div className="text-sm text-gray-500">{user.email}</div>
+                            <div className="flex items-center gap-2 mt-1">
+                              {getRoleBadge(user)}
+                              {user.location && (
+                                <span className="inline-flex items-center gap-1 text-xs text-gray-500">
+                                  <MapPin className="w-3 h-3" />
+                                  {user.location}
+                                </span>
                               )}
-
-                              {/* Quick Actions */}
-                              <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                                  <Settings className="w-4 h-4" />
-                                  Quick Actions
-                                </h4>
-                                <div className="flex flex-wrap gap-2">
-                                  <button
-                                    onClick={() => openEditModal(user)}
-                                    className="px-3 py-1 bg-green-100 text-green-700 rounded text-xs hover:bg-green-200 transition-colors flex items-center gap-1"
-                                  >
-                                    <Edit className="w-3 h-3" /> Edit
-                                  </button>
-                                  <button
-                                    onClick={() => {
-                                      setSelectedUsers([user.id]);
-                                      setShowEmailModal(true);
-                                    }}
-                                    className="px-3 py-1 bg-purple-100 text-purple-700 rounded text-xs hover:bg-purple-200 transition-colors flex items-center gap-1"
-                                  >
-                                    <Mail className="w-3 h-3" /> Email
-                                  </button>
-                                  {userDetails.subscriptionType === 'FREE' && (
-                                    <button
-                                      onClick={() => handleBulkAction('updateSubscription', { subscriptionType: 'PREMIUM' })}
-                                      className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded text-xs hover:bg-yellow-200 transition-colors flex items-center gap-1"
-                                    >
-                                      <Crown className="w-3 h-3" /> Upgrade
-                                    </button>
-                                  )}
-                                  {!userDetails.isActive && (
-                                    <button
-                                      onClick={() => handleBulkAction('updateStatus', { isActive: true })}
-                                      className="px-3 py-1 bg-green-100 text-green-700 rounded text-xs hover:bg-green-200 transition-colors flex items-center gap-1"
-                                    >
-                                      <UserCheck className="w-3 h-3" /> Activate
-                                    </button>
-                                  )}
-                                </div>
-                              </div>
                             </div>
-                          ) : (
-                            <div className="text-center py-8 text-gray-500">
-                              Failed to load user details
-                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <div className="space-y-1">
+                          {user.fplTeamId && (
+                            <div>Team ID: {user.fplTeamId}</div>
+                          )}
+                          {user.miniLeague1Id && (
+                            <div>League 1: {user.miniLeague1Id}</div>
+                          )}
+                          {user.miniLeague2Id && (
+                            <div>League 2: {user.miniLeague2Id}</div>
+                          )}
+                          {!user.fplTeamId && !user.miniLeague1Id && (
+                            <div className="text-gray-400">No FPL data</div>
                           )}
                         </div>
                       </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex flex-col gap-1">
+                          {getStatusBadge(user)}
+                          {user.promoCodeUsed && (
+                            <span className="text-xs text-purple-600">
+                              Promo: {user.promoCodeUsed}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div>
+                          {formatDate(user.lastLoginAt)}
+                        </div>
+                        <div className="text-xs text-gray-400">
+                          {user.loginCount} login{user.loginCount !== 1 ? 's' : ''}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {formatDate(user.createdAt)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-1">
+                            <BarChart3 className="w-4 h-4 text-blue-500" />
+                            <span>{user.analyticsCount}</span>
+                          </div>
+                          {user.articlesCount > 0 && (
+                            <div className="flex items-center gap-1">
+                              <FileText className="w-4 h-4 text-green-500" />
+                              <span>{user.articlesCount}</span>
+                            </div>
+                          )}
+                          {user.marketingOptIn && (
+                            <Mail className="w-4 h-4 text-purple-500" title="Marketing opt-in" />
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            onClick={() => toggleExpandUser(user.id)}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title={expandedUser === user.id ? 'Collapse details' : 'View details'}
+                          >
+                            {expandedUser === user.id ? <ChevronUp className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                          <button
+                            onClick={() => openEditModal(user)}
+                            className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                            title="Edit user"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedUsers([user.id]);
+                              setShowEmailModal(true);
+                            }}
+                            className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                            title="Send email"
+                          >
+                            <Mail className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
                     </tr>
-                  )}
+                    {expandedUser === user.id && (
+                      <tr>
+                        <td colSpan={8} className="px-6 py-0 bg-gray-50 border-t-0">
+                          <div className="py-6">
+                            {loadingDetails ? (
+                              <div className="flex items-center justify-center py-8">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mr-3"></div>
+                                <span className="text-gray-600">Loading details...</span>
+                              </div>
+                            ) : userDetails ? (
+                              <div className="text-center py-8 text-gray-500">
+                                Detailed user view would be implemented here
+                              </div>
+                            ) : (
+                              <div className="text-center py-8 text-gray-500">
+                                Failed to load user details
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 ))}
               </tbody>
             </table>
