@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
   User,
   Mail,
@@ -408,6 +409,22 @@ export default function ProfilePage() {
                         <LogOut className="w-4 h-4" />
                         Sign Out
                       </button>
+                    </div>
+                    
+                    <div className="border-t border-red-200 pt-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h5 className="font-medium text-red-800">Delete Account</h5>
+                          <p className="text-sm text-red-600">Permanently delete your account and all data</p>
+                        </div>
+                        <Link
+                          href="/account/delete"
+                          className="flex items-center gap-2 px-4 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Delete Account
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 </div>
