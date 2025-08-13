@@ -24,6 +24,21 @@ import {
   UserPlus,
   Download,
   RefreshCw,
+  ChevronDown,
+  ChevronUp,
+  Settings,
+  Send,
+  UserCheck,
+  UserX,
+  CreditCard,
+  Activity,
+  Clock,
+  Globe,
+  Database,
+  X,
+  Check,
+  AlertTriangle,
+  Plus,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -80,6 +95,84 @@ export default function AdminUsersPage() {
     totalCount: 0,
     totalPages: 0,
   });
+  
+  // Advanced features state
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [expandedUser, setExpandedUser] = useState<string | null>(null);
+  const [userDetails, setUserDetails] = useState<any>(null);
+  const [loadingDetails, setLoadingDetails] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [showBulkActions, setShowBulkActions] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
+
+  const handleUserSelect = (userId: string) => {
+    setSelectedUsers(prev => 
+      prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]
+    );
+  };
+
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setSelectedUsers(users.map(u => u.id));
+    } else {
+      setSelectedUsers([]);
+    }
+  };
+
+  const toggleExpandUser = async (userId: string) => {
+    if (expandedUser === userId) {
+      setExpandedUser(null);
+      setUserDetails(null);
+    } else {
+      setExpandedUser(userId);
+      setLoadingDetails(true);
+      try {
+        const response = await fetch(`/api/admin/users/${userId}`);
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Failed to fetch details');
+        setUserDetails(data.user);
+      } catch (err) {
+        console.error('Error fetching user details:', err);
+        setError('Could not load user details.');
+      } finally {
+        setLoadingDetails(false);
+      }
+    }
+  };
+
+  const openEditModal = (user: User) => {
+    setEditingUser(user);
+    setShowEditModal(true);
+  };
+
+  const handleBulkAction = async (action: string, data?: any) => {
+    setActionLoading(true);
+    setError('');
+    try {
+      const response = await fetch('/api/admin/users/actions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, userIds: selectedUsers, data }),
+      });
+
+      if (!response.ok) {
+        const resData = await response.json();
+        throw new Error(resData.error || 'Action failed');
+      }
+
+      await fetchUsers(); // Refresh users
+      setSelectedUsers([]);
+      setShowBulkActions(false);
+      setShowEmailModal(false);
+    } catch (err) {
+      console.error('Bulk action error:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   // Redirect if not authenticated or not admin
   useEffect(() => {
@@ -337,12 +430,52 @@ export default function AdminUsersPage() {
           </div>
         </div>
 
+        {/* Bulk Actions Bar */}
+        {selectedUsers.length > 0 && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-blue-700">
+                {selectedUsers.length} user{selectedUsers.length !== 1 ? 's' : ''} selected
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowBulkActions(true)}
+                  className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                >
+                  Bulk Actions
+                </button>
+                <button
+                  onClick={() => setShowEmailModal(true)}
+                  className="px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm flex items-center gap-2"
+                >
+                  <Send className="w-4 h-4" />
+                  Send Email
+                </button>
+                <button
+                  onClick={() => setSelectedUsers([])}
+                  className="px-3 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors text-sm"
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Users Table */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
+                  <th className="px-6 py-4 text-left">
+                    <input
+                      type="checkbox"
+                      checked={selectedUsers.length === users.length && users.length > 0}
+                      onChange={handleSelectAll}
+                      className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                    />
+                  </th>
                   <th className="px-6 py-4 text-left">
                     <button
                       onClick={() => handleSort('name')}
@@ -385,11 +518,24 @@ export default function AdminUsersPage() {
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Activity
                   </th>
+                  <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {users.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={user.id} className={`hover:bg-gray-50 transition-colors ${
+                    selectedUsers.includes(user.id) ? 'bg-green-50' : ''
+                  }`}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        checked={selectedUsers.includes(user.id)}
+                        onChange={() => handleUserSelect(user.id)}
+                        className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                      />
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
@@ -468,7 +614,200 @@ export default function AdminUsersPage() {
                         )}
                       </div>
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => toggleExpandUser(user.id)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          title={expandedUser === user.id ? 'Collapse details' : 'View details'}
+                        >
+                          {expandedUser === user.id ? <ChevronUp className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                        <button
+                          onClick={() => openEditModal(user)}
+                          className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                          title="Edit user"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedUsers([user.id]);
+                            setShowEmailModal(true);
+                          }}
+                          className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                          title="Send email"
+                        >
+                          <Mail className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
+                  {/* Expanded User Details */}
+                  {expandedUser === user.id && (
+                    <tr>
+                      <td colSpan={8} className="px-6 py-0 bg-gray-50 border-t-0">
+                        <div className="py-6">
+                          {loadingDetails ? (
+                            <div className="flex items-center justify-center py-8">
+                              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mr-3"></div>
+                              <span className="text-gray-600">Loading details...</span>
+                            </div>
+                          ) : userDetails ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                              {/* Personal Information */}
+                              <div className="bg-white p-4 rounded-lg shadow-sm">
+                                <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                  <Database className="w-4 h-4" />
+                                  Personal Information
+                                </h4>
+                                <div className="space-y-2 text-sm">
+                                  <div><span className="font-medium text-gray-600">Name:</span> {userDetails.name || 'Not set'}</div>
+                                  <div><span className="font-medium text-gray-600">Email:</span> {userDetails.email}</div>
+                                  <div><span className="font-medium text-gray-600">Location:</span> {userDetails.location || 'Not set'}</div>
+                                  <div><span className="font-medium text-gray-600">Favorite Team:</span> {userDetails.favoriteTeam || 'Not set'}</div>
+                                  <div><span className="font-medium text-gray-600">Marketing Opt-in:</span> 
+                                    <span className={`ml-1 px-2 py-1 rounded-full text-xs ${
+                                      userDetails.marketingOptIn ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                                    }`}>
+                                      {userDetails.marketingOptIn ? 'Yes' : 'No'}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Account Status */}
+                              <div className="bg-white p-4 rounded-lg shadow-sm">
+                                <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                  <Settings className="w-4 h-4" />
+                                  Account Status
+                                </h4>
+                                <div className="space-y-2 text-sm">
+                                  <div><span className="font-medium text-gray-600">Status:</span> 
+                                    <span className={`ml-1 px-2 py-1 rounded-full text-xs ${
+                                      userDetails.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                                    }`}>
+                                      {userDetails.isActive ? 'Active' : 'Inactive'}
+                                    </span>
+                                  </div>
+                                  <div><span className="font-medium text-gray-600">Email Verified:</span> 
+                                    <span className={`ml-1 px-2 py-1 rounded-full text-xs ${
+                                      userDetails.emailVerified ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                                    }`}>
+                                      {userDetails.emailVerified ? formatDate(userDetails.emailVerified) : 'Unverified'}
+                                    </span>
+                                  </div>
+                                  <div><span className="font-medium text-gray-600">Subscription:</span> 
+                                    <span className={`ml-1 px-2 py-1 rounded-full text-xs ${
+                                      userDetails.subscriptionType === 'PREMIUM' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'
+                                    }`}>
+                                      {userDetails.subscriptionType}
+                                    </span>
+                                  </div>
+                                  <div><span className="font-medium text-gray-600">Admin:</span> 
+                                    <span className={`ml-1 px-2 py-1 rounded-full text-xs ${
+                                      userDetails.isAdmin ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'
+                                    }`}>
+                                      {userDetails.isAdmin ? userDetails.adminRole || 'Yes' : 'No'}
+                                    </span>
+                                  </div>
+                                  <div><span className="font-medium text-gray-600">Terms Accepted:</span> {userDetails.termsAcceptedAt ? formatDate(userDetails.termsAcceptedAt) : 'Not accepted'}</div>
+                                  <div><span className="font-medium text-gray-600">Promo Code:</span> {userDetails.promoCodeUsed || 'None'}</div>
+                                </div>
+                              </div>
+
+                              {/* Activity & Stats */}
+                              <div className="bg-white p-4 rounded-lg shadow-sm">
+                                <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                  <Activity className="w-4 h-4" />
+                                  Activity & Stats
+                                </h4>
+                                <div className="space-y-2 text-sm">
+                                  <div><span className="font-medium text-gray-600">Created:</span> {formatDate(userDetails.createdAt)}</div>
+                                  <div><span className="font-medium text-gray-600">Last Login:</span> {formatDate(userDetails.lastLoginAt)}</div>
+                                  <div><span className="font-medium text-gray-600">Login Count:</span> {userDetails.loginCount}</div>
+                                  <div><span className="font-medium text-gray-600">Analytics Count:</span> {userDetails.analyticsCount}</div>
+                                  <div><span className="font-medium text-gray-600">Articles Count:</span> {userDetails.articlesCount}</div>
+                                  <div><span className="font-medium text-gray-600">Last Updated:</span> {formatDate(userDetails.updatedAt)}</div>
+                                </div>
+                              </div>
+
+                              {/* FPL Information */}
+                              <div className="bg-white p-4 rounded-lg shadow-sm">
+                                <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                  <Globe className="w-4 h-4" />
+                                  FPL Information
+                                </h4>
+                                <div className="space-y-2 text-sm">
+                                  <div><span className="font-medium text-gray-600">Team ID:</span> {userDetails.fplTeamId || 'Not set'}</div>
+                                  <div><span className="font-medium text-gray-600">Mini League 1:</span> {userDetails.miniLeague1Id || 'Not set'}</div>
+                                  <div><span className="font-medium text-gray-600">Mini League 2:</span> {userDetails.miniLeague2Id || 'Not set'}</div>
+                                </div>
+                              </div>
+
+                              {/* Preferences */}
+                              {userDetails.preferences && (
+                                <div className="bg-white p-4 rounded-lg shadow-sm">
+                                  <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                    <Settings className="w-4 h-4" />
+                                    Preferences
+                                  </h4>
+                                  <pre className="text-xs text-gray-600 bg-gray-50 p-2 rounded overflow-auto max-h-32">
+                                    {JSON.stringify(userDetails.preferences, null, 2)}
+                                  </pre>
+                                </div>
+                              )}
+
+                              {/* Quick Actions */}
+                              <div className="bg-white p-4 rounded-lg shadow-sm">
+                                <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                  <Settings className="w-4 h-4" />
+                                  Quick Actions
+                                </h4>
+                                <div className="flex flex-wrap gap-2">
+                                  <button
+                                    onClick={() => openEditModal(user)}
+                                    className="px-3 py-1 bg-green-100 text-green-700 rounded text-xs hover:bg-green-200 transition-colors flex items-center gap-1"
+                                  >
+                                    <Edit className="w-3 h-3" /> Edit
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setSelectedUsers([user.id]);
+                                      setShowEmailModal(true);
+                                    }}
+                                    className="px-3 py-1 bg-purple-100 text-purple-700 rounded text-xs hover:bg-purple-200 transition-colors flex items-center gap-1"
+                                  >
+                                    <Mail className="w-3 h-3" /> Email
+                                  </button>
+                                  {userDetails.subscriptionType === 'FREE' && (
+                                    <button
+                                      onClick={() => handleBulkAction('updateSubscription', { subscriptionType: 'PREMIUM' })}
+                                      className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded text-xs hover:bg-yellow-200 transition-colors flex items-center gap-1"
+                                    >
+                                      <Crown className="w-3 h-3" /> Upgrade
+                                    </button>
+                                  )}
+                                  {!userDetails.isActive && (
+                                    <button
+                                      onClick={() => handleBulkAction('updateStatus', { isActive: true })}
+                                      className="px-3 py-1 bg-green-100 text-green-700 rounded text-xs hover:bg-green-200 transition-colors flex items-center gap-1"
+                                    >
+                                      <UserCheck className="w-3 h-3" /> Activate
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="text-center py-8 text-gray-500">
+                              Failed to load user details
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
                 ))}
               </tbody>
             </table>
