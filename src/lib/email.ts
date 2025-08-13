@@ -241,8 +241,14 @@ export interface EmailOptions {
 
 export const sendEmail = async (options: EmailOptions) => {
   try {
+    // Use sandbox domain temporarily until boetball.co.za is verified
+    // TODO: Change back to 'Boet Ball FPL <noreply@boetball.co.za>' once domain is verified
+    const fromAddress = process.env.NODE_ENV === 'production' 
+      ? 'onboarding@resend.dev'  // Temporary for production until domain verified
+      : 'onboarding@resend.dev'; // Sandbox for development
+      
     const data = await resend.emails.send({
-      from: 'Boet Ball FPL <noreply@boetball.co.za>',
+      from: fromAddress,
       to: [options.to],
       subject: options.subject,
       html: options.html,

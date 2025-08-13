@@ -649,8 +649,152 @@ export default function AdminUsersPage() {
                                 <span className="text-gray-600">Loading details...</span>
                               </div>
                             ) : userDetails ? (
-                              <div className="text-center py-8 text-gray-500">
-                                Detailed user view would be implemented here
+                              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                {/* User Details */}
+                                <div className="bg-white rounded-lg border border-gray-200 p-4">
+                                  <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                    <User className="w-4 h-4" />
+                                    User Details
+                                  </h4>
+                                  <div className="space-y-2 text-sm">
+                                    <div><strong>ID:</strong> {userDetails.id}</div>
+                                    <div><strong>Name:</strong> {userDetails.name || 'Not set'}</div>
+                                    <div><strong>Email:</strong> {userDetails.email}</div>
+                                    <div><strong>Email Verified:</strong> {userDetails.emailVerified ? new Date(userDetails.emailVerified).toLocaleDateString() : 'No'}</div>
+                                    <div><strong>Location:</strong> {userDetails.location || 'Not set'}</div>
+                                    <div><strong>Marketing Opt-in:</strong> {userDetails.marketingOptIn ? 'Yes' : 'No'}</div>
+                                    <div><strong>Terms Accepted:</strong> {userDetails.termsAcceptedAt ? new Date(userDetails.termsAcceptedAt).toLocaleDateString() : 'Not accepted'}</div>
+                                    <div><strong>Promo Code:</strong> {userDetails.promoCodeUsed || 'None'}</div>
+                                  </div>
+                                </div>
+
+                                {/* FPL Info */}
+                                <div className="bg-white rounded-lg border border-gray-200 p-4">
+                                  <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                    <Trophy className="w-4 h-4" />
+                                    FPL Information
+                                  </h4>
+                                  <div className="space-y-2 text-sm">
+                                    <div><strong>FPL Team ID:</strong> {userDetails.fplTeamId || 'Not set'}</div>
+                                    <div><strong>Mini League 1:</strong> {userDetails.miniLeague1Id || 'Not set'}</div>
+                                    <div><strong>Mini League 2:</strong> {userDetails.miniLeague2Id || 'Not set'}</div>
+                                    <div><strong>Favorite Team:</strong> {userDetails.favoriteTeam || 'Not set'}</div>
+                                  </div>
+                                </div>
+
+                                {/* Account Info */}
+                                <div className="bg-white rounded-lg border border-gray-200 p-4">
+                                  <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                    <Settings className="w-4 h-4" />
+                                    Account Information
+                                  </h4>
+                                  <div className="space-y-2 text-sm">
+                                    <div><strong>Subscription:</strong> 
+                                      <span className={`ml-1 px-2 py-0.5 rounded text-xs ${userDetails.subscriptionType === 'PREMIUM' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'}`}>
+                                        {userDetails.subscriptionType}
+                                      </span>
+                                    </div>
+                                    <div><strong>Status:</strong> 
+                                      <span className={`ml-1 px-2 py-0.5 rounded text-xs ${userDetails.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                        {userDetails.isActive ? 'Active' : 'Inactive'}
+                                      </span>
+                                    </div>
+                                    <div><strong>Admin:</strong> {userDetails.adminUser ? 'Yes' : 'No'}</div>
+                                    <div><strong>Last Login:</strong> {userDetails.lastLoginAt ? new Date(userDetails.lastLoginAt).toLocaleString() : 'Never'}</div>
+                                    <div><strong>Login Count:</strong> {userDetails.loginCount}</div>
+                                    <div><strong>Created:</strong> {new Date(userDetails.createdAt).toLocaleString()}</div>
+                                    <div><strong>Updated:</strong> {new Date(userDetails.updatedAt).toLocaleString()}</div>
+                                  </div>
+                                </div>
+
+                                {/* Preferences */}
+                                {userDetails.preferences && (
+                                  <div className="bg-white rounded-lg border border-gray-200 p-4">
+                                    <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                      <Volume2 className="w-4 h-4" />
+                                      Preferences
+                                    </h4>
+                                    <div className="space-y-2 text-sm">
+                                      <div><strong>Slang Intensity:</strong> {userDetails.preferences.slangIntensity}</div>
+                                      <div><strong>Email Notifications:</strong> {userDetails.preferences.emailNotifications ? 'Yes' : 'No'}</div>
+                                      <div><strong>Weekly Reports:</strong> {userDetails.preferences.weeklyReports ? 'Yes' : 'No'}</div>
+                                      <div><strong>Transfer Reminders:</strong> {userDetails.preferences.transferReminders ? 'Yes' : 'No'}</div>
+                                      <div><strong>Show Advanced Stats:</strong> {userDetails.preferences.showAdvancedStats ? 'Yes' : 'No'}</div>
+                                      <div><strong>Compact View:</strong> {userDetails.preferences.compactView ? 'Yes' : 'No'}</div>
+                                      <div><strong>Dark Mode:</strong> {userDetails.preferences.darkMode ? 'Yes' : 'No'}</div>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Recent Analytics */}
+                                {userDetails.analytics && userDetails.analytics.length > 0 && (
+                                  <div className="bg-white rounded-lg border border-gray-200 p-4 lg:col-span-2">
+                                    <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                      <BarChart3 className="w-4 h-4" />
+                                      Recent Activity
+                                    </h4>
+                                    <div className="max-h-64 overflow-y-auto">
+                                      <table className="w-full text-sm">
+                                        <thead>
+                                          <tr className="border-b border-gray-200">
+                                            <th className="text-left py-2 px-2 font-medium text-gray-600">Page</th>
+                                            <th className="text-left py-2 px-2 font-medium text-gray-600">Action</th>
+                                            <th className="text-left py-2 px-2 font-medium text-gray-600">Time</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          {userDetails.analytics.map((activity: any, index: number) => (
+                                            <tr key={index} className="border-b border-gray-100">
+                                              <td className="py-1 px-2">{activity.page}</td>
+                                              <td className="py-1 px-2">{activity.action}</td>
+                                              <td className="py-1 px-2">{new Date(activity.timestamp).toLocaleString()}</td>
+                                            </tr>
+                                          ))}
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Authentication Providers */}
+                                {userDetails.accounts && userDetails.accounts.length > 0 && (
+                                  <div className="bg-white rounded-lg border border-gray-200 p-4">
+                                    <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                      <Shield className="w-4 h-4" />
+                                      Authentication
+                                    </h4>
+                                    <div className="space-y-2 text-sm">
+                                      {userDetails.accounts.map((account: any, index: number) => (
+                                        <div key={index}>
+                                          <strong>{account.provider}:</strong> {account.type} 
+                                          <span className="text-gray-500 text-xs ml-2">
+                                            ({new Date(account.createdAt).toLocaleDateString()})
+                                          </span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Recent Sessions */}
+                                {userDetails.sessions && userDetails.sessions.length > 0 && (
+                                  <div className="bg-white rounded-lg border border-gray-200 p-4">
+                                    <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                      <Clock className="w-4 h-4" />
+                                      Recent Sessions
+                                    </h4>
+                                    <div className="space-y-1 text-sm">
+                                      {userDetails.sessions.map((session: any, index: number) => (
+                                        <div key={index} className="flex justify-between">
+                                          <span>Session {index + 1}</span>
+                                          <span className="text-gray-500 text-xs">
+                                            {new Date(session.createdAt).toLocaleDateString()}
+                                          </span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             ) : (
                               <div className="text-center py-8 text-gray-500">
