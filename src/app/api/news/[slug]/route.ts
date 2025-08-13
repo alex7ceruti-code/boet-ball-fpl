@@ -40,8 +40,21 @@ export async function GET(
       );
     }
 
-    // Check if article is published
-    if (article.status !== 'PUBLISHED') {
+    // Check if article is published or if user is admin
+    const isAdmin = session?.user?.role === 'ADMIN';
+    const isDraft = article.status === 'DRAFT';
+    const isArchived = article.status === 'ARCHIVED';
+    
+    // Non-published articles are only visible to admins
+    if ((isDraft || isArchived) && !isAdmin) {
+      return NextResponse.json(
+        { error: 'Article not available' },
+        { status: 404 }
+      );
+    }
+    
+    // Only published articles should be viewable by non-admins
+    if (article.status !== 'PUBLISHED' && !isAdmin) {
       return NextResponse.json(
         { error: 'Article not available' },
         { status: 404 }
