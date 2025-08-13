@@ -70,6 +70,74 @@ export default function CreateArticlePage() {
     }));
   };
 
+  // Handle file upload
+  const handleFileUpload = async (file: File) => {
+    setImageUploading(true);
+    setError('');
+
+    try {
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        throw new Error('Invalid file type. Only JPEG, PNG, and WebP are allowed.');
+      }
+
+      // Validate file size (5MB)
+      const maxSize = 5 * 1024 * 1024;
+      if (file.size > maxSize) {
+        throw new Error('File too large. Maximum size is 5MB.');
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Upload failed');
+      }
+
+      // Set the uploaded image URL
+      setFormData(prev => ({ ...prev, coverImage: data.url }));
+      setSuccess(`Image uploaded successfully! (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(''), 3000);
+
+    } catch (error) {
+      console.error('Upload error:', error);
+      setError(error instanceof Error ? error.message : 'Failed to upload image');
+    } finally {
+      setImageUploading(false);
+    }
+  };
+
+  // Handle drag and drop
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFileUpload(files[0]);
+    }
+  };
+
+  // Handle file input change
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      handleFileUpload(files[0]);
+    }
+  };
+
   const handleSubmit = async (submitStatus: 'DRAFT' | 'PUBLISHED') => {
     setLoading(true);
     setError('');
@@ -317,23 +385,58 @@ export default function CreateArticlePage() {
                     </button>
                   </div>
                   
-                  {/* Upload Placeholder */}
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
-                    <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600 mb-2">Add a cover image to make your article stand out</p>
-                    <p className="text-sm text-gray-500">
-                      Recommended: 1200x630px • JPG, PNG • Max 2MB
-                    </p>
-                    <div className="mt-4 flex items-center justify-center gap-4">
-                      <button
-                        type="button"
-                        onClick={() => setShowCanvaHelp(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors"
-                      >
-                        <Palette className="w-4 h-4" />
-                        Create with Canva
-                      </button>
-                    </div>
+                  /* Upload Area with Drag & Drop */
+                  <div 
+                    className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                      imageUploading ? 'border-green-400 bg-green-50' : 'border-gray-300 hover:border-gray-400'
+                    }`}
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop}
+                  >
+                    {imageUploading ? (
+                      <div className="flex flex-col items-center">
+                        <Loader2 className="w-12 h-12 text-green-600 animate-spin mx-auto mb-4" />
+                        <p className="text-green-700 font-medium">Uploading image...</p>
+                        <p className="text-sm text-green-600 mt-1">Please wait while we process your file</p>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex items-center justify-center mb-4">
+                          <Upload className="w-8 h-8 text-gray-400 mr-2" />
+                          <ImageIcon className="w-8 h-8 text-gray-400" />
+                        </div>
+                        <p className="text-gray-600 mb-2 font-medium">Drop your image here or click to browse</p>
+                        <p className="text-sm text-gray-500 mb-4">
+                          Drag & drop supported • JPG, PNG, WebP • Max 5MB
+                        </p>
+                        
+                        <div className="flex items-center justify-center gap-3">
+                          <label className="cursor-pointer">
+                            <input
+                              type="file"
+                              accept="image/jpeg,image/jpg,image/png,image/webp"
+                              onChange={handleFileInputChange}
+                              className="hidden"
+                            />
+                            <span className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                              <Upload className="w-4 h-4" />
+                              Choose File
+                            </span>
+                          </label>
+                          
+                          <div className="text-gray-400 text-sm">or</div>
+                          
+                          <button
+                            type="button"
+                            onClick={() => setShowCanvaHelp(true)}
+                            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                          >
+                            <Palette className="w-4 h-4" />
+                            Create with Canva
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               )}

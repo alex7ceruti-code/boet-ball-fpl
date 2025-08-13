@@ -17,6 +17,10 @@
 /.next/
 /out/
 
+# uploaded files
+/public/uploads/covers/*
+!/public/uploads/covers/.gitkeep
+
 # production
 /build
 
@@ -41,3 +45,5 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
+.env*.local
+ADMIN_CREDENTIALS.md
