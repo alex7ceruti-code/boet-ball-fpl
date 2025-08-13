@@ -90,12 +90,12 @@ function SignInForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-springbok-50 via-green-50 to-emerald-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="p-3 rounded-full bg-gradient-to-r from-green-500 to-green-600 shadow-lg">
+            <div className="p-3 rounded-full bg-gradient-to-r from-springbok-500 to-springbok-600 shadow-lg">
               <Flame className="w-8 h-8 text-white" />
             </div>
           </div>
@@ -139,7 +139,7 @@ function SignInForm() {
                     required
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-springbok-500 focus:border-transparent transition-colors bg-white text-gray-900 placeholder-gray-500"
                     placeholder="your.email@example.com"
                   />
                   <Mail className="w-5 h-5 text-gray-400 absolute left-3 top-3.5" />
@@ -159,7 +159,7 @@ function SignInForm() {
                     required
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                    className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-springbok-500 focus:border-transparent transition-colors bg-white text-gray-900 placeholder-gray-500"
                     placeholder="Enter your password"
                   />
                   <Lock className="w-5 h-5 text-gray-400 absolute left-3 top-3.5" />
@@ -177,7 +177,7 @@ function SignInForm() {
               <div className="text-right">
                 <Link 
                   href="/auth/forgot-password" 
-                  className="text-sm text-green-600 hover:text-green-700 font-medium transition-colors"
+                  className="text-sm text-springbok-600 hover:text-springbok-700 font-medium transition-colors"
                 >
                   Forgot your password?
                 </Link>
@@ -187,7 +187,7 @@ function SignInForm() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-gradient-to-r from-springbok-500 to-springbok-600 text-white py-3 rounded-lg font-semibold hover:from-springbok-600 hover:to-springbok-700 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -205,7 +205,7 @@ function SignInForm() {
               New to Boet Ball?{' '}
               <Link 
                 href="/auth/signup" 
-                className="text-green-600 hover:text-green-700 font-semibold transition-colors inline-flex items-center gap-1"
+                className="text-springbok-600 hover:text-springbok-700 font-semibold transition-colors inline-flex items-center gap-1"
               >
                 <UserPlus className="w-4 h-4" />
                 Join the family
@@ -243,7 +243,7 @@ function SignInForm() {
         <div className="text-center">
           <p className="text-xs text-gray-500">
             Having trouble signing in?{' '}
-            <Link href="/support" className="text-green-600 hover:underline">
+            <Link href="/support" className="text-springbok-600 hover:underline">
               Contact support
             </Link>
           </p>
@@ -256,7 +256,7 @@ function SignInForm() {
 export default function SignInPage() {
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center">
-      <Loader2 className="w-8 h-8 animate-spin text-green-500" />
+      <Loader2 className="w-8 h-8 animate-spin text-springbok-500" />
     </div>}>
       <SignInForm />
     </Suspense>

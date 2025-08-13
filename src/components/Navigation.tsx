@@ -161,10 +161,10 @@ export default function Navigation() {
 
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 dark:border-gray-700 mt-2 pt-2">
+          <div className="md:hidden border-t border-gray-200 bg-white shadow-lg rounded-b-lg mt-1">
             <div className="px-2 pb-3 space-y-1">
               {/* Greeting */}
-              <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-700 mb-2">
+              <div className="px-3 py-3 text-sm font-medium text-gray-700 border-b border-gray-100 mb-2">
                 {getTimeBasedGreeting()}
               </div>
               
@@ -177,13 +177,13 @@ export default function Navigation() {
                     key={item.href}
                     href={item.href}
                     onClick={closeMobileMenu}
-                    className={`block px-3 py-2 rounded-lg text-base font-medium transition-all duration-200 flex items-center space-x-3 ${
+                    className={`block px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 flex items-center space-x-3 ${
                       isActive
-                        ? 'nav-link-active bg-braai-50 dark:bg-braai-900/20'
-                        : 'nav-link hover:bg-gray-50 dark:hover:bg-gray-800'
+                        ? 'bg-springbok-50 text-springbok-700 border border-springbok-200'
+                        : 'text-gray-700 hover:bg-gray-50 hover:text-springbok-600'
                     }`}
                   >
-                    <Icon className={`h-5 w-5 ${isActive ? 'text-braai-primary dark:text-braai-gold' : ''}`} />
+                    <Icon className={`h-5 w-5 ${isActive ? 'text-springbok-600' : 'text-gray-500'}`} />
                     <span>{item.label}</span>
                   </Link>
                 );

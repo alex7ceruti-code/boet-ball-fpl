@@ -23,10 +23,10 @@ const contextIcons = {
 
 const contextColors = {
   'captain-selection': 'from-yellow-400 to-yellow-600',
-  'transfer-suggestion': 'from-springbok-500 to-springbok-700',
+  'transfer-suggestion': 'from-springbok-600 to-springbok-800',
   'chip-usage': 'from-purple-500 to-purple-700',
   'fixture-difficulty': 'from-blue-500 to-blue-700',
-  'mini-league-advice': 'from-springbok-500 to-springbok-700',
+  'mini-league-advice': 'from-orange-500 to-orange-600',
 };
 
 export function CoachRassie({ 
@@ -113,7 +113,7 @@ export function CoachRassie({
       <div className={cn('fixed z-40', positionClasses[position], className)}>
         <Button
           onClick={handleShow}
-          className={`rounded-full p-4 bg-gradient-to-br ${gradientClass} text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 border-2 border-white/20`}
+          className={`rounded-full p-4 bg-gradient-to-br ${gradientClass} text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 border-3 border-white ring-2 ring-orange-200`}
           size="lg"
         >
           <IconComponent className="w-6 h-6" />
