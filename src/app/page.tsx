@@ -91,7 +91,7 @@ export default function LiveHomePage() {
     });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-springbok-50 via-green-50 to-emerald-50">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-yellow-50">
       <div className="container mx-auto px-6 py-8">
         
         {/* Hero Section with Live GW Info */}

@@ -68,7 +68,7 @@ export default function Fixtures() {
 
   if (bootstrapLoading || fixturesLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-springbok-50 via-green-50 to-emerald-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-yellow-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
           <p className="text-lg text-gray-600 font-medium">{getLoadingText()}</p>
@@ -187,7 +187,7 @@ export default function Fixtures() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-springbok-50 via-green-50 to-emerald-50">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-yellow-50">
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="text-center mb-8">

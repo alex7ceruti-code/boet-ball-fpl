@@ -107,12 +107,12 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-springbok-50 via-green-50 to-emerald-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-yellow-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="p-3 rounded-full bg-gradient-to-r from-springbok-500 to-springbok-600 shadow-lg">
+            <div className="p-3 rounded-full bg-gradient-to-r from-green-600 to-yellow-500 shadow-lg">
               <Flame className="w-8 h-8 text-white" />
             </div>
           </div>
@@ -180,7 +180,7 @@ export default function SignUpPage() {
                     required
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-springbok-500 focus:border-springbok-500 transition-all bg-white text-gray-900 placeholder-gray-500 shadow-sm"
+                    className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all bg-white text-gray-900 placeholder-gray-500 shadow-sm"
                     placeholder="Enter your full name"
                   />
                   <User className="w-5 h-5 text-gray-400 absolute left-3 top-3.5" />
@@ -200,7 +200,7 @@ export default function SignUpPage() {
                     required
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-springbok-500 focus:border-springbok-500 transition-all bg-white text-gray-900 placeholder-gray-500 shadow-sm"
+                    className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all bg-white text-gray-900 placeholder-gray-500 shadow-sm"
                     placeholder="your.email@example.com"
                   />
                   <Mail className="w-5 h-5 text-gray-400 absolute left-3 top-3.5" />
@@ -220,7 +220,7 @@ export default function SignUpPage() {
                     required
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-12 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-springbok-500 focus:border-springbok-500 transition-all bg-white text-gray-900 placeholder-gray-500 shadow-sm"
+                    className="w-full pl-10 pr-12 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all bg-white text-gray-900 placeholder-gray-500 shadow-sm"
                     placeholder="Create a strong password"
                   />
                   <Lock className="w-5 h-5 text-gray-400 absolute left-3 top-3.5" />
@@ -248,7 +248,7 @@ export default function SignUpPage() {
                     required
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-12 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-springbok-500 focus:border-springbok-500 transition-all bg-white text-gray-900 placeholder-gray-500 shadow-sm"
+                    className="w-full pl-10 pr-12 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all bg-white text-gray-900 placeholder-gray-500 shadow-sm"
                     placeholder="Confirm your password"
                   />
                   <Shield className="w-5 h-5 text-gray-400 absolute left-3 top-3.5" />
@@ -282,7 +282,7 @@ export default function SignUpPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-springbok-600 to-springbok-700 text-white py-3 rounded-lg font-semibold hover:from-springbok-700 hover:to-springbok-800 focus:ring-4 focus:ring-springbok-200 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                className="w-full bg-gradient-to-r from-green-600 to-yellow-500 hover:from-green-700 hover:to-yellow-600 text-white py-3 rounded-lg font-semibold focus:ring-4 focus:ring-green-200 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
               >
                 {isLoading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -295,12 +295,12 @@ export default function SignUpPage() {
           </div>
 
           {/* Sign In Link */}
-          <div className="bg-springbok-50 px-8 py-4 border-t border-springbok-100">
+          <div className="bg-gradient-to-r from-green-50 to-yellow-50 px-8 py-4 border-t border-green-100">
             <p className="text-center text-sm text-gray-700">
               Already have an account?{' '}
               <Link 
                 href="/auth/signin" 
-                className="text-springbok-700 hover:text-springbok-800 font-semibold transition-colors hover:underline"
+                className="text-green-700 hover:text-green-800 font-semibold transition-colors hover:underline"
               >
                 Sign in here
               </Link>
@@ -312,11 +312,11 @@ export default function SignUpPage() {
         <div className="text-center">
           <p className="text-xs text-gray-500">
             By signing up, you agree to our{' '}
-            <Link href="/terms" className="text-springbok-600 hover:underline">
+            <Link href="/terms" className="text-green-600 hover:underline">
               Terms of Service
             </Link>{' '}
             and{' '}
-            <Link href="/privacy" className="text-springbok-600 hover:underline">
+            <Link href="/privacy" className="text-green-600 hover:underline">
               Privacy Policy
             </Link>
           </p>
