@@ -90,12 +90,22 @@ export default function EditArticlePage() {
       }
 
       setArticle(articleData);
+      // Handle tags - could be string or array depending on storage format
+      let tagsString = '';
+      if (articleData.tags) {
+        if (Array.isArray(articleData.tags)) {
+          tagsString = articleData.tags.join(', ');
+        } else if (typeof articleData.tags === 'string') {
+          tagsString = articleData.tags;
+        }
+      }
+
       setFormData({
         title: articleData.title,
         subtitle: articleData.subtitle || '',
         excerpt: articleData.excerpt,
         content: articleData.content,
-        tags: articleData.tags?.join(', ') || '',
+        tags: tagsString,
         isPremium: articleData.isPremium,
         status: articleData.status
       });

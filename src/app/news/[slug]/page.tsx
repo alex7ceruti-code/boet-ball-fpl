@@ -321,17 +321,26 @@ export default function ArticlePage() {
           </div>
 
           {/* Tags */}
-          {article.tags && article.tags.length > 0 && (
+          {article.tags && (
             <div className="flex flex-wrap gap-2 mb-8">
-              {article.tags.map((tag, index) => (
-                <span
-                  key={index}
-                  className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full"
-                >
-                  <Tag className="w-3 h-3" />
-                  {tag}
-                </span>
-              ))}
+              {(() => {
+                // Handle both string and array formats
+                let tagsArray = [];
+                if (Array.isArray(article.tags)) {
+                  tagsArray = article.tags;
+                } else if (typeof article.tags === 'string') {
+                  tagsArray = article.tags.split(',').map(t => t.trim()).filter(t => t);
+                }
+                return tagsArray.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full"
+                  >
+                    <Tag className="w-3 h-3" />
+                    {tag}
+                  </span>
+                ));
+              })()} 
             </div>
           )}
         </div>

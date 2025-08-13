@@ -73,39 +73,8 @@ export async function GET(
       );
     }
 
-    // Increment view count
-    await db.newsArticle.update({
-      where: { id: article.id },
-      data: { views: { increment: 1 } },
-    });
-
-    // Track view analytics
-    if (session?.user?.id) {
-      await db.newsAnalytics.create({
-        data: {
-          articleId: article.id,
-          userId: session.user.id,
-          event: 'VIEW',
-          metadata: JSON.stringify({
-            userAgent: request.headers.get('user-agent'),
-            timestamp: new Date().toISOString(),
-          }),
-        },
-      });
-    } else {
-      // Track anonymous view
-      await db.newsAnalytics.create({
-        data: {
-          articleId: article.id,
-          event: 'VIEW',
-          metadata: JSON.stringify({
-            anonymous: true,
-            userAgent: request.headers.get('user-agent'),
-            timestamp: new Date().toISOString(),
-          }),
-        },
-      });
-    }
+    // Note: View tracking is handled by the separate /view endpoint
+    // This prevents double-tracking when the article is fetched for display
 
     return NextResponse.json({ article });
   } catch (error) {
