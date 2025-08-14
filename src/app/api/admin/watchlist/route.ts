@@ -79,6 +79,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+    console.log('Received watchlist form data:', body);
+    
     const {
       fplPlayerId,
       playerName,
@@ -96,9 +98,21 @@ export async function POST(request: NextRequest) {
       attackingThreat
     } = body;
 
-    // Validate required fields
-    if (!fplPlayerId || !playerName || !teamName || !position || !currentPrice || !reason) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    // Validate required fields with detailed error messages
+    const missingFields = [];
+    if (!fplPlayerId) missingFields.push('fplPlayerId');
+    if (!playerName) missingFields.push('playerName');
+    if (!teamName) missingFields.push('teamName');
+    if (!position) missingFields.push('position');
+    if (!currentPrice) missingFields.push('currentPrice');
+    if (!reason || !reason.trim()) missingFields.push('reason');
+    
+    if (missingFields.length > 0) {
+      console.log('Missing fields:', missingFields);
+      return NextResponse.json({ 
+        error: `Missing required fields: ${missingFields.join(', ')}`,
+        missingFields 
+      }, { status: 400 });
     }
 
     // Check if player already on watchlist
