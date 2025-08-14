@@ -18,7 +18,8 @@ import {
   LogIn,
   LogOut,
   Crown,
-  Newspaper
+  Newspaper,
+  TrendingUp
 } from 'lucide-react';
 import { getTimeBasedGreeting } from '@/utils/slang';
 

@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { useBootstrapData, useTeamFDR } from '@/hooks/useFplData';
+import { useAdvancedPlayerStats, categorizePlayer, calculateAdvancedMetrics, type AdvancedPlayerStats } from '@/hooks/useAdvancedStats';
 import { getSlangPhrase, getLoadingText } from '@/utils/slang';
 import {
   Users,
@@ -27,7 +28,7 @@ import {
   Calendar
 } from 'lucide-react';
 
-type SortField = 'web_name' | 'total_points' | 'form' | 'now_cost' | 'selected_by_percent' | 'goals_scored' | 'assists' | 'clean_sheets' | 'saves' | 'ict_index' | 'expected_goals' | 'expected_assists' | 'value_season' | 'minutes' | 'bonus';
+type SortField = 'web_name' | 'total_points' | 'form' | 'now_cost' | 'selected_by_percent' | 'goals_scored' | 'assists' | 'clean_sheets' | 'saves' | 'ict_index' | 'expected_goals' | 'expected_assists' | 'value_season' | 'minutes' | 'bonus' | 'consistencyRating' | 'valueEfficiency' | 'attackingThreat' | 'xG90' | 'xA90';
 type SortOrder = 'asc' | 'desc';
 
 interface PlayerRowData {
@@ -319,6 +320,54 @@ const PlayerComparisonCard = ({ player, onRemove, bootstrap }: { player: any, on
         </div>
       )}
       
+      {/* Advanced Analytics */}
+      {(player.braaiRating || player.biltongValue || player.klapPotential) && (
+        <div className="pt-3 border-t border-braai-200 mb-4">
+          <h4 className="text-xs font-semibold text-gray-700 mb-2 flex items-center gap-1">
+            <Zap className="w-3 h-3" />
+            Advanced Analytics
+          </h4>
+          <div className="space-y-2 text-xs">
+            {player.braaiRating && (
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Braai Rating</span>
+                <span className="font-semibold text-purple-600">{player.braaiRating.toFixed(2)}</span>
+              </div>
+            )}
+            {player.biltongValue && (
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Biltong Value</span>
+                <span className="font-semibold text-orange-600">{player.biltongValue.toFixed(2)}</span>
+              </div>
+            )}
+            {player.klapPotential && (
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Klap Potential</span>
+                <span className="font-semibold text-green-600">{player.klapPotential.toFixed(2)}</span>
+              </div>
+            )}
+            {(player.xG90 || player.xA90) && (
+              <div className="pt-1 border-t border-braai-100">
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  {player.xG90 && (
+                    <div className="text-center">
+                      <div className="font-semibold text-blue-600">{player.xG90.toFixed(2)}</div>
+                      <div className="text-gray-500">xG90</div>
+                    </div>
+                  )}
+                  {player.xA90 && (
+                    <div className="text-center">
+                      <div className="font-semibold text-indigo-600">{player.xA90.toFixed(2)}</div>
+                      <div className="text-gray-500">xA90</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Additional Metrics */}
       <div className="pt-3 border-t border-braai-200 space-y-2 text-xs">
         <div className="flex justify-between items-center">
@@ -359,15 +408,17 @@ export default function PlayersDatabase() {
   const [priceRange, setPriceRange] = useState<[number, number]>([40, 150]); // £4.0m to £15.0m
   const [ownershipRange, setOwnershipRange] = useState<[number, number]>([0, 100]);
   const [differentialsOnly, setDifferentialsOnly] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [showAdvancedView, setShowAdvancedView] = useState(false);
   const [sortField, setSortField] = useState<SortField>('total_points');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const [selectedPlayers, setSelectedPlayers] = useState<number[]>([]);
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
   const [showCompareModal, setShowCompareModal] = useState(false);
   const [resultsPerPage] = useState(25);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Process and filter players
+  // Process players with advanced analytics
   const processedPlayers = useMemo(() => {
     if (!bootstrap) return [];
     
@@ -375,11 +426,28 @@ export default function PlayersDatabase() {
       const team = bootstrap.teams.find((t: any) => t.id === player.team);
       const position = bootstrap.element_types.find((p: any) => p.id === player.element_type);
       
-      return {
+      // Calculate advanced metrics
+      const advancedMetrics = calculateAdvancedMetrics(player);
+      
+      // Get player category
+      const playerWithMetrics = {
         ...player,
+        ...advancedMetrics,
         team_info: team,
         position_info: position
-      } as PlayerRowData;
+      };
+      
+      const category = categorizePlayer(playerWithMetrics as AdvancedPlayerStats);
+      
+      return {
+        ...playerWithMetrics,
+        category,
+        xG90: advancedMetrics.xG90 || 0,
+        xA90: advancedMetrics.xA90 || 0,
+        braaiRating: advancedMetrics.braaiRating || 0,
+        biltongValue: advancedMetrics.biltongValue || 0,
+        klapPotential: advancedMetrics.klapPotential || 0,
+      } as PlayerRowData & { category: any, xG90: number, xA90: number, braaiRating: number, biltongValue: number, klapPotential: number };
     });
   }, [bootstrap]);
 
@@ -539,14 +607,27 @@ export default function PlayersDatabase() {
               />
             </div>
             
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2 px-6 py-3 bg-springbok-green text-white rounded-lg hover:bg-springbok-700 transition-colors"
-            >
-              <Filter className="w-5 h-5" />
-              Filters
-              <ChevronDown className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
-            </button>
+<div className="flex gap-3">
+              <button
+                onClick={() => setShowAdvancedView(!showAdvancedView)}
+                className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors font-semibold ${
+                  showAdvancedView 
+                    ? 'bg-purple-600 text-white hover:bg-purple-700' 
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                <Zap className="w-5 h-5" />
+                {showAdvancedView ? 'Basic View' : 'Advanced Analytics'}
+              </button>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center gap-2 px-6 py-3 bg-springbok-green text-white rounded-lg hover:bg-springbok-700 transition-colors"
+              >
+                <Filter className="w-5 h-5" />
+                Filters
+                <ChevronDown className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+              </button>
+            </div>
           </div>
 
           {/* Advanced Filters */}
@@ -977,6 +1058,75 @@ export default function PlayersDatabase() {
                       )}
                     </button>
                   </th>
+                  {showAdvancedView && (
+                    <>
+                      <th className="px-4 py-3 text-left">
+                        <button
+                          onClick={() => handleSort('consistencyRating')}
+                          className="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-braai-primary"
+                        >
+                          Consistency Rating
+                          {sortField === 'consistencyRating' ? (
+                            sortOrder === 'asc' ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />
+                          ) : (
+                            <ArrowUpDown className="w-3 h-3" />
+                          )}
+                        </button>
+                      </th>
+                      <th className="px-4 py-3 text-left">
+                        <button
+                          onClick={() => handleSort('valueEfficiency')}
+                          className="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-braai-primary"
+                        >
+                          Value Efficiency
+                          {sortField === 'valueEfficiency' ? (
+                            sortOrder === 'asc' ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />
+                          ) : (
+                            <ArrowUpDown className="w-3 h-3" />
+                          )}
+                        </button>
+                      </th>
+                      <th className="px-4 py-3 text-left">
+                        <button
+                          onClick={() => handleSort('attackingThreat')}
+                          className="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-braai-primary"
+                        >
+                          Attacking Threat
+                          {sortField === 'attackingThreat' ? (
+                            sortOrder === 'asc' ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />
+                          ) : (
+                            <ArrowUpDown className="w-3 h-3" />
+                          )}
+                        </button>
+                      </th>
+                      <th className="px-4 py-3 text-left">
+                        <button
+                          onClick={() => handleSort('xG90')}
+                          className="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-braai-primary"
+                        >
+                          xG90
+                          {sortField === 'xG90' ? (
+                            sortOrder === 'asc' ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />
+                          ) : (
+                            <ArrowUpDown className="w-3 h-3" />
+                          )}
+                        </button>
+                      </th>
+                      <th className="px-4 py-3 text-left">
+                        <button
+                          onClick={() => handleSort('xA90')}
+                          className="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-braai-primary"
+                        >
+                          xA90
+                          {sortField === 'xA90' ? (
+                            sortOrder === 'asc' ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />
+                          ) : (
+                            <ArrowUpDown className="w-3 h-3" />
+                          )}
+                        </button>
+                      </th>
+                    </>
+                  )}
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
                   </th>
@@ -1074,6 +1224,25 @@ export default function PlayersDatabase() {
                           {parseFloat(player.value_season).toFixed(1)}
                         </div>
                       </td>
+                      {showAdvancedView && (
+                        <>
+                          <td className="px-4 py-4 text-center">
+                            <div className="font-semibold text-purple-600">{(player as any).braaiRating?.toFixed(2) || '0.00'}</div>
+                          </td>
+                          <td className="px-4 py-4 text-center">
+                            <div className="font-semibold text-orange-600">{(player as any).biltongValue?.toFixed(2) || '0.00'}</div>
+                          </td>
+                          <td className="px-4 py-4 text-center">
+                            <div className="font-semibold text-green-600">{(player as any).klapPotential?.toFixed(2) || '0.00'}</div>
+                          </td>
+                          <td className="px-4 py-4 text-center">
+                            <div className="font-semibold text-blue-600">{(player as any).xG90?.toFixed(2) || '0.00'}</div>
+                          </td>
+                          <td className="px-4 py-4 text-center">
+                            <div className="font-semibold text-indigo-600">{(player as any).xA90?.toFixed(2) || '0.00'}</div>
+                          </td>
+                        </>
+                      )}
                       <td className="px-4 py-4">
                         <div className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${availability.color}`}>
                           <span>{availability.icon}</span>
