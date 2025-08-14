@@ -202,7 +202,7 @@ export default function AdminDashboard() {
               </div>
             </div>
             <p className="text-sm text-gray-500">
-              View user engagement, article performance, and app usage statistics.
+              Manage curated player watchlist, add eye test recommendations, and track promising fantasy assets.
             </p>
           </div>
         </div>
