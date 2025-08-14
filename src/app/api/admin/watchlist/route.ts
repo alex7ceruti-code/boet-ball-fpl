@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { db } from '@/lib/db';
 import { calculateAdvancedMetrics } from '@/hooks/useAdvancedStats';
 
 // GET /api/admin/watchlist - Get all watchlist players
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if user is admin
-    const adminUser = await prisma.adminUser.findUnique({
+    const adminUser = await db.adminUser.findUnique({
       where: { userId: session.user.id }
     });
 
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     if (priority) where.priority = priority;
 
     // Get watchlist players
-    const watchlistPlayers = await prisma.playerWatchlist.findMany({
+    const watchlistPlayers = await db.playerWatchlist.findMany({
       where,
       include: {
         admin: {
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user is admin
-    const adminUser = await prisma.adminUser.findUnique({
+    const adminUser = await db.adminUser.findUnique({
       where: { userId: session.user.id }
     });
 
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if player already on watchlist
-    const existing = await prisma.playerWatchlist.findFirst({
+    const existing = await db.playerWatchlist.findFirst({
       where: { fplPlayerId: parseInt(fplPlayerId) }
     });
 
@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Add to watchlist
-    const watchlistPlayer = await prisma.playerWatchlist.create({
+    const watchlistPlayer = await db.playerWatchlist.create({
       data: {
         fplPlayerId: parseInt(fplPlayerId),
         playerName,
@@ -160,7 +160,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Check if user is admin
-    const adminUser = await prisma.adminUser.findUnique({
+    const adminUser = await db.adminUser.findUnique({
       where: { userId: session.user.id }
     });
 
@@ -176,7 +176,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Update the watchlist entry
-    const updatedPlayer = await prisma.playerWatchlist.update({
+    const updatedPlayer = await db.playerWatchlist.update({
       where: { id },
       data: {
         ...updateData,

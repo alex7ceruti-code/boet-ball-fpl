@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { db } from '@/lib/db';
 
 // DELETE /api/admin/watchlist/[id] - Remove player from watchlist
 export async function DELETE(
@@ -16,7 +16,7 @@ export async function DELETE(
     }
 
     // Check if user is admin
-    const adminUser = await prisma.adminUser.findUnique({
+    const adminUser = await db.adminUser.findUnique({
       where: { userId: session.user.id }
     });
 
@@ -31,7 +31,7 @@ export async function DELETE(
     }
 
     // Delete the watchlist entry
-    await prisma.playerWatchlist.delete({
+    await db.playerWatchlist.delete({
       where: { id }
     });
 
@@ -71,7 +71,7 @@ export async function GET(
     }
 
     // Check if user is admin
-    const adminUser = await prisma.adminUser.findUnique({
+    const adminUser = await db.adminUser.findUnique({
       where: { userId: session.user.id }
     });
 
@@ -81,7 +81,7 @@ export async function GET(
 
     const { id } = params;
 
-    const watchlistPlayer = await prisma.playerWatchlist.findUnique({
+    const watchlistPlayer = await db.playerWatchlist.findUnique({
       where: { id },
       include: {
         admin: {
