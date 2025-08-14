@@ -405,7 +405,7 @@ const PlayerComparisonCard = ({ player, onRemove, bootstrap }: { player: any, on
 
 export default function PlayersDatabase() {
   const { data: bootstrap, isLoading, error } = useBootstrapData();
-  const { watchlist, isOnWatchlist, getWatchlistData, getPriorityIcon, getConfidenceLevel } = useWatchlist();
+  const { watchlist, isLoading: watchlistLoading, error: watchlistError, isOnWatchlist, getWatchlistData, getPriorityIcon, getConfidenceLevel } = useWatchlist();
   const [searchTerm, setSearchTerm] = useState('');
   const [positionFilter, setPositionFilter] = useState<number | null>(null);
   const [teamFilter, setTeamFilter] = useState<number | null>(null);
@@ -1190,7 +1190,7 @@ export default function PlayersDatabase() {
                                   onMouseLeave={() => setShowWatchlistTooltip(null)}
                                   title="On Admin Watchlist"
                                 >
-                                  {getPriorityIcon(getWatchlistData(player.id)?.priority || 'medium')}
+                                  {getPriorityIcon(getWatchlistData(player.id)?.priority || 'MEDIUM').icon}
                                 </div>
                                 {/* Watchlist Tooltip */}
                                 {showWatchlistTooltip === player.id && (
@@ -1205,16 +1205,16 @@ export default function PlayersDatabase() {
                                           <span className="font-medium">Reason:</span> {getWatchlistData(player.id)?.reason}
                                         </div>
                                       )}
-                                      {getWatchlistData(player.id)?.notes && (
+                                      {getWatchlistData(player.id)?.eyeTestNotes && (
                                         <div className="text-gray-300">
-                                          <span className="font-medium">Notes:</span> {getWatchlistData(player.id)?.notes}
+                                          <span className="font-medium">Notes:</span> {getWatchlistData(player.id)?.eyeTestNotes}
                                         </div>
                                       )}
                                       <div className="flex items-center justify-between pt-1 border-t border-gray-700">
                                         <span className="text-gray-400">Priority:</span>
                                         <span className="flex items-center gap-1 font-medium">
-                                          {getPriorityIcon(getWatchlistData(player.id)?.priority || 'medium')}
-                                          {getWatchlistData(player.id)?.priority || 'Medium'}
+                                          {getPriorityIcon(getWatchlistData(player.id)?.priority || 'MEDIUM').icon}
+                                          {getWatchlistData(player.id)?.priority || 'MEDIUM'}
                                         </span>
                                       </div>
                                       <div className="flex items-center justify-between">

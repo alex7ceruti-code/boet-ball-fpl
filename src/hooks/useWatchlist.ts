@@ -24,16 +24,30 @@ export function useWatchlist() {
       try {
         setIsLoading(true);
         const response = await fetch('/api/players/watchlist');
+        
+        if (!response.ok) {
+          // If endpoint doesn't exist or fails, silently continue with empty watchlist
+          if (response.status === 404 || response.status === 500) {
+            console.warn('Watchlist API not available, using empty watchlist');
+            setWatchlist({});
+            setError(null);
+            return;
+          }
+        }
+        
         const data = await response.json();
-
+        
         if (!response.ok) {
           throw new Error(data.error || 'Failed to fetch watchlist');
         }
 
         setWatchlist(data.watchlist || {});
+        setError(null);
       } catch (err) {
-        console.error('Error fetching watchlist:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load watchlist');
+        console.warn('Error fetching watchlist, using empty fallback:', err);
+        // Use empty watchlist as fallback instead of showing error
+        setWatchlist({});
+        setError(null);
       } finally {
         setIsLoading(false);
       }
