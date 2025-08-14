@@ -27,26 +27,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth">
-      <head>
-        <script src="https://cdn.tailwindcss.com"></script>
-        <script dangerouslySetInnerHTML={{
-          __html: `
-            tailwind.config = {
-              theme: {
-                extend: {
-                  colors: {
-                    'braai-primary': '#D2691E',
-                    'braai-gold': '#FFD700',
-                    'braai-50': '#FDF8F3',
-                    'braai-100': '#F8E8D4',
-                    'braai-600': '#B8571A'
-                  }
-                }
-              }
-            }
-          `
-        }} />
-      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 dark:bg-gray-900`}
       >

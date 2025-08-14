@@ -1219,8 +1219,8 @@ export default function PlayersDatabase() {
                                       </div>
                                       <div className="flex items-center justify-between">
                                         <span className="text-gray-400">Confidence:</span>
-                                        <span className="font-medium">
-                                          {getConfidenceLevel(getWatchlistData(player.id)?.confidence || 50)}%
+                                        <span className={`font-medium ${getConfidenceLevel(getWatchlistData(player.id)?.confidence || 50).color}`}>
+                                          {getConfidenceLevel(getWatchlistData(player.id)?.confidence || 50).text}
                                         </span>
                                       </div>
                                     </div>

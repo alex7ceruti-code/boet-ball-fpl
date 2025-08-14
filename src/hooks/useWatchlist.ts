@@ -74,8 +74,19 @@ export function useWatchlist() {
     }
   };
 
-  const getConfidenceLevel = (confidence: string) => {
-    switch (confidence) {
+  const getConfidenceLevel = (confidence: string | number) => {
+    // Handle numeric confidence (0-100) by converting to string categories
+    let confidenceStr: string;
+    if (typeof confidence === 'number') {
+      if (confidence >= 80) confidenceStr = 'VERY_HIGH';
+      else if (confidence >= 65) confidenceStr = 'HIGH';
+      else if (confidence >= 40) confidenceStr = 'MEDIUM';
+      else confidenceStr = 'LOW';
+    } else {
+      confidenceStr = confidence;
+    }
+    
+    switch (confidenceStr) {
       case 'VERY_HIGH': return { text: 'Very High', color: 'text-green-600' };
       case 'HIGH': return { text: 'High', color: 'text-green-500' };
       case 'MEDIUM': return { text: 'Medium', color: 'text-blue-500' };

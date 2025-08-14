@@ -46,6 +46,21 @@ const config: Config = {
           500: "#eab308",
           600: "#ca8a04",
         },
+        braai: {
+          DEFAULT: '#D2691E',
+          primary: '#D2691E',
+          gold: '#FFD700',
+          50: '#FDF8F3',
+          100: '#F8E8D4',
+          200: '#F0D7B5',
+          300: '#E8C596',
+          400: '#E0B477',
+          500: '#D8A258',
+          600: '#B8571A',
+          700: '#A04916',
+          800: '#883C12',
+          900: '#702F0E',
+        },
         fdr: {
           1: "#00FF87", // Very easy - bright green
           2: "#7ED321", // Easy - green  
