@@ -183,9 +183,9 @@ export function calculateAdvancedMetrics(player: any): Partial<AdvancedPlayerSta
   const nowCost = player.now_cost || 1;
   const form = parseFloat(player.form || '0');
   
-  // Calculate per 90 minute stats
-  const xG90 = minutes > 0 ? (xG / minutes) * 90 : 0;
-  const xA90 = minutes > 0 ? (xA / minutes) * 90 : 0;
+  // Use FPL API's accurate per-90 values (more reliable than manual calculation)
+  const xG90 = player.expected_goals_per_90 || 0;
+  const xA90 = player.expected_assists_per_90 || 0;
   const xGI90 = xG90 + xA90;
   
   // Value calculations
