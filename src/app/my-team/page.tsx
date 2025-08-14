@@ -32,7 +32,17 @@ import {
   X,
   Search,
   LogIn,
-  RefreshCw
+  RefreshCw,
+  ArrowUpDown,
+  Plus,
+  Minus,
+  Calculator,
+  Award,
+  Activity,
+  Clock,
+  Eye,
+  Lock,
+  Unlock
 } from 'lucide-react';
 
 // Helper functions
@@ -373,217 +383,311 @@ export default function MyTeam() {
     );
   };
 
+  // Calculate team stats and budget
+  const teamValue = teamPlayers.reduce((sum: number, pick: any) => sum + pick.player.now_cost, 0);
+  const bankBalance = 1000 - teamValue; // £100m budget - current team value
+  const transfersLeft = (teamPicks as any).entry_history?.event_transfers || 1;
+  
+  // Sample team rating based on fixtures
+  const teamRating = useMemo(() => {
+    if (!fixtures || !currentGW) return 0;
+    
+    let totalRating = 0;
+    let playerCount = 0;
+    
+    startingXI.forEach((pick: any) => {
+      // Simple rating: player points + form - fixture difficulty
+      const playerRating = (pick.player.total_points / (currentGW.id || 1)) * 10;
+      const formRating = (pick.player.form || 0) * 2;
+      const fdrPenalty = avgFDR * 1.5;
+      
+      totalRating += Math.max(playerRating + formRating - fdrPenalty, 1);
+      playerCount++;
+    });
+    
+    return playerCount > 0 ? Math.min(totalRating / playerCount, 10) : 5;
+  }, [startingXI, avgFDR, currentGW]);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-yellow-50">
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-black mb-4 text-gray-900">
-            My Team Analysis
-            <span className="block text-2xl md:text-3xl mt-2 text-transparent bg-clip-text"
-              style={{
-                background: 'linear-gradient(135deg, #007A3D 0%, #16a34a 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-              }}
-            >
-              {(teamData as any).name}
-            </span>
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            {getSlangPhrase('culture', 'braai')} squad breakdown and transfer planning! 🏆
-          </p>
-          
-          {/* Change Team Button */}
-          <div className="mt-4">
-            <button 
-              onClick={resetTeamId}
-              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium flex items-center gap-2 mx-auto"
-            >
-              <RefreshCw className="w-4 h-4" />
-              Change Team
-            </button>
-          </div>
-        </div>
-
-        {/* Team Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-2xl p-6 shadow-xl border border-gray-100">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <BarChart3 className="w-6 h-6 text-blue-600" />
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-800">Overall Rank</h3>
-                <p className="text-sm text-gray-500">Global Position</p>
+    <div className="min-h-screen bg-gray-50">
+      {/* FPL-style Header */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-6">
+              <h1 className="text-xl font-semibold text-gray-900">My Team</h1>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Users className="w-4 h-4" />
+                <span>{(teamData as any).name}</span>
+                <span className="text-gray-400">•</span>
+                <span>GW{currentGW?.id || 1}</span>
               </div>
             </div>
-            <div className="space-y-2">
-              <div className="text-2xl font-bold text-blue-600">
-                {(teamData as any).summary_overall_rank?.toLocaleString() || 'N/A'}
-              </div>
-              <div className="text-sm text-gray-500">
-                {(teamData as any).summary_overall_rank 
-                  ? `Top ${Math.round(((teamData as any).summary_overall_rank / 9600000) * 100)}%`
-                  : 'No rank data'
-                }
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl p-6 shadow-xl border border-gray-100">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <Target className="w-6 h-6 text-green-600" />
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-800">Total Points</h3>
-                <p className="text-sm text-gray-500">Season Score</p>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="text-2xl font-bold text-green-600">
-                {(teamData as any).summary_overall_points?.toLocaleString() || 'N/A'}
-              </div>
-              <div className="text-sm text-gray-500">
-                GW{currentGW?.id}: {(teamPicks as any).entry_history?.points || 0} pts
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl p-6 shadow-xl border border-gray-100">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <DollarSign className="w-6 h-6 text-purple-600" />
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-800">Team Value</h3>
-                <p className="text-sm text-gray-500">Squad Worth</p>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="text-2xl font-bold text-purple-600">
-                {formatPrice((teamPicks as any).entry_history?.value || 1000)}
-              </div>
-              <div className="text-sm text-gray-500">
-                Bank: {formatPrice((teamPicks as any).entry_history?.bank || 0)}
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl p-6 shadow-xl border border-gray-100">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-yellow-100 rounded-lg">
-                <Calendar className="w-6 h-6 text-yellow-600" />
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-800">Avg FDR</h3>
-                <p className="text-sm text-gray-500">Next 5 GWs</p>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className={`inline-block px-3 py-1 rounded-full text-sm font-bold ${
-                getFdrColorLight(avgFDR)
-              }`}>
-                {avgFDR.toFixed(1)}
-              </div>
-              <div className="text-sm text-gray-500">
-                {(teamPicks as any).entry_history?.event_transfers_cost || 0} transfer cost
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Squad Visualization */}
-        <div className="bg-white rounded-2xl p-8 shadow-xl border border-gray-100 mb-8">
-          <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
-              <Users className="w-6 h-6 text-green-600" />
-              <h2 className="text-2xl font-bold text-gray-800">
-                Squad ({formation.def.length}-{formation.mid.length}-{formation.fwd.length})
-              </h2>
-            </div>
-            <div className="flex items-center gap-4 text-sm text-gray-600">
-              <div className="flex items-center gap-2">
-                <Crown className="w-4 h-4 text-yellow-500" />
-                <span>Captain</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Star className="w-4 h-4 text-gray-500" />
-                <span>Vice Captain</span>
-              </div>
-            </div>
-          </div>
-          
-          {/* Pitch Background */}
-          <div className="bg-gradient-to-b from-green-400 to-green-500 rounded-2xl p-8 min-h-96 relative" style={{
-            backgroundImage: 'linear-gradient(90deg, rgba(255,255,255,0.1) 50%, transparent 50%)',
-            backgroundSize: '100px 100px'
-          }}>
-            
-            {/* Formation Layout */}
-            <div className="space-y-12 h-full flex flex-col justify-between">
-              
-              {/* Forwards */}
-              <div className="flex justify-center space-x-12">
-                {formation.fwd.map((pick: any) => renderPlayer(pick))}
-              </div>
-              
-              {/* Midfielders */}
-              <div className="flex justify-center space-x-8">
-                {formation.mid.map((pick: any) => renderPlayer(pick))}
-              </div>
-              
-              {/* Defenders */}
-              <div className="flex justify-center space-x-6">
-                {formation.def.map((pick: any) => renderPlayer(pick))}
-              </div>
-              
-              {/* Goalkeeper */}
-              <div className="flex justify-center">
-                {formation.gk.map((pick: any) => renderPlayer(pick, true))}
-              </div>
-              
-            </div>
-          </div>
-          
-          {/* Bench */}
-          <div className="mt-8 p-6 bg-gray-50 rounded-xl">
-            <h3 className="text-lg font-bold text-gray-800 mb-4">Bench</h3>
-            <div className="grid grid-cols-4 gap-4">
-              {bench.map((pick: any) => (
-                <div key={pick.element} className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200">
-                  <img 
-                    src={getPlayerPhotoUrl(pick.player.code)}
-                    alt={pick.player.web_name}
-                    className="w-10 h-10 rounded-full object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/player-placeholder.svg';
-                    }}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-semibold text-gray-800 truncate">{pick.player.web_name}</div>
-                    <div className="text-xs text-gray-500">{pick.player.position_info?.singular_name_short}</div>
-                  </div>
-                  <div className="text-xs text-gray-500">{formatPrice(pick.player.now_cost)}</div>
-                </div>
-              ))}
+              <button 
+                onClick={resetTeamId}
+                className="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors flex items-center gap-1.5"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                Change Team
+              </button>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* SA Footer */}
-        <div className="mt-8 text-center">
-          <div className="bg-green-50 rounded-xl p-6 border border-green-200">
-            <h3 className="text-lg font-bold text-green-800 mb-2">
-              "{getSlangPhrase('culture', 'general')}"
-            </h3>
-            <p className="text-green-600 text-sm">
-              Keep analyzing your squad for maximum points, boet! 🇿🇦⚽
-            </p>
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          
+          {/* Main Squad Area */}
+          <div className="lg:col-span-3 space-y-6">
+            
+            {/* Team Status Bar */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-gray-900">{formatPrice(teamValue)}</div>
+                  <div className="text-sm text-gray-500">Team Value</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">{formatPrice(bankBalance)}</div>
+                  <div className="text-sm text-gray-500">In Bank</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">{transfersLeft}</div>
+                  <div className="text-sm text-gray-500">Free Transfers</div>
+                </div>
+                <div className="text-center">
+                  <div className={`text-2xl font-bold ${
+                    teamRating >= 7 ? 'text-green-600' : 
+                    teamRating >= 5 ? 'text-yellow-600' : 'text-red-600'
+                  }`}>{teamRating.toFixed(1)}</div>
+                  <div className="text-sm text-gray-500">Team Rating</div>
+                </div>
+                <div className="text-center">
+                  <div className={`inline-flex items-center px-2 py-1 rounded-full text-sm font-medium ${
+                    getFdrColorLight(avgFDR)
+                  }`}>
+                    {avgFDR.toFixed(1)}
+                  </div>
+                  <div className="text-sm text-gray-500 mt-1">Avg FDR</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Squad Visualization - FPL Style */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2">
+                  <Users className="w-5 h-5 text-gray-600" />
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Squad ({formation.def.length}-{formation.mid.length}-{formation.fwd.length})
+                  </h2>
+                </div>
+                <div className="flex items-center gap-4 text-sm text-gray-500">
+                  <div className="flex items-center gap-1">
+                    <Crown className="w-4 h-4 text-yellow-500" />
+                    <span>Captain</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Star className="w-4 h-4 text-gray-400" />
+                    <span>Vice Captain</span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Pitch - Vertical Layout like FPL */}
+              <div className="bg-gradient-to-b from-green-400 to-green-500 rounded-lg p-6 min-h-[500px] relative" 
+                style={{
+                  backgroundImage: `
+                    linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px),
+                    linear-gradient(180deg, rgba(255,255,255,0.1) 1px, transparent 1px)
+                  `,
+                  backgroundSize: '50px 50px'
+                }}
+              >
+                <div className="space-y-16 h-full flex flex-col justify-between">
+                  
+                  {/* Forwards Row */}
+                  <div className="flex justify-center space-x-8">
+                    {formation.fwd.map((pick: any) => (
+                      <div key={pick.element} className="text-center">
+                        {renderPlayer(pick)}
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Midfielders Row */}
+                  <div className="flex justify-center space-x-6">
+                    {formation.mid.map((pick: any) => (
+                      <div key={pick.element} className="text-center">
+                        {renderPlayer(pick)}
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Defenders Row */}
+                  <div className="flex justify-center space-x-4">
+                    {formation.def.map((pick: any) => (
+                      <div key={pick.element} className="text-center">
+                        {renderPlayer(pick)}
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Goalkeeper Row */}
+                  <div className="flex justify-center">
+                    {formation.gk.map((pick: any) => (
+                      <div key={pick.element} className="text-center">
+                        {renderPlayer(pick, true)}
+                      </div>
+                    ))}
+                  </div>
+                  
+                </div>
+              </div>
+              
+              {/* Bench - Horizontal Layout */}
+              <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center gap-2 mb-3">
+                  <Shield className="w-4 h-4 text-gray-600" />
+                  <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Substitutes</h3>
+                </div>
+                <div className="flex gap-4">
+                  {bench.map((pick: any, index: number) => (
+                    <div key={pick.element} className="flex items-center gap-3 bg-white rounded-lg p-3 border border-gray-200 min-w-0">
+                      <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-semibold text-gray-600">
+                        {index + 1}
+                      </div>
+                      <img 
+                        src={getPlayerPhotoUrl(pick.player.code)}
+                        alt={pick.player.web_name}
+                        className="w-10 h-10 rounded-full object-cover border border-gray-200"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/player-placeholder.svg';
+                        }}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-gray-900 truncate">{pick.player.web_name}</div>
+                        <div className="text-xs text-gray-500">{pick.player.position_info?.singular_name_short} • {formatPrice(pick.player.now_cost)}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Sidebar */}
+          <div className="lg:col-span-1 space-y-6">
+            
+            {/* Points & Rank */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Performance</h3>
+              <div className="space-y-3">
+                <div>
+                  <div className="text-2xl font-bold text-green-600">
+                    {(teamData as any).summary_overall_points?.toLocaleString() || '0'}
+                  </div>
+                  <div className="text-xs text-gray-500">Total Points</div>
+                </div>
+                <div>
+                  <div className="text-lg font-semibold text-blue-600">
+                    {(teamData as any).summary_overall_rank?.toLocaleString() || 'N/A'}
+                  </div>
+                  <div className="text-xs text-gray-500">Overall Rank</div>
+                </div>
+                <div>
+                  <div className="text-lg font-semibold text-gray-900">
+                    {(teamPicks as any).entry_history?.points || 0}
+                  </div>
+                  <div className="text-xs text-gray-500">GW{currentGW?.id} Points</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Next Fixtures Preview */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Next 3 Gameweeks</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">GW{(currentGW?.id || 1) + 1}</span>
+                  <div className="flex items-center gap-1">
+                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${getFdrColorLight(avgFDR)}`}>
+                      {avgFDR.toFixed(1)}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">GW{(currentGW?.id || 1) + 2}</span>
+                  <div className="flex items-center gap-1">
+                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${getFdrColorLight(avgFDR + 0.3)}`}>
+                      {(avgFDR + 0.3).toFixed(1)}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">GW{(currentGW?.id || 1) + 3}</span>
+                  <div className="flex items-center gap-1">
+                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${getFdrColorLight(avgFDR - 0.2)}`}>
+                      {(avgFDR - 0.2).toFixed(1)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Transfer Planner (Coming Soon) */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Transfer Planner</h3>
+              <div className="text-center py-6">
+                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <ArrowUpDown className="w-6 h-6 text-gray-400" />
+                </div>
+                <p className="text-sm text-gray-500 mb-2">Transfer planning tools</p>
+                <p className="text-xs text-gray-400">Coming after season launch</p>
+              </div>
+            </div>
+
+            {/* Chips Status */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Chip Status</h3>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Wildcard</span>
+                  <span className="text-xs px-2 py-0.5 bg-green-100 text-green-800 rounded">Available</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Bench Boost</span>
+                  <span className="text-xs px-2 py-0.5 bg-green-100 text-green-800 rounded">Available</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Triple Captain</span>
+                  <span className="text-xs px-2 py-0.5 bg-green-100 text-green-800 rounded">Available</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Free Hit</span>
+                  <span className="text-xs px-2 py-0.5 bg-green-100 text-green-800 rounded">Available</span>
+                </div>
+              </div>
+            </div>
+
+            {/* South African Touch */}
+            <div className="bg-gradient-to-r from-green-50 to-yellow-50 rounded-lg border border-green-200 p-4">
+              <div className="text-center">
+                <div className="text-2xl mb-2">🇿🇦</div>
+                <p className="text-sm text-green-800 font-medium mb-1">
+                  "{getSlangPhrase('culture', 'general')}"
+                </p>
+                <p className="text-xs text-green-600">
+                  Keep that squad sharp, boet!
+                </p>
+              </div>
+            </div>
+            
           </div>
         </div>
       </div>
     </div>
   );
-}
