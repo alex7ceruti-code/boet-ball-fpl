@@ -83,6 +83,7 @@ model User {
   newsAnalytics     NewsAnalytics[]
   articles          NewsArticle[]
   adminUser         AdminUser?
+  watchlistPlayers  PlayerWatchlist[]
   
   @@map("users")
 }
@@ -233,6 +234,45 @@ model PromoCode {
   @@map("promo_codes")
 }
 
+// Player watchlist for admin curated picks
+model PlayerWatchlist {
+  id            String   @id @default(cuid())
+  
+  // Player identification
+  fplPlayerId   Int      // FPL API player ID
+  playerName    String   // Player display name
+  teamName      String   // Team name
+  position      String   // Player position
+  currentPrice  Float    // Current FPL price
+  
+  // Admin analysis
+  reason        String   // Why this player is being watched
+  eyeTestNotes  String?  // Eye test observations
+  confidence    WatchlistConfidence @default(MEDIUM) // How confident about the pick
+  
+  // Statistical backing
+  reliabilityScore   Int     // Advanced analytics score
+  valueScore         Int     // Value efficiency score  
+  attackingThreat    Int     // Attacking potential score
+  
+  // Status and timing
+  status        WatchlistStatus @default(ACTIVE)
+  priority      WatchlistPriority @default(MEDIUM)
+  addedAt       DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Admin who added/manages
+  addedBy       String
+  admin         User     @relation(fields: [addedBy], references: [id])
+  
+  // Performance tracking
+  targetPrice   Float?   // Price target for recommendation
+  targetGW      Int?     // Gameweek target for breakout
+  actualOutcome String?  // How the pick turned out
+  
+  @@map("player_watchlist")
+}
+
 // Enums
 enum SubscriptionType {
   FREE
@@ -270,4 +310,25 @@ enum DiscountType {
   PERCENTAGE
   FIXED_AMOUNT
   FREE_TRIAL
+}
+
+enum WatchlistConfidence {
+  LOW
+  MEDIUM
+  HIGH
+  VERY_HIGH
+}
+
+enum WatchlistStatus {
+  ACTIVE
+  MONITORING
+  TRIGGERED
+  ARCHIVED
+}
+
+enum WatchlistPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
 }

@@ -188,14 +188,17 @@ export default function AdminDashboard() {
             </p>
           </div>
 
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 opacity-75">
+          <div 
+            onClick={() => router.push('/admin/watchlist')}
+            className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer group"
+          >
             <div className="flex items-center mb-4">
-              <div className="p-3 bg-purple-100 rounded-lg">
-                <BarChart3 className="w-6 h-6 text-purple-600" />
+              <div className="p-3 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
+                <Eye className="w-6 h-6 text-purple-600" />
               </div>
               <div className="ml-4">
-                <h3 className="text-lg font-semibold text-gray-900">Analytics</h3>
-                <p className="text-sm text-gray-600">Coming soon</p>
+                <h3 className="text-lg font-semibold text-gray-900">Players to Watch</h3>
+                <p className="text-sm text-gray-600">Curated watchlist & eye test</p>
               </div>
             </div>
             <p className="text-sm text-gray-500">
