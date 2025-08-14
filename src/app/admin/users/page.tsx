@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import {
   Users,
+  User,
   Search,
   Filter,
   Eye,
@@ -39,6 +40,8 @@ import {
   Check,
   AlertTriangle,
   Plus,
+  Trophy,
+  Volume2,
 } from 'lucide-react';
 import Link from 'next/link';
 
