@@ -161,11 +161,24 @@ export default function AdminWatchlist() {
     try {
       setError('');
       
+      // Validate form data
+      console.log('=== FORM VALIDATION ===');
+      console.log('Form Data:', JSON.stringify(formData, null, 2));
+      console.log('Reason check:', !!formData.reason.trim());
+      console.log('Player ID check:', !!formData.fplPlayerId);
+      console.log('Player Name check:', !!formData.playerName);
+      
       if (!formData.reason.trim()) {
         setError('Please provide a reason for watching this player');
         return;
       }
 
+      if (!formData.fplPlayerId) {
+        setError('Missing player ID - please select a player again');
+        return;
+      }
+
+      console.log('=== SUBMITTING TO API ===');
       console.log('Submitting form data:', formData);
 
       const response = await fetch('/api/admin/watchlist', {
@@ -681,7 +694,10 @@ export default function AdminWatchlist() {
                       <button
                         onClick={handleAddToWatchlist}
                         disabled={!formData.reason.trim()}
-                        className="px-8 py-3 bg-gradient-to-r from-springbok-green to-sa-gold text-white rounded-lg font-bold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-lg transition-all duration-200 transform hover:scale-105 disabled:hover:scale-100"
+                        className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-green-600 transition-all duration-200 transform hover:scale-105 disabled:hover:scale-100 border-2 border-yellow-400"
+                        style={{
+                          background: !formData.reason.trim() ? undefined : 'linear-gradient(to right, #16a34a, #eab308)'
+                        }}
                       >
                         🚀 Add to Watchlist
                       </button>
