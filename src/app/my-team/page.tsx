@@ -21,6 +21,7 @@ import {
   DollarSign,
   Calendar,
   ChevronRight,
+  ChevronLeft,
   Home,
   Plane,
   BarChart3,
@@ -91,6 +92,7 @@ export default function MyTeam() {
   const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
   const [showTransferSuggestions, setShowTransferSuggestions] = useState(false);
   const [activeTab, setActiveTab] = useState<'squad' | 'analysis' | 'transfers' | 'chips'>('squad');
+  const [selectedGameweek, setSelectedGameweek] = useState<number | null>(null);
   
   // Auto-load FPL Team ID from user profile
   useEffect(() => {
@@ -100,11 +102,18 @@ export default function MyTeam() {
     }
   }, [session, submittedTeamId]);
   
+  // Initialize selected gameweek to current gameweek
+  useEffect(() => {
+    if (currentGW && !selectedGameweek) {
+      setSelectedGameweek(currentGW.id);
+    }
+  }, [currentGW, selectedGameweek]);
+  
   // Fetch team data only when team ID is submitted
   const { data: teamData, isLoading: teamLoading, error: teamError } = useManagerTeam(submittedTeamId);
   const { data: teamPicks, isLoading: picksLoading, error: picksError } = useManagerPicks(
     submittedTeamId, 
-    currentGW?.id || null
+    selectedGameweek || currentGW?.id || null
   );
   
   const handleTeamIdSubmit = (e: React.FormEvent) => {
@@ -296,12 +305,12 @@ export default function MyTeam() {
   const captain = teamPlayers.find((p: any) => p.is_captain);
   const viceCaptain = teamPlayers.find((p: any) => p.is_vice_captain);
   
-  // Calculate average FDR for next 5 gameweeks
+  // Calculate average FDR for selected gameweek and next 4 gameweeks
   const avgFDR = useMemo(() => {
-    if (!fixtures || !currentGW) return 0;
+    if (!fixtures || !selectedGameweek) return 0;
     
     const nextGWs = bootstrap.events
-      .filter(gw => gw.id >= currentGW.id && gw.id < currentGW.id + 5)
+      .filter(gw => gw.id >= selectedGameweek && gw.id < selectedGameweek + 5)
       .map(gw => gw.id);
     
     let totalFDR = 0;
@@ -322,7 +331,7 @@ export default function MyTeam() {
     });
     
     return fixtureCount > 0 ? totalFDR / fixtureCount : 0;
-  }, [fixtures, startingXI, currentGW, bootstrap]);
+  }, [fixtures, startingXI, selectedGameweek, bootstrap]);
 
   const renderPlayer = (pick: any, isLarge = false) => {
     if (!pick?.player) return null;
@@ -419,10 +428,65 @@ export default function MyTeam() {
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Users className="w-4 h-4" />
                 <span>{(teamData as any).name}</span>
-                <span className="text-gray-400">•</span>
-                <span>GW{currentGW?.id || 1}</span>
               </div>
             </div>
+            
+            {/* Gameweek Navigation */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center bg-gray-100 rounded-lg p-1">
+                <button 
+                  onClick={() => {
+                    if (selectedGameweek && selectedGameweek > 1) {
+                      setSelectedGameweek(selectedGameweek - 1);
+                    }
+                  }}
+                  disabled={selectedGameweek === 1}
+                  className={`p-1 rounded transition-colors ${
+                    selectedGameweek === 1 
+                      ? 'text-gray-400 cursor-not-allowed' 
+                      : 'text-gray-600 hover:bg-white hover:shadow-sm'
+                  }`}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                
+                <div className="px-3 py-1 text-sm font-medium text-gray-900 min-w-[80px] text-center">
+                  <div className="flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span>GW{selectedGameweek || currentGW?.id || 1}</span>
+                    {selectedGameweek === currentGW?.id && (
+                      <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
+                    )}
+                  </div>
+                </div>
+                
+                <button 
+                  onClick={() => {
+                    if (selectedGameweek && bootstrap && selectedGameweek < bootstrap.events.length) {
+                      setSelectedGameweek(selectedGameweek + 1);
+                    }
+                  }}
+                  disabled={selectedGameweek === bootstrap?.events.length}
+                  className={`p-1 rounded transition-colors ${
+                    selectedGameweek === bootstrap?.events.length
+                      ? 'text-gray-400 cursor-not-allowed' 
+                      : 'text-gray-600 hover:bg-white hover:shadow-sm'
+                  }`}
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+              
+              {selectedGameweek !== currentGW?.id && (
+                <button 
+                  onClick={() => setSelectedGameweek(currentGW?.id || 1)}
+                  className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                >
+                  Current
+                </button>
+              )}
+            </div>
+            
             <div className="flex items-center gap-3">
               <button 
                 onClick={resetTeamId}
@@ -609,10 +673,12 @@ export default function MyTeam() {
 
             {/* Next Fixtures Preview */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Next 3 Gameweeks</h3>
+              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
+                {selectedGameweek === currentGW?.id ? 'Next 3 Gameweeks' : 'Future Gameweeks'}
+              </h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">GW{(currentGW?.id || 1) + 1}</span>
+                  <span className="text-gray-600">GW{(selectedGameweek || 1) + 1}</span>
                   <div className="flex items-center gap-1">
                     <span className={`px-2 py-0.5 rounded text-xs font-medium ${getFdrColorLight(avgFDR)}`}>
                       {avgFDR.toFixed(1)}
@@ -620,7 +686,7 @@ export default function MyTeam() {
                   </div>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">GW{(currentGW?.id || 1) + 2}</span>
+                  <span className="text-gray-600">GW{(selectedGameweek || 1) + 2}</span>
                   <div className="flex items-center gap-1">
                     <span className={`px-2 py-0.5 rounded text-xs font-medium ${getFdrColorLight(avgFDR + 0.3)}`}>
                       {(avgFDR + 0.3).toFixed(1)}
@@ -628,7 +694,7 @@ export default function MyTeam() {
                   </div>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">GW{(currentGW?.id || 1) + 3}</span>
+                  <span className="text-gray-600">GW{(selectedGameweek || 1) + 3}</span>
                   <div className="flex items-center gap-1">
                     <span className={`px-2 py-0.5 rounded text-xs font-medium ${getFdrColorLight(avgFDR - 0.2)}`}>
                       {(avgFDR - 0.2).toFixed(1)}
