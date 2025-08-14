@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { useBootstrapData, useTeamFDR } from '@/hooks/useFplData';
 import { useAdvancedPlayerStats, categorizePlayer, calculateAdvancedMetrics, type AdvancedPlayerStats } from '@/hooks/useAdvancedStats';
+import { useWatchlist } from '@/hooks/useWatchlist';
 import { getSlangPhrase, getLoadingText } from '@/utils/slang';
 import {
   Users,
@@ -25,7 +26,9 @@ import {
   Zap,
   Lightbulb,
   Crosshair,
-  Calendar
+  Calendar,
+  AlertCircle,
+  Info
 } from 'lucide-react';
 
 type SortField = 'web_name' | 'total_points' | 'form' | 'now_cost' | 'selected_by_percent' | 'goals_scored' | 'assists' | 'clean_sheets' | 'saves' | 'ict_index' | 'expected_goals' | 'expected_assists' | 'value_season' | 'minutes' | 'bonus' | 'consistencyRating' | 'valueEfficiency' | 'attackingThreat' | 'xG90' | 'xA90';
@@ -330,20 +333,20 @@ const PlayerComparisonCard = ({ player, onRemove, bootstrap }: { player: any, on
           <div className="space-y-2 text-xs">
             {player.braaiRating && (
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">Braai Rating</span>
-                <span className="font-semibold text-purple-600">{player.braaiRating.toFixed(2)}</span>
+                <span className="text-gray-600">Consistency Rating</span>
+                <span className="font-semibold text-purple-600">{player.braaiRating.toFixed(0)}</span>
               </div>
             )}
             {player.biltongValue && (
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">Biltong Value</span>
-                <span className="font-semibold text-orange-600">{player.biltongValue.toFixed(2)}</span>
+                <span className="text-gray-600">Value Efficiency</span>
+                <span className="font-semibold text-orange-600">{player.biltongValue.toFixed(0)}</span>
               </div>
             )}
             {player.klapPotential && (
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">Klap Potential</span>
-                <span className="font-semibold text-green-600">{player.klapPotential.toFixed(2)}</span>
+                <span className="text-gray-600">Attacking Threat</span>
+                <span className="font-semibold text-green-600">{player.klapPotential.toFixed(0)}</span>
               </div>
             )}
             {(player.xG90 || player.xA90) && (
@@ -402,6 +405,7 @@ const PlayerComparisonCard = ({ player, onRemove, bootstrap }: { player: any, on
 
 export default function PlayersDatabase() {
   const { data: bootstrap, isLoading, error } = useBootstrapData();
+  const { watchlist, isOnWatchlist, getWatchlistData, getPriorityIcon, getConfidenceLevel } = useWatchlist();
   const [searchTerm, setSearchTerm] = useState('');
   const [positionFilter, setPositionFilter] = useState<number | null>(null);
   const [teamFilter, setTeamFilter] = useState<number | null>(null);
@@ -417,6 +421,7 @@ export default function PlayersDatabase() {
   const [showCompareModal, setShowCompareModal] = useState(false);
   const [resultsPerPage] = useState(25);
   const [currentPage, setCurrentPage] = useState(1);
+  const [showWatchlistTooltip, setShowWatchlistTooltip] = useState<number | null>(null);
 
   // Process players with advanced analytics
   const processedPlayers = useMemo(() => {
@@ -1176,9 +1181,63 @@ export default function PlayersDatabase() {
                                 (e.target as HTMLImageElement).src = '/team-placeholder.svg';
                               }}
                             />
+                            {/* Watchlist indicator */}
+                            {isOnWatchlist(player.id) && (
+                              <div className="absolute -top-1 -left-1 w-5 h-5">
+                                <div 
+                                  className="w-full h-full bg-yellow-400 rounded-full flex items-center justify-center text-xs cursor-pointer shadow-md border border-yellow-500 hover:bg-yellow-300 transition-colors"
+                                  onMouseEnter={() => setShowWatchlistTooltip(player.id)}
+                                  onMouseLeave={() => setShowWatchlistTooltip(null)}
+                                  title="On Admin Watchlist"
+                                >
+                                  {getPriorityIcon(getWatchlistData(player.id)?.priority || 'medium')}
+                                </div>
+                                {/* Watchlist Tooltip */}
+                                {showWatchlistTooltip === player.id && (
+                                  <div className="absolute top-6 left-0 z-10 bg-gray-900 text-white text-xs rounded-lg p-3 shadow-xl w-64 border border-gray-700">
+                                    <div className="font-semibold mb-1 flex items-center gap-2">
+                                      <AlertCircle className="w-3 h-3 text-yellow-400" />
+                                      Admin Watchlist
+                                    </div>
+                                    <div className="space-y-1">
+                                      {getWatchlistData(player.id)?.reason && (
+                                        <div className="text-gray-300">
+                                          <span className="font-medium">Reason:</span> {getWatchlistData(player.id)?.reason}
+                                        </div>
+                                      )}
+                                      {getWatchlistData(player.id)?.notes && (
+                                        <div className="text-gray-300">
+                                          <span className="font-medium">Notes:</span> {getWatchlistData(player.id)?.notes}
+                                        </div>
+                                      )}
+                                      <div className="flex items-center justify-between pt-1 border-t border-gray-700">
+                                        <span className="text-gray-400">Priority:</span>
+                                        <span className="flex items-center gap-1 font-medium">
+                                          {getPriorityIcon(getWatchlistData(player.id)?.priority || 'medium')}
+                                          {getWatchlistData(player.id)?.priority || 'Medium'}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-gray-400">Confidence:</span>
+                                        <span className="font-medium">
+                                          {getConfidenceLevel(getWatchlistData(player.id)?.confidence || 50)}%
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
                           <div>
-                            <div className="font-semibold text-gray-900">{player.web_name}</div>
+                            <div className="font-semibold text-gray-900 flex items-center gap-2">
+                              {player.web_name}
+                              {isOnWatchlist(player.id) && (
+                                <span className="text-xs px-1.5 py-0.5 bg-yellow-100 text-yellow-800 rounded-full font-medium">
+                                  Watch
+                                </span>
+                              )}
+                            </div>
                             <div className="text-sm text-gray-500">
                               {player.team_info?.short_name} • {player.position_info?.singular_name_short}
                             </div>
@@ -1227,13 +1286,13 @@ export default function PlayersDatabase() {
                       {showAdvancedView && (
                         <>
                           <td className="px-4 py-4 text-center">
-                            <div className="font-semibold text-purple-600">{(player as any).braaiRating?.toFixed(2) || '0.00'}</div>
+                            <div className="font-semibold text-purple-600">{(player as any).consistencyRating?.toFixed(0) || '0'}</div>
                           </td>
                           <td className="px-4 py-4 text-center">
-                            <div className="font-semibold text-orange-600">{(player as any).biltongValue?.toFixed(2) || '0.00'}</div>
+                            <div className="font-semibold text-orange-600">{(player as any).valueEfficiency?.toFixed(0) || '0'}</div>
                           </td>
                           <td className="px-4 py-4 text-center">
-                            <div className="font-semibold text-green-600">{(player as any).klapPotential?.toFixed(2) || '0.00'}</div>
+                            <div className="font-semibold text-green-600">{(player as any).attackingThreat?.toFixed(0) || '0'}</div>
                           </td>
                           <td className="px-4 py-4 text-center">
                             <div className="font-semibold text-blue-600">{(player as any).xG90?.toFixed(2) || '0.00'}</div>
