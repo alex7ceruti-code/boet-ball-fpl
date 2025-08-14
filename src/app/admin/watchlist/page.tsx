@@ -134,15 +134,51 @@ export default function AdminWatchlist() {
   const handlePlayerSelect = (player: any) => {
     if (!player) return;
     
-    // Calculate advanced metrics
-    const metrics = calculateAdvancedMetrics(player);
+    console.log('Selected player object:', player);
+    console.log('Team info:', player.team_info);
+    console.log('Position info:', player.position_info);
+    console.log('Bootstrap data available:', !!bootstrap);
     
-    setFormData({
-      fplPlayerId: player.id.toString(),
-      playerName: player.web_name,
-      teamName: player.team_info?.name || '',
-      position: player.position_info?.singular_name || '',
-      currentPrice: (player.now_cost / 10).toString(),
+    // Enrich player data with team and position info from bootstrap
+    let enrichedPlayer = { ...player };
+    
+    if (bootstrap) {
+      // Find team info
+      const teamInfo = bootstrap.teams.find(t => t.id === player.team);
+      if (teamInfo) {
+        enrichedPlayer.team_info = teamInfo;
+      }
+      
+      // Find position info
+      const positionInfo = bootstrap.element_types.find(p => p.id === player.element_type);
+      if (positionInfo) {
+        enrichedPlayer.position_info = positionInfo;
+      }
+    }
+    
+    // Calculate advanced metrics
+    const metrics = calculateAdvancedMetrics(enrichedPlayer);
+    
+    // Get team name - try different properties
+    const teamName = enrichedPlayer.team_info?.name || 
+                     enrichedPlayer.team_info?.short_name || 
+                     enrichedPlayer.team?.name || 
+                     enrichedPlayer.team?.short_name || 
+                     'Unknown Team';
+    
+    // Get position - try different properties                 
+    const position = enrichedPlayer.position_info?.singular_name ||
+                     enrichedPlayer.position_info?.plural_name ||
+                     enrichedPlayer.position?.singular_name ||
+                     enrichedPlayer.position?.plural_name ||
+                     'Unknown Position';
+    
+    const newFormData = {
+      fplPlayerId: enrichedPlayer.id.toString(),
+      playerName: enrichedPlayer.web_name || enrichedPlayer.name || 'Unknown Player',
+      teamName: teamName,
+      position: position,
+      currentPrice: (enrichedPlayer.now_cost / 10).toString(),
       reason: '',
       eyeTestNotes: '',
       confidence: 'MEDIUM',
@@ -152,9 +188,13 @@ export default function AdminWatchlist() {
       reliabilityScore: metrics.consistencyRating || 0,
       valueScore: metrics.valueEfficiency || 0,
       attackingThreat: metrics.attackingThreat || 0
-    });
+    };
     
-    setSelectedPlayer(player);
+    console.log('Team found:', teamName);
+    console.log('Position found:', position);
+    console.log('Setting form data:', newFormData);
+    setFormData(newFormData);
+    setSelectedPlayer(enrichedPlayer);
   };
 
   const handleAddToWatchlist = async () => {
@@ -312,10 +352,13 @@ export default function AdminWatchlist() {
             </div>
             <button
               onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-springbok-green text-white rounded-lg font-semibold hover:bg-springbok-800 transition-colors shadow-md"
+              className="flex items-center gap-2 px-8 py-3 text-white rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 border-2 border-yellow-400"
+              style={{
+                background: 'linear-gradient(to right, #16a34a, #eab308)'
+              }}
             >
               <Plus className="w-5 h-5" />
-              Add Player
+              🚀 Add Player
             </button>
           </div>
         </div>
@@ -522,7 +565,11 @@ export default function AdminWatchlist() {
                     {searchTerm && (
                       <div className="mt-4 max-h-60 overflow-y-auto border border-gray-200 rounded-lg">
                         {filteredPlayers.slice(0, 20).map((player: any) => {
+                          // Enrich player data for display
+                          const teamInfo = bootstrap?.teams.find(t => t.id === player.team);
+                          const positionInfo = bootstrap?.element_types.find(p => p.id === player.element_type);
                           const metrics = calculateAdvancedMetrics(player);
+                          
                           return (
                             <div
                               key={player.id}
@@ -532,7 +579,7 @@ export default function AdminWatchlist() {
                               <div>
                                 <div className="font-medium text-gray-900">{player.web_name}</div>
                                 <div className="text-sm text-gray-500">
-                                  {player.team_info?.name} • {player.position_info?.singular_name} • £{(player.now_cost / 10).toFixed(1)}m
+                                  {teamInfo?.name || 'Unknown Team'} • {positionInfo?.singular_name || 'Unknown Position'} • £{(player.now_cost / 10).toFixed(1)}m
                                 </div>
                               </div>
                               <div className="text-xs text-gray-500">
