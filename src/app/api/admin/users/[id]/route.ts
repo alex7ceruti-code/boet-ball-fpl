@@ -31,7 +31,7 @@ export async function GET(
 
     const userId = params.id;
 
-    // Get user with full details
+    // Get user with full details - simplified to debug
     const user = await db.user.findUnique({
       where: { id: userId },
       include: {
@@ -44,14 +44,6 @@ export async function GET(
             createdAt: true,
           }
         },
-        sessions: {
-          select: {
-            expires: true,
-            createdAt: true,
-          },
-          orderBy: { createdAt: 'desc' },
-          take: 5,
-        },
         analytics: {
           select: {
             page: true,
@@ -60,21 +52,35 @@ export async function GET(
           },
           orderBy: { timestamp: 'desc' },
           take: 20,
-        },
-        articles: {
-          select: {
-            id: true,
-            title: true,
-            status: true,
-            views: true,
-            likes: true,
-            createdAt: true,
-          },
-          orderBy: { createdAt: 'desc' },
-          take: 10,
         }
       }
     });
+
+    // Get sessions and articles separately to avoid relation issues
+    const [sessions, articles] = await Promise.all([
+      db.session.findMany({
+        where: { userId },
+        select: {
+          expires: true,
+          createdAt: true,
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+      }),
+      db.newsArticle.findMany({
+        where: { authorId: userId },
+        select: {
+          id: true,
+          title: true,
+          status: true,
+          views: true,
+          likes: true,
+          createdAt: true,
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+      })
+    ]);
 
     if (!user) {
       return NextResponse.json(
@@ -86,6 +92,8 @@ export async function GET(
     return NextResponse.json({
       user: {
         ...user,
+        sessions,
+        articles,
         // Remove sensitive data
         password: undefined,
         emailVerificationToken: undefined,
