@@ -14,7 +14,7 @@ export async function middleware(request: NextRequest) {
   });
 
   // Define public pages that don't require authentication
-  const publicPages = ['/', '/auth/signin', '/auth/signup', '/about', '/terms', '/privacy'];
+  const publicPages = ['/', '/auth/signin', '/auth/signup', '/about', '/terms', '/privacy', '/my-team'];
   const isPublicPage = publicPages.includes(request.nextUrl.pathname);
   const isAuthPage = request.nextUrl.pathname.startsWith('/auth/');
 
