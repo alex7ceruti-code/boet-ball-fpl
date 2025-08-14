@@ -297,7 +297,7 @@ export default function AdminWatchlist() {
             </div>
             <button
               onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-springbok-green text-white rounded-lg font-semibold hover:bg-springbok-700 transition-colors shadow-md"
+              className="flex items-center gap-2 px-6 py-3 bg-springbok-green text-white rounded-lg font-semibold hover:bg-springbok-800 transition-colors shadow-md"
             >
               <Plus className="w-5 h-5" />
               Add Player
@@ -371,7 +371,7 @@ export default function AdminWatchlist() {
               <p className="text-gray-500 mb-6">Start building your curated FPL watchlist with advanced analytics</p>
               <button
                 onClick={() => setShowAddModal(true)}
-                className="px-6 py-3 bg-springbok-green text-white rounded-lg font-semibold hover:bg-springbok-700 transition-colors"
+                className="px-6 py-3 bg-springbok-green text-white rounded-lg font-semibold hover:bg-springbok-800 transition-colors"
               >
                 Add First Player
               </button>
@@ -669,7 +669,7 @@ export default function AdminWatchlist() {
                       <button
                         onClick={handleAddToWatchlist}
                         disabled={!formData.reason.trim()}
-                        className="px-6 py-2 bg-springbok-green text-white rounded-lg font-semibold hover:bg-springbok-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-6 py-2 bg-springbok-green text-white rounded-lg font-semibold hover:bg-springbok-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-springbok-green transition-colors"
                       >
                         Add to Watchlist
                       </button>
