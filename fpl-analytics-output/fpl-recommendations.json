@@ -1,0 +1,48 @@
+[
+  {
+    "category": "differentials",
+    "count": 0,
+    "topPlayers": []
+  },
+  {
+    "category": "hotForm",
+    "count": 0,
+    "topPlayers": []
+  },
+  {
+    "category": "valuePlays",
+    "count": 0,
+    "topPlayers": []
+  },
+  {
+    "category": "bonusMagnets",
+    "count": 10,
+    "topPlayers": [
+      {
+        "name": "Mohamed Salah",
+        "reason": "59.63157894736842% chance of bonus points"
+      },
+      {
+        "name": "Matheus Santos Carneiro da Cunha",
+        "reason": "57.793103448275865% chance of bonus points"
+      },
+      {
+        "name": "Amad Diallo",
+        "reason": "56.9% chance of bonus points"
+      },
+      {
+        "name": "James Maddison",
+        "reason": "56.38095238095238% chance of bonus points"
+      },
+      {
+        "name": "Dwight McNeil",
+        "reason": "53.46666666666667% chance of bonus points"
+      }
+    ]
+  },
+  {
+    "category": "fixtureStars",
+    "count": 0,
+    "topPlayers": []
+  }
+]

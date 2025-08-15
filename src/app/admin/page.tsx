@@ -151,7 +151,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Admin Navigation */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div 
             onClick={() => router.push('/admin/users')}
             className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer group"
@@ -203,6 +203,24 @@ export default function AdminDashboard() {
             </div>
             <p className="text-sm text-gray-500">
               Manage curated player watchlist, add eye test recommendations, and track promising fantasy assets.
+            </p>
+          </div>
+
+          <div 
+            onClick={() => router.push('/admin/analytics')}
+            className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer group"
+          >
+            <div className="flex items-center mb-4">
+              <div className="p-3 bg-orange-100 rounded-lg group-hover:bg-orange-200 transition-colors">
+                <BarChart3 className="w-6 h-6 text-orange-600" />
+              </div>
+              <div className="ml-4">
+                <h3 className="text-lg font-semibold text-gray-900">Advanced Analytics</h3>
+                <p className="text-sm text-gray-600">FPL data insights & analysis</p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-500">
+              Generate professional FPL analytics, player recommendations, and data-driven insights using official API data.
             </p>
           </div>
         </div>

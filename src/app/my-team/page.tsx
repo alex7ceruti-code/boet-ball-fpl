@@ -573,6 +573,11 @@ export default function MyTeam() {
       ...manualTeam.bench
     ].filter(p => p.id !== excludePlayerId);
     
+    // Check maximum squad size (15 players)
+    if (allPlayers.length >= 15) {
+      return { valid: false, reason: 'Squad is full! Maximum 15 players allowed (11 starting + 4 substitutes)' };
+    }
+    
     // Check team limit (max 3 players from same team)
     const teamCount = allPlayers.filter(p => p.team === newPlayer.team).length;
     if (teamCount >= 3) {
@@ -1348,16 +1353,87 @@ export default function MyTeam() {
                   </div>
                 </div>
                 
-                {/* Template Pitch */}
-                <div className="bg-gradient-to-b from-green-400 to-green-500 rounded-lg p-6 min-h-[500px] relative" 
+                {/* Template Pitch - FIFA/FUT Style */}
+                <div className="rounded-lg p-6 min-h-[500px] relative overflow-hidden" 
                   style={{
-                    backgroundImage: `
-                      linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px),
-                      linear-gradient(180deg, rgba(255,255,255,0.1) 1px, transparent 1px)
+                    background: `
+                      linear-gradient(135deg, 
+                        #1a4d3a 0%, 
+                        #2d6b4f 15%, 
+                        #4ade80 35%, 
+                        #22c55e 50%, 
+                        #16a34a 65%, 
+                        #15803d 85%, 
+                        #0f3c26 100%
+                      ),
+                      repeating-linear-gradient(
+                        90deg,
+                        transparent 0px,
+                        transparent 40px,
+                        rgba(255, 255, 255, 0.03) 40px,
+                        rgba(255, 255, 255, 0.03) 80px
+                      ),
+                      repeating-linear-gradient(
+                        0deg,
+                        transparent 0px,
+                        transparent 60px,
+                        rgba(0, 0, 0, 0.05) 60px,
+                        rgba(0, 0, 0, 0.05) 120px
+                      )
                     `,
-                    backgroundSize: '50px 50px'
+                    boxShadow: `
+                      inset 0 0 100px rgba(0, 0, 0, 0.3),
+                      inset 0 0 200px rgba(0, 50, 0, 0.2),
+                      0 20px 40px rgba(0, 0, 0, 0.3)
+                    `,
+                    transform: 'perspective(800px) rotateX(5deg)',
+                    transformStyle: 'preserve-3d'
                   }}
                 >
+                  {/* Stadium lighting effect */}
+                  <div className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-black/20"></div>
+                  
+                  {/* Field markings */}
+                  <div className="absolute inset-0">
+                    {/* Outer boundary */}
+                    <div className="absolute inset-4 border-2 border-white/40 rounded-sm"></div>
+                    
+                    {/* Center circle */}
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-28 h-28 border-2 border-white/40 rounded-full"></div>
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-white/60 rounded-full shadow-lg"></div>
+                    
+                    {/* Halfway line */}
+                    <div className="absolute top-1/2 left-4 right-4 h-0.5 bg-white/40 shadow-sm"></div>
+                    
+                    {/* Penalty areas */}
+                    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-24 h-12 border-2 border-white/40 border-b-0"></div>
+                    <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-24 h-12 border-2 border-white/40 border-t-0"></div>
+                    
+                    {/* Goal areas */}
+                    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-16 h-6 border-2 border-white/40 border-b-0"></div>
+                    <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-16 h-6 border-2 border-white/40 border-t-0"></div>
+                    
+                    {/* Penalty spots */}
+                    <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white/60 rounded-full shadow-md"></div>
+                    <div className="absolute top-16 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white/60 rounded-full shadow-md"></div>
+                    
+                    {/* Corner arcs */}
+                    <div className="absolute bottom-4 left-4 w-8 h-8 border-2 border-white/40 border-r-0 border-t-0 rounded-bl-full"></div>
+                    <div className="absolute bottom-4 right-4 w-8 h-8 border-2 border-white/40 border-l-0 border-t-0 rounded-br-full"></div>
+                    <div className="absolute top-4 left-4 w-8 h-8 border-2 border-white/40 border-r-0 border-b-0 rounded-tl-full"></div>
+                    <div className="absolute top-4 right-4 w-8 h-8 border-2 border-white/40 border-l-0 border-b-0 rounded-tr-full"></div>
+                  </div>
+                  
+                  {/* Grass texture overlay */}
+                  <div className="absolute inset-0 opacity-20" 
+                    style={{
+                      backgroundImage: `
+                        radial-gradient(circle at 20% 80%, rgba(34, 197, 94, 0.3) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.3) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 40%, rgba(5, 150, 105, 0.2) 0%, transparent 50%)
+                      `
+                    }}
+                  ></div>
                   <div className="space-y-16 h-full flex flex-col justify-between">
                     
                     {/* Forwards Row */}
@@ -1588,7 +1664,7 @@ export default function MyTeam() {
               {/* Players Grid */}
               <div className="p-4 overflow-y-auto max-h-[60vh]">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {filteredPlayers.slice(0, 50).map((player) => {
+                  {filteredPlayers.map((player) => {
                     const isInTeam = isPlayerInTeam(player.id);
                     const canAfford = (1000 - manualTeam.totalValue - player.now_cost) >= 0;
                     
@@ -1647,10 +1723,10 @@ export default function MyTeam() {
                   </div>
                 )}
                 
-                {filteredPlayers.length > 50 && (
+                {filteredPlayers.length > 100 && (
                   <div className="text-center py-4">
                     <p className="text-gray-500 text-sm">
-                      Showing top 50 results. Use search to narrow down options.
+                      {filteredPlayers.length} players available. Use search to find specific players faster.
                     </p>
                   </div>
                 )}
@@ -1831,16 +1907,87 @@ export default function MyTeam() {
                   </div>
                 </div>
                 
-                {/* Pitch with same render logic as before */}
-                <div className="bg-gradient-to-b from-green-400 to-green-500 rounded-lg p-6 min-h-[500px] relative" 
+                {/* Pitch with same render logic as before - FIFA/FUT Style */}
+                <div className="rounded-lg p-6 min-h-[500px] relative overflow-hidden" 
                   style={{
-                    backgroundImage: `
-                      linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px),
-                      linear-gradient(180deg, rgba(255,255,255,0.1) 1px, transparent 1px)
+                    background: `
+                      linear-gradient(135deg, 
+                        #1a4d3a 0%, 
+                        #2d6b4f 15%, 
+                        #4ade80 35%, 
+                        #22c55e 50%, 
+                        #16a34a 65%, 
+                        #15803d 85%, 
+                        #0f3c26 100%
+                      ),
+                      repeating-linear-gradient(
+                        90deg,
+                        transparent 0px,
+                        transparent 40px,
+                        rgba(255, 255, 255, 0.03) 40px,
+                        rgba(255, 255, 255, 0.03) 80px
+                      ),
+                      repeating-linear-gradient(
+                        0deg,
+                        transparent 0px,
+                        transparent 60px,
+                        rgba(0, 0, 0, 0.05) 60px,
+                        rgba(0, 0, 0, 0.05) 120px
+                      )
                     `,
-                    backgroundSize: '50px 50px'
+                    boxShadow: `
+                      inset 0 0 100px rgba(0, 0, 0, 0.3),
+                      inset 0 0 200px rgba(0, 50, 0, 0.2),
+                      0 20px 40px rgba(0, 0, 0, 0.3)
+                    `,
+                    transform: 'perspective(800px) rotateX(5deg)',
+                    transformStyle: 'preserve-3d'
                   }}
                 >
+                  {/* Stadium lighting effect */}
+                  <div className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-black/20"></div>
+                  
+                  {/* Field markings */}
+                  <div className="absolute inset-0">
+                    {/* Outer boundary */}
+                    <div className="absolute inset-4 border-2 border-white/40 rounded-sm"></div>
+                    
+                    {/* Center circle */}
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-28 h-28 border-2 border-white/40 rounded-full"></div>
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-white/60 rounded-full shadow-lg"></div>
+                    
+                    {/* Halfway line */}
+                    <div className="absolute top-1/2 left-4 right-4 h-0.5 bg-white/40 shadow-sm"></div>
+                    
+                    {/* Penalty areas */}
+                    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-24 h-12 border-2 border-white/40 border-b-0"></div>
+                    <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-24 h-12 border-2 border-white/40 border-t-0"></div>
+                    
+                    {/* Goal areas */}
+                    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-16 h-6 border-2 border-white/40 border-b-0"></div>
+                    <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-16 h-6 border-2 border-white/40 border-t-0"></div>
+                    
+                    {/* Penalty spots */}
+                    <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white/60 rounded-full shadow-md"></div>
+                    <div className="absolute top-16 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white/60 rounded-full shadow-md"></div>
+                    
+                    {/* Corner arcs */}
+                    <div className="absolute bottom-4 left-4 w-8 h-8 border-2 border-white/40 border-r-0 border-t-0 rounded-bl-full"></div>
+                    <div className="absolute bottom-4 right-4 w-8 h-8 border-2 border-white/40 border-l-0 border-t-0 rounded-br-full"></div>
+                    <div className="absolute top-4 left-4 w-8 h-8 border-2 border-white/40 border-r-0 border-b-0 rounded-tl-full"></div>
+                    <div className="absolute top-4 right-4 w-8 h-8 border-2 border-white/40 border-l-0 border-b-0 rounded-tr-full"></div>
+                  </div>
+                  
+                  {/* Grass texture overlay */}
+                  <div className="absolute inset-0 opacity-20" 
+                    style={{
+                      backgroundImage: `
+                        radial-gradient(circle at 20% 80%, rgba(34, 197, 94, 0.3) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.3) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 40%, rgba(5, 150, 105, 0.2) 0%, transparent 50%)
+                      `
+                    }}
+                  ></div>
                   <div className="space-y-16 h-full flex flex-col justify-between">
                     
                     {/* Forwards Row */}
@@ -2291,7 +2438,7 @@ export default function MyTeam() {
               {/* Players Grid */}
               <div className="p-4 overflow-y-auto max-h-[60vh]">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {filteredPlayers.slice(0, 50).map((player) => {
+                  {filteredPlayers.map((player) => {
                     const isInTeam = isPlayerInTeam(player.id);
                     const canAfford = (1000 - manualTeam.totalValue - player.now_cost) >= 0;
                     
@@ -2568,16 +2715,87 @@ export default function MyTeam() {
                 </div>
               </div>
               
-              {/* Pitch - Vertical Layout like FPL */}
-              <div className="bg-gradient-to-b from-green-400 to-green-500 rounded-lg p-6 min-h-[500px] relative" 
+              {/* Pitch - Vertical Layout like FPL - FIFA/FUT Style */}
+              <div className="rounded-lg p-6 min-h-[500px] relative overflow-hidden" 
                 style={{
-                  backgroundImage: `
-                    linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px),
-                    linear-gradient(180deg, rgba(255,255,255,0.1) 1px, transparent 1px)
+                  background: `
+                    linear-gradient(135deg, 
+                      #1a4d3a 0%, 
+                      #2d6b4f 15%, 
+                      #4ade80 35%, 
+                      #22c55e 50%, 
+                      #16a34a 65%, 
+                      #15803d 85%, 
+                      #0f3c26 100%
+                    ),
+                    repeating-linear-gradient(
+                      90deg,
+                      transparent 0px,
+                      transparent 40px,
+                      rgba(255, 255, 255, 0.03) 40px,
+                      rgba(255, 255, 255, 0.03) 80px
+                    ),
+                    repeating-linear-gradient(
+                      0deg,
+                      transparent 0px,
+                      transparent 60px,
+                      rgba(0, 0, 0, 0.05) 60px,
+                      rgba(0, 0, 0, 0.05) 120px
+                    )
                   `,
-                  backgroundSize: '50px 50px'
+                  boxShadow: `
+                    inset 0 0 100px rgba(0, 0, 0, 0.3),
+                    inset 0 0 200px rgba(0, 50, 0, 0.2),
+                    0 20px 40px rgba(0, 0, 0, 0.3)
+                  `,
+                  transform: 'perspective(800px) rotateX(5deg)',
+                  transformStyle: 'preserve-3d'
                 }}
               >
+                {/* Stadium lighting effect */}
+                <div className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-black/20"></div>
+                
+                {/* Field markings */}
+                <div className="absolute inset-0">
+                  {/* Outer boundary */}
+                  <div className="absolute inset-4 border-2 border-white/40 rounded-sm"></div>
+                  
+                  {/* Center circle */}
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-28 h-28 border-2 border-white/40 rounded-full"></div>
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-white/60 rounded-full shadow-lg"></div>
+                  
+                  {/* Halfway line */}
+                  <div className="absolute top-1/2 left-4 right-4 h-0.5 bg-white/40 shadow-sm"></div>
+                  
+                  {/* Penalty areas */}
+                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-24 h-12 border-2 border-white/40 border-b-0"></div>
+                  <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-24 h-12 border-2 border-white/40 border-t-0"></div>
+                  
+                  {/* Goal areas */}
+                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-16 h-6 border-2 border-white/40 border-b-0"></div>
+                  <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-16 h-6 border-2 border-white/40 border-t-0"></div>
+                  
+                  {/* Penalty spots */}
+                  <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white/60 rounded-full shadow-md"></div>
+                  <div className="absolute top-16 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white/60 rounded-full shadow-md"></div>
+                  
+                  {/* Corner arcs */}
+                  <div className="absolute bottom-4 left-4 w-8 h-8 border-2 border-white/40 border-r-0 border-t-0 rounded-bl-full"></div>
+                  <div className="absolute bottom-4 right-4 w-8 h-8 border-2 border-white/40 border-l-0 border-t-0 rounded-br-full"></div>
+                  <div className="absolute top-4 left-4 w-8 h-8 border-2 border-white/40 border-r-0 border-b-0 rounded-tl-full"></div>
+                  <div className="absolute top-4 right-4 w-8 h-8 border-2 border-white/40 border-l-0 border-b-0 rounded-tr-full"></div>
+                </div>
+                
+                {/* Grass texture overlay */}
+                <div className="absolute inset-0 opacity-20" 
+                  style={{
+                    backgroundImage: `
+                      radial-gradient(circle at 20% 80%, rgba(34, 197, 94, 0.3) 0%, transparent 50%),
+                      radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.3) 0%, transparent 50%),
+                      radial-gradient(circle at 40% 40%, rgba(5, 150, 105, 0.2) 0%, transparent 50%)
+                    `
+                  }}
+                ></div>
                 <div className="space-y-16 h-full flex flex-col justify-between">
                   
                   {/* Forwards Row */}
