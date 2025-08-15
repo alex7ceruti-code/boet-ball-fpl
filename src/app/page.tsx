@@ -57,8 +57,8 @@ export default function LiveHomePage() {
       <div className={`min-h-screen ${getTimeBasedBg()} flex items-center justify-center`}>
         <Card className="text-center" padding="lg">
           <LoadingSpinner size="xl" className="mx-auto mb-4" />
-          <p className="text-lg text-gray-600 font-medium">{getLoadingText('fixtures')}</p>
-          <p className="text-sm text-gray-500 mt-2">{getSlangPhrase('culture', 'general')}</p>
+          <p className="text-lg text-gray-600 font-medium">Checking the fixtures, sharp sharp...</p>
+          <p className="text-sm text-gray-500 mt-2">Sharp as a tjommie</p>
         </Card>
       </div>
     );
@@ -101,7 +101,7 @@ export default function LiveHomePage() {
           <div className="mb-6">
             <div className="inline-flex items-center gap-2 bg-springbok-green text-white px-4 py-2 rounded-full text-sm font-semibold mb-4">
               <Calendar className="w-4 h-4" />
-              {displayGW ? `${displayGW.name} • ${displayGW.finished ? getSlangPhrase('gameweek', 'finished') : displayGW.is_current ? 'Live now!' : 'Coming up!'}` : 'Loading...'}
+              {displayGW ? `${displayGW.name} • ${displayGW.finished ? 'Done and dusted' : displayGW.is_current ? 'Live now!' : 'Coming up!'}` : 'Loading...'}
             </div>
             <h1 className="text-4xl md:text-6xl font-black mb-4 text-gray-800">
               {getTimeBasedGreeting()} <br />
@@ -117,8 +117,8 @@ export default function LiveHomePage() {
               </span>
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-4">
-              {getSlangPhrase('gameweek', displayGW?.finished ? 'finished' : displayGW?.is_current ? 'current' : 'upcoming')} - 
-              {getSlangPhrase('culture', 'braai')} 🔥
+              {displayGW?.finished ? 'Done and dusted' : displayGW?.is_current ? 'This week\'s action' : 'Coming up next'} - 
+              Hot as a braai fire 🔥
             </p>
             <div className="inline-flex items-center gap-2 bg-springbok-green/10 border border-springbok-green/20 text-springbok-700 px-4 py-2 rounded-full text-sm font-medium">
               <span>🇿🇦</span>
@@ -290,7 +290,7 @@ export default function LiveHomePage() {
         <div className="max-w-4xl mx-auto mt-12">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-black text-gray-800 font-accent mb-2">Ready to Dominate?</h2>
-            <p className="text-gray-600">{getSlangPhrase('culture', 'general')} - Choose your weapon, boet!</p>
+            <p className="text-gray-600">Sharp as a tjommie - Choose your weapon, boet!</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Link href="/dashboard">
