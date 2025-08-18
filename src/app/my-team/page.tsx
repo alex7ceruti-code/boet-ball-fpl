@@ -69,15 +69,24 @@ const getFdrColorLight = (fdr: number) => {
 };
 
 const getFormationArray = (picks: any[]) => {
+  if (!picks || picks.length === 0) return { gk: [], def: [], mid: [], fwd: [] };
+  
+  // Filter and sort the starting XI by position
   const startingXI = picks.filter(p => p.multiplier > 0).sort((a, b) => a.position - b.position);
   
-  // Standard formation: GK-DEF-MID-FWD
-  return {
-    gk: startingXI.slice(0, 1),
-    def: startingXI.slice(1, 5),
-    mid: startingXI.slice(5, 10),
-    fwd: startingXI.slice(10, 11)
-  };
+  // Group players by their actual positions (element_type): 1=GK, 2=DEF, 3=MID, 4=FWD
+  const gk = startingXI.filter(p => p.player?.element_type === 1);
+  const def = startingXI.filter(p => p.player?.element_type === 2);
+  const mid = startingXI.filter(p => p.player?.element_type === 3);
+  const fwd = startingXI.filter(p => p.player?.element_type === 4);
+  
+  // Return the actual formation based on player positions
+  return { gk, def, mid, fwd };
+};
+
+// Get formation name like 4-3-3 from player counts
+const getFormationName = (formation: { gk: any[], def: any[], mid: any[], fwd: any[] }) => {
+  return `${formation.def.length}-${formation.mid.length}-${formation.fwd.length}`;
 };
 
 export default function MyTeam() {
@@ -134,9 +143,11 @@ export default function MyTeam() {
   
   // Fetch team data only when team ID is submitted
   const { data: teamData, isLoading: teamLoading, error: teamError } = useManagerTeam(submittedTeamId);
+  // Always fetch picks for current gameweek to get current team composition
+  // We'll show fixtures for the selected gameweek but keep the same team
   const { data: teamPicks, isLoading: picksLoading, error: picksError } = useManagerPicks(
     submittedTeamId, 
-    selectedGameweek || currentGW?.id || null
+    currentGW?.id || null // Always use current gameweek for team composition
   );
 
   // Get filtered players for modal
@@ -225,6 +236,21 @@ export default function MyTeam() {
       };
     }).filter(Boolean);
   }, [bootstrap, teamPicks]);
+  
+  // Update formation state when FPL team data changes
+  useEffect(() => {
+    if (buildMode === 'fpl-id' && teamPlayers && teamPlayers.length > 0) {
+      const formation = getFormationArray(teamPlayers);
+      if (formation.gk.length > 0 || formation.def.length > 0 || formation.mid.length > 0 || formation.fwd.length > 0) {
+        const formationName = getFormationName(formation) as typeof selectedFormation;
+        const validFormations = ['3-5-2', '3-4-3', '4-5-1', '4-4-2', '4-3-3', '5-4-1', '5-3-2'];
+        if (validFormations.includes(formationName)) {
+          console.log('Setting formation from FPL team:', formationName);
+          setSelectedFormation(formationName);
+        }
+      }
+    }
+  }, [teamPlayers, buildMode]);
 
   // Calculate average FDR for selected gameweek and next 4 gameweeks - ALWAYS call this hook
   const avgFDR = useMemo(() => {
@@ -256,26 +282,157 @@ export default function MyTeam() {
     return fixtureCount > 0 ? totalFDR / fixtureCount : 0;
   }, [fixtures, teamPlayers, selectedGameweek, bootstrap]);
 
-  // Sample team rating based on fixtures - ALWAYS call this hook
+  // Advanced predictive team rating for selected gameweek - ALWAYS call this hook
   const teamRating = useMemo(() => {
-    if (!fixtures || !currentGW) return 0;
+    if (!fixtures || !currentGW || !bootstrap || !selectedGameweek) return 0;
     
     const startingXI = teamPlayers.filter((p: any) => p.multiplier > 0);
-    let totalRating = 0;
-    let playerCount = 0;
+    if (startingXI.length === 0) return 0;
+    
+    let totalTeamScore = 0;
     
     startingXI.forEach((pick: any) => {
-      // Simple rating: player points + form - fixture difficulty
-      const playerRating = (pick.player.total_points / (currentGW.id || 1)) * 10;
-      const formRating = (pick.player.form || 0) * 2;
-      const fdrPenalty = avgFDR * 1.5;
+      const player = pick.player;
       
-      totalRating += Math.max(playerRating + formRating - fdrPenalty, 1);
-      playerCount++;
+      // Get player's fixture for the selected gameweek
+      const playerFixtures = fixtures.filter((f: any) => 
+        (f.team_h === player.team || f.team_a === player.team) && f.event === selectedGameweek
+      );
+      
+      if (playerFixtures.length === 0) {
+        // No fixture this gameweek (blank/bye week)
+        totalTeamScore += 0;
+        return;
+      }
+      
+      const fixture = playerFixtures[0];
+      const isHome = fixture.team_h === player.team;
+      const opponentTeamId = isHome ? fixture.team_a : fixture.team_h;
+      const opponentTeam = bootstrap.teams.find(t => t.id === opponentTeamId);
+      const fixtureDifficulty = isHome ? fixture.team_h_difficulty : fixture.team_a_difficulty;
+      
+      // === PLAYER PERFORMANCE METRICS ===
+      const totalPoints = player.total_points || 0;
+      const gamesPlayed = Math.max(currentGW.id - 1, 1); // Prevent division by zero
+      const avgPointsPerGame = totalPoints / gamesPlayed;
+      const form = parseFloat(player.form || '0');
+      const recentForm = Math.max(form, 0); // Last 4 games average
+      
+      // Expected stats (key predictive indicators)
+      const expectedGoals = parseFloat(player.expected_goals || '0');
+      const expectedAssists = parseFloat(player.expected_assists || '0');
+      const expectedGoalsInvolved = expectedGoals + expectedAssists;
+      
+      // Attacking metrics
+      const goals = player.goals_scored || 0;
+      const assists = player.assists || 0;
+      const bonus = player.bonus || 0;
+      const cleanSheets = player.clean_sheets || 0;
+      
+      // Minutes and availability
+      const minutesPlayed = player.minutes || 0;
+      const avgMinutesPerGame = minutesPlayed / gamesPlayed;
+      const startingProbability = Math.min(avgMinutesPerGame / 90, 1);
+      
+      // === POSITIONAL SCORING WEIGHTS ===
+      const positionType = player.element_type;
+      let positionWeights = {
+        attacking: 1.0,
+        defensive: 1.0,
+        creativity: 1.0,
+        minutes: 1.0
+      };
+      
+      switch(positionType) {
+        case 1: // GK
+          positionWeights = { attacking: 0.1, defensive: 2.0, creativity: 0.1, minutes: 1.0 };
+          break;
+        case 2: // DEF
+          positionWeights = { attacking: 0.8, defensive: 1.8, creativity: 0.6, minutes: 1.0 };
+          break;
+        case 3: // MID
+          positionWeights = { attacking: 1.2, defensive: 0.4, creativity: 1.5, minutes: 1.0 };
+          break;
+        case 4: // FWD
+          positionWeights = { attacking: 2.0, defensive: 0.1, creativity: 1.0, minutes: 1.0 };
+          break;
+      }
+      
+      // === FIXTURE ANALYSIS ===
+      // Difficulty modifier (easier fixtures = higher scores)
+      const difficultyModifier = Math.max(0.3, (6 - fixtureDifficulty) / 4); // Range: 0.3 to 1.25
+      
+      // Home advantage
+      const homeAdvantage = isHome ? 1.1 : 0.95;
+      
+      // Opponent defensive strength (approximate from FDR)
+      const opponentDefensiveStrength = fixtureDifficulty / 5; // 0.2 to 1.0
+      const attackingBonus = Math.max(0.5, 1.5 - opponentDefensiveStrength);
+      
+      // === SCORING COMPONENTS ===
+      
+      // 1. Base Performance Score (40% weight)
+      const basePerformance = (avgPointsPerGame * 0.6 + recentForm * 0.4) * 10;
+      
+      // 2. Expected Performance Score (30% weight)
+      const expectedPerformance = (
+        (expectedGoals * 5 + expectedAssists * 3) * // Goals worth 5pts, assists 3pts
+        (gamesPlayed > 0 ? (currentGW.id / gamesPlayed) : 1) * // Extrapolate based on games played
+        positionWeights.attacking
+      ) * 10;
+      
+      // 3. Form Momentum (15% weight)
+      const formMomentum = (
+        recentForm > avgPointsPerGame ? 
+        Math.min(recentForm / Math.max(avgPointsPerGame, 1), 2) : // Hot streak cap at 2x
+        Math.max(recentForm / Math.max(avgPointsPerGame, 1), 0.5) // Cold streak floor at 0.5x
+      ) * 10;
+      
+      // 4. Fixture Quality (10% weight)
+      const fixtureQuality = (
+        difficultyModifier * homeAdvantage * attackingBonus
+      ) * 10;
+      
+      // 5. Playing Time Probability (5% weight)
+      const playingTimeBonus = startingProbability * 10;
+      
+      // === FINAL PLAYER PREDICTION ===
+      const playerPrediction = Math.max(0,
+        basePerformance * 0.40 +
+        expectedPerformance * 0.30 +
+        formMomentum * 0.15 +
+        fixtureQuality * 0.10 +
+        playingTimeBonus * 0.05
+      );
+      
+      // Captain bonus (if applicable)
+      const captainMultiplier = pick.is_captain ? 2 : pick.is_vice_captain ? 1.5 : 1;
+      const finalPlayerScore = Math.min(playerPrediction * captainMultiplier, 30); // Cap individual at 30
+      
+      totalTeamScore += finalPlayerScore;
+      
+      // Debug logging for development
+      if (process.env.NODE_ENV === 'development' && player.web_name === 'Salah') {
+        console.log(`${player.web_name} vs ${opponentTeam?.short_name}:`, {
+          basePerformance: basePerformance.toFixed(1),
+          expectedPerformance: expectedPerformance.toFixed(1),
+          formMomentum: formMomentum.toFixed(1),
+          fixtureQuality: fixtureQuality.toFixed(1),
+          playingTimeBonus: playingTimeBonus.toFixed(1),
+          finalScore: finalPlayerScore.toFixed(1)
+        });
+      }
     });
     
-    return playerCount > 0 ? Math.min(totalRating / playerCount, 10) : 5;
-  }, [teamPlayers, avgFDR, currentGW, fixtures]);
+    // Team-level adjustments
+    const avgPlayerScore = totalTeamScore / startingXI.length;
+    const teamCohesion = avgPlayerScore > 8 ? 1.05 : avgPlayerScore < 5 ? 0.95 : 1.0; // Team synergy bonus/penalty
+    
+    // Final team rating (0-100 scale)
+    const finalTeamRating = Math.min(Math.max(totalTeamScore * teamCohesion / 11 * 10, 0), 100);
+    
+    return Math.round(finalTeamRating * 10) / 10; // Round to 1 decimal
+  }, [teamPlayers, fixtures, selectedGameweek, currentGW, bootstrap]);
   
   // Reset manual team when switching modes
   const handleModeChange = (newMode: 'fpl-id' | 'manual') => {
@@ -2677,9 +2834,9 @@ export default function MyTeam() {
                   <div className="text-sm text-gray-500">Free Transfers</div>
                 </div>
                 <div className="text-center">
-                  <div className={`text-2xl font-bold ${
-                    teamRating >= 7 ? 'text-green-600' : 
-                    teamRating >= 5 ? 'text-yellow-600' : 'text-red-600'
+                <div className={`text-2xl font-bold ${
+                    teamRating >= 70 ? 'text-green-600' : 
+                    teamRating >= 50 ? 'text-yellow-600' : 'text-red-600'
                   }`}>{teamRating.toFixed(1)}</div>
                   <div className="text-sm text-gray-500">Team Rating</div>
                 </div>
