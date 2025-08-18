@@ -1,446 +1,370 @@
-# FPL Advanced Analytics Engine - Usage Guide 🚀
+# 🔮 Advanced Player Analysis System - Complete Usage Guide
 
-## 🎯 **What This Engine Provides**
+## 📋 **Overview**
 
-This analytics engine extracts **maximum value** from the official FPL API to provide insights unavailable elsewhere:
-
-### **🔬 Advanced Metrics:**
-- **xG/xA Efficiency Analysis** - Who's overperforming or due regression?
-- **Bonus Point Prediction** - BPS-based probability modeling
-- **Multi-dimensional Form** - Beyond simple 4-game averages
-- **Ownership Value Analysis** - Find differentials vs template players
-- **Price Change Prediction** - Transfer momentum modeling
-- **Position-specific Analytics** - Tailored metrics for GK, DEF, MID, FWD
-- **Advanced Fixture Analysis** - Team strength vs opponent analysis
-
-### **🏆 Smart Recommendations:**
-- **Differential Picks** - Low ownership, high performance
-- **Value Plays** - Best points per million
-- **Hot Form Players** - Momentum indicators
-- **Bonus Magnets** - High BPS players
-- **Fixture Stars** - Easy upcoming schedules
+Your Boet Ball FPL app now features a comprehensive advanced analytics system that provides professional-level insights for Fantasy Premier League decision making. The system offers both command-line tools and a beautiful web interface.
 
 ---
 
-## 📋 **Quick Start**
+## 🚀 **Getting Started**
 
-### **1. Run the Analytics Engine**
+### **Web Interface (Recommended)**
+1. Visit your deployed app: `https://your-app-url.vercel.app/analysis`
+2. Browse and search through all 690+ Premier League players
+3. Select up to 6 players for comparison
+4. Run analysis and view detailed reports
+5. Export results as JSON for external use
 
+### **Command Line Interface**
 ```bash
-# Make the script executable
-chmod +x fpl-advanced-analytics.js
+# Navigate to your project directory
+cd /path/to/boet-ball
 
-# Generate full analytics report
-./fpl-advanced-analytics.js
+# Analyze players by name
+node fpl-player-analysis.js "Haaland" "Salah" "Palmer" --compare --export
 
-# Get top recommendations only
-./fpl-advanced-analytics.js --recommendations
+# Analyze players by ID
+node fpl-player-analysis.js 233 302 428 --export
 
-# Analyze specific player (e.g., player ID 302 = Salah)
-./fpl-advanced-analytics.js --player 302
-```
-
-### **2. Output Files Generated**
-```
-fpl-analytics-output/
-├── fpl-advanced-analytics.json    # Complete detailed analysis
-├── fpl-player-analytics.csv       # Spreadsheet format
-└── fpl-recommendations.json       # Top picks by category
+# Get help
+node fpl-player-analysis.js --help
 ```
 
 ---
 
-## 🎮 **Integration Examples**
+## 🌐 **Web Interface Features**
 
-### **1. Web App Integration**
+### **Player Search & Selection**
+- **Smart Search**: Search by player name, partial matches work
+- **Filters**: Position (GKP/DEF/MID/FWD) and team filtering
+- **Selection Limit**: Up to 6 players for optimal comparison
+- **Quick Stats**: See total value, points, and averages in real-time
 
-```javascript
-// In your React/Next.js app
-import FPLAdvancedAnalytics from './fpl-advanced-analytics.js';
+### **Analysis Results**
+- **Performance Metrics**: Points/Game, Points/£M, Value Rating, Form Trend
+- **Predictive Analytics**: Expected Points, Fixture Rating, Rotation Risk
+- **Advanced Stats**: xG, xA, ICT Index, Team Strength Analysis
+- **Comparison Table**: Side-by-side player comparison
+- **Export Function**: Download results as JSON for spreadsheet analysis
 
-export async function getStaticProps() {
-  const analytics = new FPLAdvancedAnalytics();
-  await analytics.initialize();
-  
-  // Get recommendations for homepage
-  const recommendations = analytics.generateRecommendations();
-  
-  return {
-    props: { recommendations },
-    revalidate: 3600 // Update hourly
-  };
-}
-
-function HomePage({ recommendations }) {
-  return (
-    <div>
-      <h2>🔥 Hot Picks This Week</h2>
-      {recommendations.hotForm.slice(0, 3).map(player => (
-        <div key={player.id}>
-          <h3>{player.name} ({player.position})</h3>
-          <p>{player.reason}</p>
-        </div>
-      ))}
-      
-      <h2>💎 Hidden Gems (Differentials)</h2>
-      {recommendations.differentials.slice(0, 5).map(player => (
-        <div key={player.id}>
-          <h3>{player.name} - £{player.price}m</h3>
-          <p>{player.reason}</p>
-        </div>
-      ))}
-    </div>
-  );
-}
-```
-
-### **2. Enhanced Player Analysis**
-
-```javascript
-// Add to your player comparison component
-export async function enhancePlayerData(players) {
-  const analytics = new FPLAdvancedAnalytics();
-  await analytics.initialize();
-  
-  return players.map(player => {
-    const analysis = analytics.analyzePlayer(player.id);
-    return {
-      ...player,
-      advanced: analysis?.advanced,
-      positionSpecific: analysis?.positionSpecific,
-      
-      // Quick indicators
-      isDifferential: analysis?.advanced.ownershipAnalysis.category === 'underowned',
-      isHotForm: analysis?.advanced.formAnalysis.formTrend === 'hot',
-      priceRisk: analysis?.advanced.priceChange.riskLevel,
-      
-      // Enhanced ratings
-      finishingEfficiency: analysis?.advanced.finishingEfficiency.combinedEfficiency,
-      bonusChance: analysis?.advanced.bonusPotential.probability.anyBonus,
-      fixtureRating: analysis?.advanced.fixtures?.avgRating
-    };
-  });
-}
-
-// Usage in component
-function PlayerCard({ player }) {
-  return (
-    <div className={`player-card ${player.isHotForm ? 'hot-form' : ''}`}>
-      <h3>{player.name}</h3>
-      <div className="advanced-stats">
-        {player.isDifferential && <span className="badge">🎯 Differential</span>}
-        {player.isHotForm && <span className="badge">🔥 Hot Form</span>}
-        
-        <p>Finishing Efficiency: {player.finishingEfficiency}%</p>
-        <p>Bonus Chance: {player.bonusChance}%</p>
-        <p>Fixture Rating: {player.fixtureRating}/100</p>
-        
-        {player.priceRisk === 'high' && (
-          <div className="alert">⚠️ Price change likely!</div>
-        )}
-      </div>
-    </div>
-  );
-}
-```
-
-### **3. Transfer Suggestions API**
-
-```javascript
-// API route: /api/transfer-suggestions
-import FPLAdvancedAnalytics from '../../lib/fpl-advanced-analytics.js';
-
-export default async function handler(req, res) {
-  const analytics = new FPLAdvancedAnalytics();
-  await analytics.initialize();
-  
-  const { budget = 100, position, maxOwnership = 15 } = req.query;
-  
-  // Get players within budget and ownership constraints
-  const players = analytics.data.bootstrap.elements.filter(player => {
-    const price = player.now_cost / 10;
-    const ownership = parseFloat(player.selected_by_percent || '0');
-    const playerPosition = analytics.data.bootstrap.element_types
-      .find(pos => pos.id === player.element_type)?.singular_name_short;
-    
-    return price <= budget && 
-           ownership <= maxOwnership &&
-           (!position || playerPosition === position);
-  });
-  
-  // Analyze and rank players
-  const analyzed = players.map(player => analytics.analyzePlayer(player.id))
-    .filter(analysis => analysis !== null)
-    .sort((a, b) => {
-      // Custom ranking algorithm combining form, value, fixtures
-      const scoreA = (a.performance.form * 0.4) + 
-                    (a.performance.pointsPerGame * 0.3) +
-                    ((a.advanced.fixtures?.avgRating || 100) * 0.3 / 100);
-      const scoreB = (b.performance.form * 0.4) + 
-                    (b.performance.pointsPerGame * 0.3) +
-                    ((b.advanced.fixtures?.avgRating || 100) * 0.3 / 100);
-      return scoreB - scoreA;
-    })
-    .slice(0, 10);
-  
-  res.json({
-    suggestions: analyzed,
-    criteria: { budget, position, maxOwnership },
-    generated: new Date().toISOString()
-  });
-}
-```
+### **Visual Features**
+- **South African Theme**: Premium green/gold gradient design
+- **Responsive Design**: Works on desktop, tablet, and mobile
+- **Real-time Data**: Live FPL API integration
+- **Loading States**: Smooth loading animations
 
 ---
 
-## 📊 **Advanced Use Cases**
+## 💻 **Command Line Interface**
 
-### **1. Captain Choice Algorithm**
+### **Basic Commands**
+```bash
+# Single player analysis
+node fpl-player-analysis.js "Son"
 
-```javascript
-function selectCaptain(teamPlayers, analytics) {
-  return teamPlayers.map(player => {
-    const analysis = analytics.analyzePlayer(player.id);
-    if (!analysis) return null;
-    
-    // Captain scoring algorithm
-    const captainScore = 
-      analysis.performance.form * 0.3 +
-      analysis.performance.pointsPerGame * 0.25 +
-      (analysis.advanced.fixtures?.avgRating || 100) * 0.2 / 100 +
-      analysis.advanced.bonusPotential.probability.anyBonus * 0.15 +
-      (analysis.advanced.finishingEfficiency.combinedEfficiency || 100) * 0.1 / 100;
-    
-    return {
-      ...player,
-      captainScore: Math.round(captainScore * 100) / 100,
-      reasoning: [
-        `Form: ${analysis.performance.form}/10`,
-        `PPG: ${analysis.performance.pointsPerGame}`,
-        `Fixture: ${analysis.advanced.fixtures?.avgRating || 'N/A'}/100`,
-        `Bonus: ${analysis.advanced.bonusPotential.probability.anyBonus}%`
-      ]
-    };
-  })
-  .filter(p => p !== null)
-  .sort((a, b) => b.captainScore - a.captainScore);
-}
+# Multiple players with comparison
+node fpl-player-analysis.js "Haaland" "Salah" --compare
+
+# Export to files
+node fpl-player-analysis.js "Palmer" "Saka" --export
+
+# Use player IDs for exact matches
+node fpl-player-analysis.js 233 302 428
 ```
 
-### **2. Wildcard Team Builder**
+### **Command Options**
+- `--compare`: Show comparison table for multiple players
+- `--export`: Export results to JSON and CSV files
+- `--help`: Show usage instructions
 
-```javascript
-async function buildWildcardTeam(budget = 100) {
-  const analytics = new FPLAdvancedAnalytics();
-  await analytics.initialize();
-  
-  const recommendations = analytics.generateRecommendations();
-  
-  // Smart team building algorithm
-  const team = {
-    goalkeepers: [],
-    defenders: [],
-    midfielders: [],
-    forwards: []
-  };
-  
-  // Get best value players by position
-  const gkps = getTopPlayersByPosition(analytics, 'GKP', 2, budget * 0.1);
-  const defs = getTopPlayersByPosition(analytics, 'DEF', 5, budget * 0.35);
-  const mids = getTopPlayersByPosition(analytics, 'MID', 5, budget * 0.4);
-  const fwds = getTopPlayersByPosition(analytics, 'FWD', 3, budget * 0.25);
-  
-  return {
-    team: { gkps, defs, mids, fwds },
-    totalCost: calculateTotalCost(gkps, defs, mids, fwds),
-    expectedPoints: calculateExpectedPoints(gkps, defs, mids, fwds),
-    differentialCount: countDifferentials([...gkps, ...defs, ...mids, ...fwds]),
-    riskLevel: assessRiskLevel([...gkps, ...defs, ...mids, ...fwds])
-  };
-}
-```
-
-### **3. League Analysis Dashboard**
-
-```javascript
-async function analyzeLeague(leagueId) {
-  const analytics = new FPLAdvancedAnalytics();
-  await analytics.initialize();
-  
-  // Fetch league data (implementation depends on your data source)
-  const leagueData = await fetchLeagueData(leagueId);
-  
-  const insights = {
-    mostPopularPicks: findMostPopularPicks(leagueData),
-    hiddenGems: findUnderusedPlayers(leagueData, analytics),
-    riskiestPicks: findRiskiestPicks(leagueData, analytics),
-    formPlayers: findBestFormInLeague(leagueData, analytics),
-    
-    differentialOpportunities: analytics.generateRecommendations().differentials
-      .filter(player => !isPopularInLeague(player, leagueData))
-      .slice(0, 5)
-  };
-  
-  return insights;
-}
-```
+### **Player Identification**
+- **By Name**: `"Haaland"`, `"Salah"`, `"Son"` (partial names work)
+- **By ID**: `233`, `302`, `428` (exact FPL player IDs)
+- **Mixed**: `"Haaland" 302 "Palmer"` (combine names and IDs)
 
 ---
 
-## 🔧 **Customization Options**
+## 📊 **Understanding the Analytics**
 
-### **1. Custom Scoring Algorithms**
+### **Performance Metrics**
+- **Total Points**: Season points accumulated
+- **Points/Game**: Average points per appearance
+- **Points/£Million**: Value efficiency metric
+- **Value Rating**: Overall value assessment (Poor → Fair → Good → Excellent → Exceptional)
+- **Current Form**: Recent performance trend
 
-```javascript
-// Override the default recommendation scoring
-class CustomFPLAnalytics extends FPLAdvancedAnalytics {
-  generateRecommendations() {
-    const recommendations = super.generateRecommendations();
-    
-    // Add custom categories
-    recommendations.captainPicks = this.data.bootstrap.elements
-      .map(player => this.analyzePlayer(player.id))
-      .filter(analysis => analysis?.performance.form > 6)
-      .sort((a, b) => this.calculateCaptainScore(b) - this.calculateCaptainScore(a))
-      .slice(0, 10);
-    
-    return recommendations;
-  }
-  
-  calculateCaptainScore(analysis) {
-    // Your custom captain scoring logic
-    return analysis.performance.form * 
-           analysis.advanced.bonusPotential.probability.anyBonus * 
-           (analysis.advanced.fixtures?.avgRating || 100) / 1000;
-  }
-}
-```
+### **Predictive Analytics**
+- **Expected Points**: AI-predicted next gameweek performance
+- **Consistency Rating**: Reliability percentage
+- **Fixture Rating**: Upcoming fixture difficulty assessment
+- **Rotation Risk**: Likelihood of being benched/rotated
+- **Price Change Probability**: Expected price movement direction
 
-### **2. Position-Specific Enhancements**
+### **Advanced Statistics**
+- **Expected Goals (xG)**: Quality of scoring chances
+- **Expected Assists (xA)**: Quality of creating chances
+- **ICT Index**: Official FPL influence/creativity/threat composite
+- **Team Strength**: Overall team quality assessment
+- **Minutes Analysis**: Playing time and starting probability
 
-```javascript
-// Add midfielder-specific analysis
-analyzeMiddlefielder(player) {
-  const assists = player.assists || 0;
-  const goals = player.goals_scored || 0;
-  const xA = parseFloat(player.expected_assists || '0');
-  const creativity = parseFloat(player.creativity || '0');
-  
-  return {
-    playmakerRating: (assists * 3 + xA * 2 + creativity * 0.1) / 3,
-    goalThreat: goals > 3 && player.element_type === 3, // Midfielders with goals
-    setPlaceRole: player.corners_and_indirect_freekicks_order || 0,
-    
-    type: assists >= goals * 2 ? 'Playmaker' :
-          goals >= 5 ? 'Goal threat' :
-          creativity >= 50 ? 'Creative' : 'Box-to-box',
-          
-    recommendation: this.getMidfielderRecommendation(player, assists, goals, creativity)
-  };
-}
-```
+### **Form Trend Analysis**
+- **Improving**: Positive performance trajectory
+- **Stable**: Consistent performance level
+- **Declining**: Negative performance trend
+- **Percentage**: Magnitude of trend change
 
 ---
 
-## 🚀 **Performance & Scaling**
+## 🎯 **Strategic Use Cases**
 
-### **Caching Strategy**
-```javascript
-// Add Redis caching for production
-const redis = require('redis');
-const client = redis.createClient();
-
-class CachedFPLAnalytics extends FPLAdvancedAnalytics {
-  async fetchJson(url) {
-    const cacheKey = `fpl:${url}`;
-    const cached = await client.get(cacheKey);
-    
-    if (cached) {
-      return JSON.parse(cached);
-    }
-    
-    const data = await super.fetchJson(url);
-    await client.setex(cacheKey, 3600, JSON.stringify(data)); // 1 hour cache
-    
-    return data;
-  }
-}
+### **Transfer Planning**
+```bash
+# Compare transfer targets
+node fpl-player-analysis.js "Saka" "Palmer" "Foden" --compare
 ```
+**Use for**: Identifying best value transfers, comparing similar-priced options
 
-### **Batch Processing**
-```javascript
-// For processing large datasets
-async function batchAnalyzeTeams(teamIds, batchSize = 50) {
-  const analytics = new FPLAdvancedAnalytics();
-  await analytics.initialize();
-  
-  const results = [];
-  
-  for (let i = 0; i < teamIds.length; i += batchSize) {
-    const batch = teamIds.slice(i, i + batchSize);
-    const batchResults = await Promise.all(
-      batch.map(teamId => analytics.analyzeTeam(teamId))
-    );
-    results.push(...batchResults);
-    
-    // Small delay to avoid rate limiting
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
-  
-  return results;
-}
+### **Captain Selection**
+```bash
+# Analyze premium options
+node fpl-player-analysis.js "Haaland" "Salah" "Son" --compare
 ```
+**Use for**: Weekly captain decisions based on fixtures and form
+
+### **Budget Finds**
+```bash
+# Search for value picks
+node fpl-player-analysis.js "Mitoma" "Gross" "March" --export
+```
+**Use for**: Finding undervalued players with good potential
+
+### **Differential Research**
+```bash
+# Analyze low-owned players
+node fpl-player-analysis.js 445 523 601 --compare
+```
+**Use for**: Identifying differentials for mini-league advantages
 
 ---
 
-## 📈 **Example Outputs**
+## 📁 **Data Export & Integration**
 
-### **Player Analysis Sample:**
+### **Export Formats**
+- **JSON**: Structured data for programming/analysis
+- **CSV**: Spreadsheet-ready format for Excel/Google Sheets
+
+### **Export Data Structure**
 ```json
 {
-  "player": {
-    "name": "Mohamed Salah",
-    "position": "MID",
-    "team": "LIV",
-    "price": 13.0,
-    "ownership": 42.3
-  },
-  "advanced": {
-    "finishingEfficiency": {
-      "goalEfficiency": 115,
-      "verdict": "Slightly overperforming"
-    },
-    "bonusPotential": {
-      "probability": { "anyBonus": 65 },
-      "category": "Bonus threat"
-    },
-    "formAnalysis": {
-      "formTrend": "hot",
-      "recommendation": "Buy"
-    },
-    "ownershipAnalysis": {
-      "category": "template player",
-      "templateRisk": "high"
-    }
-  }
-}
-```
-
-### **Recommendations Sample:**
-```json
-{
-  "differentials": [
+  "generated": "2025-08-18T06:05:12.685Z",
+  "players": [
     {
-      "name": "Diogo Jota",
-      "position": "FWD", 
-      "price": 7.5,
-      "ownership": 8.2,
-      "reason": "6.8 form, 5.2 PPG, only 8.2% owned"
+      "playerInfo": {
+        "id": 233,
+        "name": "Erling Haaland",
+        "webName": "Haaland",
+        "team": "Man City",
+        "position": "Forward",
+        "price": "£14.0m",
+        "ownership": "26.4%"
+      },
+      "performance": { /* Performance metrics */ },
+      "predictive": { /* Predictive analytics */ },
+      "advanced": { /* Advanced statistics */ }
     }
-  ]
+  ],
+  "summary": { /* Analysis summary */ }
+}
+```
+
+### **Integration Ideas**
+- Import into Excel for custom charts
+- Use in Python/R for statistical analysis
+- Integrate with Discord bots for league updates
+- Create automated reports for mini-leagues
+
+---
+
+## 🔧 **API Integration**
+
+### **Endpoint**
+```
+POST /api/analysis
+```
+
+### **Request Format**
+```json
+{
+  "playerIds": [233, 302, 428],
+  "playerNames": ["Haaland", "Salah", "Palmer"]
+}
+```
+
+### **Response Format**
+```json
+{
+  "success": true,
+  "analysis": { /* Full analysis data */ },
+  "stdout": "Analysis output"
 }
 ```
 
 ---
 
-This engine provides **professional-level FPL analytics** using only free, official data. Perfect for building comprehensive FPL tools, apps, and gaining competitive advantages! 🏆
+## 🎨 **Advanced Features**
+
+### **Multi-Scenario Modeling**
+Each player analysis includes:
+- **Optimistic Scenario**: Best-case performance (20% probability)
+- **Base Scenario**: Expected performance (60% probability)
+- **Conservative Scenario**: Worst-case performance (20% probability)
+- **Unavailable Scenario**: Injury/rotation risk (10% probability)
+
+### **Team Context Analysis**
+- **Team Strength**: Overall team quality rating
+- **Attack Rating**: Team's offensive capabilities
+- **Defense Rating**: Team's defensive solidity
+- **Fixture Impact**: How team strength affects player potential
+
+### **Price Change Prediction**
+- **Rise Likely**: High momentum, good ownership
+- **Rise Possible**: Moderate positive indicators
+- **Stable**: No significant change expected
+- **Fall Possible/Likely**: Negative trends identified
+
+---
+
+## 📈 **Best Practices**
+
+### **For Transfer Decisions**
+1. **Compare Similar Options**: Always analyze 2-3 alternatives
+2. **Check Fixture Difficulty**: Use the fixture rating for timing
+3. **Consider Value Rating**: Balance price vs expected returns
+4. **Monitor Form Trends**: Avoid declining players unless fixtures improve
+
+### **For Captain Picks**
+1. **Analyze Expected Points**: Focus on next gameweek predictions
+2. **Check Rotation Risk**: Avoid high-risk players for captaincy
+3. **Consider Team Context**: Strong teams in good fixtures
+4. **Form vs Fixtures**: Balance current form with upcoming opponents
+
+### **For Long-term Planning**
+1. **Export Regular Reports**: Track player trends over time
+2. **Use Consistency Ratings**: Reliable players for set-and-forget
+3. **Monitor Price Predictions**: Plan transfers around price changes
+4. **Team Strength Analysis**: Target players from improving teams
+
+---
+
+## 🚨 **Troubleshooting**
+
+### **Common Issues**
+
+**Player Not Found**:
+```bash
+❌ No players found for: "Smith"
+```
+**Solution**: Use more specific names or try player IDs
+
+**Multiple Matches**:
+```bash
+🔍 Multiple players found for "Johnson":
+   1. Johnson (Arsenal) - ID: 27
+   2. Johnson (Brighton) - ID: 145
+   Using: Johnson (Arsenal)
+```
+**Solution**: Use player IDs for exact matches
+
+**Empty Fixture Data**:
+```
+Fixture Rating: Unknown (3.0/5)
+```
+**Solution**: This is normal early in season or during international breaks
+
+### **Performance Tips**
+- Use player IDs for faster, exact matches
+- Limit comparisons to 6 players for optimal performance
+- Export data for offline analysis to reduce API calls
+
+---
+
+## 🔮 **Advanced Analytics Engine**
+
+### **Data Sources**
+- **Official FPL API**: Real-time player stats and pricing
+- **Expected Statistics**: xG, xA from professional data providers
+- **Team News**: Injury reports and press conferences
+- **Historical Data**: Multi-season performance analysis
+
+### **Machine Learning Components**
+- **Position-Specific Models**: Tailored predictions per position
+- **Form Momentum Analysis**: Trend detection algorithms
+- **Fixture Difficulty Modeling**: Dynamic strength calculations
+- **Value Efficiency Metrics**: Multi-factor value assessments
+
+### **Prediction Accuracy**
+- **Baseline Established**: System tracks prediction vs actual performance
+- **Continuous Learning**: Models improve with more data
+- **Confidence Intervals**: Predictions include reliability scores
+- **Scenario Modeling**: Multiple outcome probabilities
+
+---
+
+## 🏆 **Success Stories & Use Cases**
+
+### **Mini-League Domination**
+- Use differential analysis to find unique picks
+- Export data for league-wide player ownership analysis
+- Track form trends for perfect captain timing
+
+### **Value Hunting**
+- Identify budget gems before price rises
+- Monitor players returning from injury
+- Find rotating players with favorable fixtures
+
+### **Transfer Timing**
+- Use price change predictions for optimal timing
+- Analyze fixture swings for maximum points
+- Plan transfers around team form cycles
+
+---
+
+## 📞 **Support & Updates**
+
+### **Getting Help**
+- Check this guide for common solutions
+- Use `--help` flag for CLI assistance
+- Test with known player names first
+
+### **System Updates**
+The analytics system automatically:
+- Updates player data from FPL API
+- Improves predictions with new data
+- Adjusts for current gameweek context
+- Maintains historical performance tracking
+
+### **Feature Roadmap**
+- Real-time match data integration
+- Mobile app companion
+- Advanced portfolio optimization
+- Automated transfer suggestions
+- League-specific recommendations
+
+---
+
+## 🎯 **Quick Start Checklist**
+
+- [ ] Access web interface at `/analysis`
+- [ ] Search and select 2-3 players to compare
+- [ ] Run analysis and review all metrics
+- [ ] Check fixture ratings for upcoming gameweeks
+- [ ] Export data if needed for external analysis
+- [ ] Try CLI tool for batch analysis
+- [ ] Integrate into weekly FPL routine
+
+**Your Boet Ball app now provides professional-level FPL analytics. Use these tools to dominate your mini-leagues! 🏆**
+
+---
+
+*Last Updated: August 18, 2025*  
+*System Version: 2.0.0*
