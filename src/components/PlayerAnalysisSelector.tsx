@@ -109,8 +109,19 @@ const PlayerAnalysisSelector: React.FC = () => {
 
   const loadFPLData = async () => {
     try {
-      const response = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/');
+      console.log('Loading FPL data...');
+      const response = await fetch('/api/fpl?endpoint=bootstrap-static/');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
+      
+      console.log('FPL Data loaded:', {
+        players: data.elements?.length || 0,
+        teams: data.teams?.length || 0
+      });
       
       setPlayers(data.elements || []);
       setTeams(data.teams || []);
@@ -273,100 +284,157 @@ const PlayerAnalysisSelector: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-900 via-yellow-800 to-green-800">
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-yellow-400 mx-auto"></div>
-          <p className="mt-4 text-yellow-200 text-lg">Loading FPL data...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-slate-200 border-t-blue-600 mx-auto"></div>
+          <p className="mt-6 text-slate-600 text-lg font-medium">Loading Player Database...</p>
+          <p className="mt-2 text-slate-400 text-sm">Preparing Advanced Analytics</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-900 via-yellow-800 to-green-800 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-yellow-400 mb-2">
-            🔮 Advanced Player Analysis
-          </h1>
-          <p className="text-yellow-200 text-lg">
-            Select up to 6 players for in-depth analysis and comparison
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center space-x-3 mb-4">
+            <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+              <BarChart3 className="h-6 w-6 text-white" />
+            </div>
+            <div className="text-left">
+              <h1 className="text-3xl font-bold text-slate-900">
+                Advanced Player Analytics
+              </h1>
+              <p className="text-slate-500 text-sm font-medium">
+                Professional FPL Intelligence Report
+              </p>
+            </div>
+          </div>
+          <p className="text-slate-600 text-lg max-w-2xl mx-auto">
+            Select up to 6 players for comprehensive performance analysis and data-driven insights
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Player Search & Selection */}
           <div className="lg:col-span-2">
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-yellow-400/20">
-              <div className="flex flex-col space-y-4 mb-6">
-                {/* Search */}
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search players by name..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 bg-white/5 border border-yellow-400/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-yellow-400"
-                  />
-                </div>
-
-                {/* Filters */}
-                <div className="flex flex-wrap gap-4">
-                  <select
-                    value={positionFilter}
-                    onChange={(e) => setPositionFilter(e.target.value)}
-                    className="bg-white/5 border border-yellow-400/30 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-yellow-400"
-                  >
-                    <option value="all">All Positions</option>
-                    <option value="1">Goalkeepers</option>
-                    <option value="2">Defenders</option>
-                    <option value="3">Midfielders</option>
-                    <option value="4">Forwards</option>
-                  </select>
-
-                  <select
-                    value={teamFilter}
-                    onChange={(e) => setTeamFilter(e.target.value)}
-                    className="bg-white/5 border border-yellow-400/30 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-yellow-400"
-                  >
-                    <option value="all">All Teams</option>
-                    {teams.map(team => (
-                      <option key={team.id} value={team.id.toString()}>{team.short_name}</option>
-                    ))}
-                  </select>
-                </div>
+            <div className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+              <div className="border-b border-slate-200 bg-slate-50 px-6 py-4">
+                <h2 className="text-lg font-semibold text-slate-900 flex items-center">
+                  <Search className="h-5 w-5 text-slate-500 mr-2" />
+                  Player Database
+                </h2>
+                <p className="text-slate-600 text-sm mt-1">Search and select players for analysis</p>
               </div>
+              
+              <div className="p-6">
+                <div className="flex flex-col space-y-4 mb-6">
+                  {/* Search */}
+                  <div className="relative">
+                    <Search className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
+                    <input
+                      type="text"
+                      placeholder="Search players by name..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
 
-              {/* Player List */}
-              <div className="max-h-96 overflow-y-auto">
-                <div className="space-y-2">
-                  {filteredPlayers.slice(0, 50).map(player => (
-                    <div
-                      key={player.id}
-                      onClick={() => addPlayer(player)}
-                      className="flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer transition-colors border border-transparent hover:border-yellow-400/30"
+                  {/* Filters */}
+                  <div className="flex flex-wrap gap-4">
+                    <select
+                      value={positionFilter}
+                      onChange={(e) => setPositionFilter(e.target.value)}
+                      className="bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
-                      <div className="flex items-center space-x-3">
-                        <span className="text-xs px-2 py-1 bg-blue-500 text-white rounded">
-                          {getPositionName(player.element_type)}
-                        </span>
-                        <span className="text-xs px-2 py-1 bg-gray-600 text-white rounded">
-                          {getTeamName(player.team)}
-                        </span>
-                        <span className="text-white font-medium">{player.web_name}</span>
-                        <span className="text-gray-300 text-sm">
-                          {player.first_name} {player.second_name}
-                        </span>
-                      </div>
-                      <div className="flex items-center space-x-4">
-                        <span className="text-yellow-400 font-bold">£{(player.now_cost / 10).toFixed(1)}m</span>
-                        <span className="text-sm text-gray-300">{player.selected_by_percent}%</span>
-                        <span className="text-sm text-green-400">{player.total_points} pts</span>
-                      </div>
+                      <option value="all">All Positions</option>
+                      <option value="1">Goalkeepers</option>
+                      <option value="2">Defenders</option>
+                      <option value="3">Midfielders</option>
+                      <option value="4">Forwards</option>
+                    </select>
+
+                    <select
+                      value={teamFilter}
+                      onChange={(e) => setTeamFilter(e.target.value)}
+                      className="bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="all">All Teams</option>
+                      {teams.map(team => (
+                        <option key={team.id} value={team.id.toString()}>{team.short_name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Debug Info */}
+                <div className="mb-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                  <div className="text-xs text-slate-500 flex items-center justify-between">
+                    <span>Database: {players.length} players loaded</span>
+                    <span>Filtered: {filteredPlayers.length} results</span>
+                  </div>
+                  {searchTerm && (
+                    <div className="text-xs text-slate-400 mt-1">
+                      Search: "{searchTerm}"
                     </div>
-                  ))}
+                  )}
+                </div>
+
+                {/* Player List */}
+                <div className="max-h-96 overflow-y-auto">
+                  {filteredPlayers.length === 0 ? (
+                    <div className="text-center py-12 text-slate-400">
+                      {players.length === 0 ? (
+                        <div>
+                          <AlertCircle className="h-12 w-12 mx-auto mb-4 text-red-400" />
+                          <p className="text-slate-600 font-medium">No players loaded</p>
+                          <p className="text-slate-500 text-sm mt-1">Check console for errors</p>
+                        </div>
+                      ) : (
+                        <div>
+                          <Search className="h-12 w-12 mx-auto mb-4 text-slate-300" />
+                          <p className="text-slate-600 font-medium">No players found</p>
+                          <p className="text-slate-500 text-sm mt-1">Try adjusting your search or filters</p>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-1">
+                      {filteredPlayers.slice(0, 50).map(player => (
+                        <div
+                          key={player.id}
+                          onClick={() => addPlayer(player)}
+                          className="flex items-center justify-between p-3 bg-slate-50 hover:bg-blue-50 rounded-lg cursor-pointer transition-all duration-200 border border-transparent hover:border-blue-200 hover:shadow-sm"
+                        >
+                          <div className="flex items-center space-x-3">
+                            <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded font-medium">
+                              {getPositionName(player.element_type)}
+                            </span>
+                            <span className="text-xs px-2 py-1 bg-slate-100 text-slate-700 rounded font-medium">
+                              {getTeamName(player.team)}
+                            </span>
+                            <span className="text-slate-900 font-semibold">{player.web_name}</span>
+                            <span className="text-slate-500 text-sm">
+                              {player.first_name} {player.second_name}
+                            </span>
+                          </div>
+                          <div className="flex items-center space-x-4">
+                            <span className="text-emerald-600 font-bold">£{(player.now_cost / 10).toFixed(1)}m</span>
+                            <span className="text-sm text-slate-500">{player.selected_by_percent}%</span>
+                            <span className="text-sm text-blue-600 font-semibold">{player.total_points} pts</span>
+                          </div>
+                        </div>
+                      ))}
+                      {filteredPlayers.length > 50 && (
+                        <div className="text-center py-3 text-slate-400 text-sm bg-slate-50 rounded-lg mt-2">
+                          <p>Showing first 50 of <span className="font-semibold text-slate-600">{filteredPlayers.length}</span> players</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -375,75 +443,108 @@ const PlayerAnalysisSelector: React.FC = () => {
           {/* Selected Players & Analysis */}
           <div className="space-y-6">
             {/* Selected Players */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-yellow-400/20">
-              <h3 className="text-xl font-bold text-yellow-400 mb-4 flex items-center">
-                <Users className="mr-2" />
-                Selected Players ({selectedPlayers.length}/6)
-              </h3>
-              
-              <div className="space-y-2 mb-6">
-                {selectedPlayers.map(player => (
-                  <div
-                    key={player.id}
-                    className="flex items-center justify-between p-2 bg-white/5 rounded-lg"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xs px-2 py-1 bg-blue-500 text-white rounded">
-                        {getPositionName(player.element_type)}
-                      </span>
-                      <span className="text-white text-sm">{player.web_name}</span>
-                    </div>
-                    <button
-                      onClick={() => removePlayer(player.id)}
-                      className="text-red-400 hover:text-red-300 text-sm"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
+            <div className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+              <div className="border-b border-slate-200 bg-slate-50 px-6 py-4">
+                <h3 className="text-lg font-semibold text-slate-900 flex items-center">
+                  <Users className="h-5 w-5 text-slate-500 mr-2" />
+                  Selected Players ({selectedPlayers.length}/6)
+                </h3>
+                <p className="text-slate-600 text-sm mt-1">Players chosen for analysis</p>
               </div>
-
-              <button
-                onClick={runAnalysis}
-                disabled={selectedPlayers.length === 0 || analyzing}
-                className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 disabled:from-gray-500 disabled:to-gray-600 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2"
-              >
-                {analyzing ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>Analyzing...</span>
-                  </>
+              
+              <div className="p-6">
+                {selectedPlayers.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-slate-300" />
+                    <p className="text-slate-500">No players selected</p>
+                    <p className="text-slate-400 text-sm mt-1">Click on players from the database to add them</p>
+                  </div>
                 ) : (
-                  <>
-                    <BarChart3 className="h-5 w-5" />
-                    <span>Run Analysis</span>
-                  </>
+                  <div className="space-y-3 mb-6">
+                    {selectedPlayers.map(player => (
+                      <div
+                        key={player.id}
+                        className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded font-medium">
+                            {getPositionName(player.element_type)}
+                          </span>
+                          <span className="text-slate-900 font-semibold">{player.web_name}</span>
+                          <span className="text-slate-500 text-sm">£{(player.now_cost / 10).toFixed(1)}m</span>
+                        </div>
+                        <button
+                          onClick={() => removePlayer(player.id)}
+                          className="text-red-500 hover:text-red-600 text-sm font-medium transition-colors"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 )}
-              </button>
+
+                <button
+                  onClick={runAnalysis}
+                  disabled={selectedPlayers.length === 0 || analyzing}
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-slate-400 disabled:to-slate-500 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 flex items-center justify-center space-x-3 shadow-lg disabled:shadow-none"
+                >
+                  {analyzing ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                      <span>Analyzing Players...</span>
+                    </>
+                  ) : (
+                    <>
+                      <BarChart3 className="h-5 w-5" />
+                      <span>Run Advanced Analysis</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
 
             {/* Quick Stats */}
             {selectedPlayers.length > 0 && (
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-yellow-400/20">
-                <h3 className="text-lg font-bold text-yellow-400 mb-4">Quick Stats</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-300">Total Value:</span>
-                    <span className="text-white font-bold">
-                      £{selectedPlayers.reduce((sum, p) => sum + (p.now_cost / 10), 0).toFixed(1)}m
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-300">Total Points:</span>
-                    <span className="text-green-400 font-bold">
-                      {selectedPlayers.reduce((sum, p) => sum + p.total_points, 0)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-300">Avg Points/Game:</span>
-                    <span className="text-blue-400 font-bold">
-                      {(selectedPlayers.reduce((sum, p) => sum + parseFloat(p.points_per_game || '0'), 0) / selectedPlayers.length).toFixed(1)}
-                    </span>
+              <div className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+                <div className="border-b border-slate-200 bg-slate-50 px-6 py-4">
+                  <h3 className="text-lg font-semibold text-slate-900 flex items-center">
+                    <TrendingUp className="h-5 w-5 text-slate-500 mr-2" />
+                    Quick Overview
+                  </h3>
+                </div>
+                
+                <div className="p-6">
+                  <div className="grid grid-cols-1 gap-4">
+                    <div className="flex justify-between items-center p-3 bg-emerald-50 rounded-lg border border-emerald-200">
+                      <span className="text-slate-700 font-medium flex items-center">
+                        <DollarSign className="h-4 w-4 text-emerald-600 mr-2" />
+                        Total Value
+                      </span>
+                      <span className="text-emerald-700 font-bold text-lg">
+                        £{selectedPlayers.reduce((sum, p) => sum + (p.now_cost / 10), 0).toFixed(1)}m
+                      </span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+                      <span className="text-slate-700 font-medium flex items-center">
+                        <Activity className="h-4 w-4 text-blue-600 mr-2" />
+                        Total Points
+                      </span>
+                      <span className="text-blue-700 font-bold text-lg">
+                        {selectedPlayers.reduce((sum, p) => sum + p.total_points, 0)}
+                      </span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg border border-purple-200">
+                      <span className="text-slate-700 font-medium flex items-center">
+                        <BarChart3 className="h-4 w-4 text-purple-600 mr-2" />
+                        Avg PPG
+                      </span>
+                      <span className="text-purple-700 font-bold text-lg">
+                        {(selectedPlayers.reduce((sum, p) => sum + parseFloat(p.points_per_game || '0'), 0) / selectedPlayers.length).toFixed(1)}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -453,87 +554,134 @@ const PlayerAnalysisSelector: React.FC = () => {
 
         {/* Analysis Results */}
         {showResults && (
-          <div className="mt-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-yellow-400">Analysis Results</h2>
-              <button
-                onClick={exportResults}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2"
-              >
-                <DollarSign className="h-4 w-4" />
-                <span>Export Data</span>
-              </button>
+          <div className="mt-12">
+            <div className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden mb-8">
+              <div className="border-b border-slate-200 bg-gradient-to-r from-blue-50 to-purple-50 px-6 py-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-2xl font-bold text-slate-900 flex items-center">
+                      <BarChart3 className="h-6 w-6 text-blue-600 mr-3" />
+                      Professional Analysis Report
+                    </h2>
+                    <p className="text-slate-600 mt-1">Comprehensive player performance insights and data-driven recommendations</p>
+                  </div>
+                  <button
+                    onClick={exportResults}
+                    className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-6 py-3 rounded-lg flex items-center space-x-2 font-medium shadow-lg transition-all duration-200"
+                  >
+                    <DollarSign className="h-4 w-4" />
+                    <span>Export Report</span>
+                  </button>
+                </div>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               {analysisResults.map((result) => (
-                <div key={result.playerInfo.id} className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-yellow-400/20">
+                <div key={result.playerInfo.id} className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow duration-200">
                   {/* Player Header */}
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h3 className="text-lg font-bold text-white">{result.playerInfo.webName}</h3>
-                      <p className="text-gray-300 text-sm">
-                        {result.playerInfo.position} | {result.playerInfo.team} | {result.playerInfo.price}
-                      </p>
+                  <div className="bg-gradient-to-r from-slate-50 to-slate-100 px-6 py-4 border-b border-slate-200">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-lg font-bold text-slate-900">{result.playerInfo.webName}</h3>
+                        <p className="text-slate-600 text-sm flex items-center space-x-2">
+                          <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">
+                            {result.playerInfo.position}
+                          </span>
+                          <span>{result.playerInfo.team}</span>
+                          <span>•</span>
+                          <span className="font-semibold text-emerald-600">{result.playerInfo.price}</span>
+                        </p>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getValueRatingColor(result.performance.valueRating)}`}>
+                        {result.performance.valueRating}
+                      </span>
                     </div>
-                    <span className={`px-2 py-1 rounded text-xs font-bold ${getValueRatingColor(result.performance.valueRating)}`}>
-                      {result.performance.valueRating}
-                    </span>
                   </div>
 
                   {/* Performance Metrics */}
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-gray-300">Points/Game:</span>
-                      <span className="text-white font-bold">{result.performance.pointsPerGame}</span>
-                    </div>
-                    
-                    <div className="flex justify-between">
-                      <span className="text-gray-300">Points/£M:</span>
-                      <span className="text-green-400 font-bold">{result.performance.pointsPerMillion}</span>
-                    </div>
-
-                    <div className="flex justify-between">
-                      <span className="text-gray-300">Expected Points:</span>
-                      <span className="text-blue-400 font-bold">{result.predictive.expectedPoints}</span>
-                    </div>
-
-                    <div className="flex justify-between">
-                      <span className="text-gray-300">Form Trend:</span>
-                      <span className={`font-bold ${getFormTrendColor(result.performance.formTrend.direction)}`}>
-                        {result.performance.formTrend.direction} {result.performance.formTrend.percentage}%
-                      </span>
-                    </div>
-
-                    <div className="flex justify-between">
-                      <span className="text-gray-300">Rotation Risk:</span>
-                      <span className="text-yellow-400 font-bold">{result.predictive.rotationRisk.level}</span>
-                    </div>
-
-                    <div className="flex justify-between">
-                      <span className="text-gray-300">Fixture Rating:</span>
-                      <span className="text-purple-400 font-bold">{result.predictive.fixtureRating.rating}</span>
-                    </div>
-                  </div>
-
-                  {/* Advanced Stats */}
-                  <div className="mt-4 pt-4 border-t border-white/10">
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div className="text-center">
-                        <div className="text-gray-400">xG</div>
-                        <div className="text-white font-bold">{result.advanced.underlyingStats.expectedGoals}</div>
+                  <div className="p-6">
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                      <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-blue-600 text-sm font-medium">Points/Game</p>
+                            <p className="text-blue-900 text-xl font-bold">{result.performance.pointsPerGame}</p>
+                          </div>
+                          <Activity className="h-8 w-8 text-blue-500" />
+                        </div>
                       </div>
-                      <div className="text-center">
-                        <div className="text-gray-400">xA</div>
-                        <div className="text-white font-bold">{result.advanced.underlyingStats.expectedAssists}</div>
+                      
+                      <div className="bg-emerald-50 rounded-lg p-4 border border-emerald-100">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-emerald-600 text-sm font-medium">Value Rating</p>
+                            <p className="text-emerald-900 text-xl font-bold">{result.performance.pointsPerMillion}</p>
+                          </div>
+                          <TrendingUp className="h-8 w-8 text-emerald-500" />
+                        </div>
                       </div>
-                      <div className="text-center">
-                        <div className="text-gray-400">ICT</div>
-                        <div className="text-white font-bold">{result.advanced.underlyingStats.ictIndex}</div>
+                      
+                      <div className="bg-purple-50 rounded-lg p-4 border border-purple-100">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-purple-600 text-sm font-medium">Expected Pts</p>
+                            <p className="text-purple-900 text-xl font-bold">{result.predictive.expectedPoints}</p>
+                          </div>
+                          <BarChart3 className="h-8 w-8 text-purple-500" />
+                        </div>
                       </div>
-                      <div className="text-center">
-                        <div className="text-gray-400">Consistency</div>
-                        <div className="text-white font-bold">{result.predictive.consistency}</div>
+                      
+                      <div className="bg-amber-50 rounded-lg p-4 border border-amber-100">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-amber-600 text-sm font-medium">Consistency</p>
+                            <p className="text-amber-900 text-xl font-bold">{result.predictive.consistency}</p>
+                          </div>
+                          <Calendar className="h-8 w-8 text-amber-500" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                        <span className="text-slate-600 font-medium">Form Trend</span>
+                        <span className={`font-bold px-3 py-1 rounded-full text-sm ${getFormTrendColor(result.performance.formTrend.direction)} bg-slate-100`}>
+                          {result.performance.formTrend.direction} {result.performance.formTrend.percentage > 0 ? '+' : ''}{result.performance.formTrend.percentage}%
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                        <span className="text-slate-600 font-medium">Rotation Risk</span>
+                        <span className="font-bold text-slate-800">{result.predictive.rotationRisk.level}</span>
+                      </div>
+
+                      <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                        <span className="text-slate-600 font-medium">Fixture Rating</span>
+                        <span className="font-bold text-slate-800">{result.predictive.fixtureRating.rating}</span>
+                      </div>
+                    </div>
+
+                    {/* Advanced Stats */}
+                    <div className="mt-6 pt-4 border-t border-slate-200">
+                      <p className="text-sm font-semibold text-slate-700 mb-3">Advanced Metrics</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="text-center p-2 bg-slate-50 rounded">
+                          <div className="text-xs text-slate-500">Expected Goals</div>
+                          <div className="font-bold text-slate-800">{result.advanced.underlyingStats.expectedGoals}</div>
+                        </div>
+                        <div className="text-center p-2 bg-slate-50 rounded">
+                          <div className="text-xs text-slate-500">Expected Assists</div>
+                          <div className="font-bold text-slate-800">{result.advanced.underlyingStats.expectedAssists}</div>
+                        </div>
+                        <div className="text-center p-2 bg-slate-50 rounded">
+                          <div className="text-xs text-slate-500">ICT Index</div>
+                          <div className="font-bold text-slate-800">{result.advanced.underlyingStats.ictIndex}</div>
+                        </div>
+                        <div className="text-center p-2 bg-slate-50 rounded">
+                          <div className="text-xs text-slate-500">Ownership</div>
+                          <div className="font-bold text-slate-800">{result.playerInfo.ownership}</div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -543,36 +691,52 @@ const PlayerAnalysisSelector: React.FC = () => {
 
             {/* Comparison Table */}
             {analysisResults.length > 1 && (
-              <div className="mt-8 bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-yellow-400/20 overflow-x-auto">
-                <h3 className="text-xl font-bold text-yellow-400 mb-4">Comparison Table</h3>
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-white/20">
-                      <th className="text-left py-2 text-yellow-400">Player</th>
-                      <th className="text-center py-2 text-yellow-400">Price</th>
-                      <th className="text-center py-2 text-yellow-400">PPG</th>
-                      <th className="text-center py-2 text-yellow-400">PP£M</th>
-                      <th className="text-center py-2 text-yellow-400">xPts</th>
-                      <th className="text-center py-2 text-yellow-400">Value</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {analysisResults.map((result) => (
-                      <tr key={result.playerInfo.id} className="border-b border-white/10">
-                        <td className="py-2 text-white">{result.playerInfo.webName}</td>
-                        <td className="py-2 text-center text-white">{result.playerInfo.price}</td>
-                        <td className="py-2 text-center text-white">{result.performance.pointsPerGame}</td>
-                        <td className="py-2 text-center text-green-400">{result.performance.pointsPerMillion}</td>
-                        <td className="py-2 text-center text-blue-400">{result.predictive.expectedPoints}</td>
-                        <td className="py-2 text-center">
-                          <span className={`px-2 py-1 rounded text-xs ${getValueRatingColor(result.performance.valueRating)}`}>
-                            {result.performance.valueRating}
-                          </span>
-                        </td>
+              <div className="mt-8 bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+                <div className="border-b border-slate-200 bg-slate-50 px-6 py-4">
+                  <h3 className="text-xl font-bold text-slate-900 flex items-center">
+                    <Users className="h-5 w-5 text-slate-600 mr-2" />
+                    Player Comparison Matrix
+                  </h3>
+                  <p className="text-slate-600 text-sm mt-1">Side-by-side performance analysis</p>
+                </div>
+                
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-slate-50">
+                      <tr className="border-b border-slate-200">
+                        <th className="text-left py-4 px-6 text-slate-700 font-semibold">Player</th>
+                        <th className="text-center py-4 px-4 text-slate-700 font-semibold">Price</th>
+                        <th className="text-center py-4 px-4 text-slate-700 font-semibold">PPG</th>
+                        <th className="text-center py-4 px-4 text-slate-700 font-semibold">PP£M</th>
+                        <th className="text-center py-4 px-4 text-slate-700 font-semibold">xPts</th>
+                        <th className="text-center py-4 px-4 text-slate-700 font-semibold">Value Rating</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {analysisResults.map((result, index) => (
+                        <tr key={result.playerInfo.id} className={`border-b border-slate-100 ${index % 2 === 0 ? 'bg-white' : 'bg-slate-50'}`}>
+                          <td className="py-4 px-6">
+                            <div className="flex items-center space-x-3">
+                              <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">
+                                {result.playerInfo.position}
+                              </span>
+                              <span className="font-semibold text-slate-900">{result.playerInfo.webName}</span>
+                            </div>
+                          </td>
+                          <td className="py-4 px-4 text-center font-semibold text-emerald-600">{result.playerInfo.price}</td>
+                          <td className="py-4 px-4 text-center font-semibold text-slate-800">{result.performance.pointsPerGame}</td>
+                          <td className="py-4 px-4 text-center font-semibold text-blue-600">{result.performance.pointsPerMillion}</td>
+                          <td className="py-4 px-4 text-center font-semibold text-purple-600">{result.predictive.expectedPoints}</td>
+                          <td className="py-4 px-4 text-center">
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getValueRatingColor(result.performance.valueRating)}`}>
+                              {result.performance.valueRating}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
           </div>
