@@ -28,6 +28,7 @@ const navigationItems = [
   { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
   { href: '/fixtures', label: 'Fixtures', icon: Calendar },
   { href: '/players', label: 'Players', icon: Users },
+  { href: '/analysis', label: 'Analysis', icon: TrendingUp },
   { href: '/mini-league', label: 'Mini League', icon: Trophy },
   { href: '/my-team', label: 'My Team', icon: Shield },
   { href: '/news', label: 'News', icon: Newspaper },

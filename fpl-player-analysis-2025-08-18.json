@@ -1,0 +1,183 @@
+{
+  "generated": "2025-08-18T06:05:12.685Z",
+  "players": [
+    {
+      "playerInfo": {
+        "id": 356,
+        "name": "Ilia Gruev",
+        "webName": "Gruev",
+        "team": "Leeds",
+        "position": "Midfielder",
+        "price": "£5.0m",
+        "ownership": "0.0%"
+      },
+      "performance": {
+        "totalPoints": 0,
+        "pointsPerGame": "0.0",
+        "pointsPerMillion": "0.00",
+        "valueRating": "Poor",
+        "form": "0.0",
+        "formTrend": {
+          "direction": "Stable",
+          "strength": "Consistent",
+          "percentage": 0
+        }
+      },
+      "predictive": {
+        "expectedPoints": "0.0",
+        "consistency": "0%",
+        "fixtureRating": {
+          "rating": "Unknown",
+          "difficulty": 3,
+          "fixtures": []
+        },
+        "rotationRisk": {
+          "level": "Very High",
+          "minutesPercentage": 0,
+          "startsPercentage": null
+        },
+        "priceChangeProb": "Stable"
+      },
+      "advanced": {
+        "underlyingStats": {
+          "expectedGoals": "0.00",
+          "expectedAssists": "0.00",
+          "expectedGoalsPer90": "0.00",
+          "expectedAssistsPer90": "0.00",
+          "ictIndex": "0.0",
+          "influence": "0.0",
+          "creativity": "0.0",
+          "threat": "0.0"
+        },
+        "teamStrength": {
+          "overall": "Excellent",
+          "attack": "Excellent",
+          "defense": "Excellent"
+        },
+        "minutesPlayed": 0,
+        "starts": 0
+      },
+      "timestamp": "2025-08-18T06:05:12.679Z"
+    },
+    {
+      "playerInfo": {
+        "id": 283,
+        "name": "Jean-Philippe Mateta",
+        "webName": "Mateta",
+        "team": "Crystal Palace",
+        "position": "Forward",
+        "price": "£7.5m",
+        "ownership": "9.2%"
+      },
+      "performance": {
+        "totalPoints": 1,
+        "pointsPerGame": "1.0",
+        "pointsPerMillion": "0.13",
+        "valueRating": "Poor",
+        "form": "1.0",
+        "formTrend": {
+          "direction": "Stable",
+          "strength": "Consistent",
+          "percentage": 0
+        }
+      },
+      "predictive": {
+        "expectedPoints": "92.8",
+        "consistency": "2%",
+        "fixtureRating": {
+          "rating": "Unknown",
+          "difficulty": 3,
+          "fixtures": []
+        },
+        "rotationRisk": {
+          "level": "Very High",
+          "minutesPercentage": 3,
+          "startsPercentage": null
+        },
+        "priceChangeProb": "Stable"
+      },
+      "advanced": {
+        "underlyingStats": {
+          "expectedGoals": "0.29",
+          "expectedAssists": "0.00",
+          "expectedGoalsPer90": "0.29",
+          "expectedAssistsPer90": "0.00",
+          "ictIndex": "4.2",
+          "influence": "15.6",
+          "creativity": "0.6",
+          "threat": "26.0"
+        },
+        "teamStrength": {
+          "overall": "Excellent",
+          "attack": "Excellent",
+          "defense": "Excellent"
+        },
+        "minutesPlayed": 90,
+        "starts": 1
+      },
+      "timestamp": "2025-08-18T06:05:12.684Z"
+    }
+  ],
+  "summary": {
+    "playersAnalyzed": 2,
+    "avgExpectedPoints": 46.4,
+    "topValuePlayer": {
+      "playerInfo": {
+        "id": 283,
+        "name": "Jean-Philippe Mateta",
+        "webName": "Mateta",
+        "team": "Crystal Palace",
+        "position": "Forward",
+        "price": "£7.5m",
+        "ownership": "9.2%"
+      },
+      "performance": {
+        "totalPoints": 1,
+        "pointsPerGame": "1.0",
+        "pointsPerMillion": "0.13",
+        "valueRating": "Poor",
+        "form": "1.0",
+        "formTrend": {
+          "direction": "Stable",
+          "strength": "Consistent",
+          "percentage": 0
+        }
+      },
+      "predictive": {
+        "expectedPoints": "92.8",
+        "consistency": "2%",
+        "fixtureRating": {
+          "rating": "Unknown",
+          "difficulty": 3,
+          "fixtures": []
+        },
+        "rotationRisk": {
+          "level": "Very High",
+          "minutesPercentage": 3,
+          "startsPercentage": null
+        },
+        "priceChangeProb": "Stable"
+      },
+      "advanced": {
+        "underlyingStats": {
+          "expectedGoals": "0.29",
+          "expectedAssists": "0.00",
+          "expectedGoalsPer90": "0.29",
+          "expectedAssistsPer90": "0.00",
+          "ictIndex": "4.2",
+          "influence": "15.6",
+          "creativity": "0.6",
+          "threat": "26.0"
+        },
+        "teamStrength": {
+          "overall": "Excellent",
+          "attack": "Excellent",
+          "defense": "Excellent"
+        },
+        "minutesPlayed": 90,
+        "starts": 1
+      },
+      "timestamp": "2025-08-18T06:05:12.684Z"
+    }
+  }
+}
