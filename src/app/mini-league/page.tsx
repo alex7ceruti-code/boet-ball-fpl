@@ -7,9 +7,12 @@ import {
   useMiniLeague, 
   useManagerTeam, 
   useManagerPicks, 
-  useCurrentGameweek 
+  useCurrentGameweek,
+  useHistoricalStandings
 } from '@/hooks/useFplData';
 import { getSlangPhrase, getLoadingText } from '@/utils/slang';
+import PositionTracker from '@/components/PositionTracker';
+import { ExportableStandings } from '@/components/ShareableExport';
 import {
   Trophy,
   Users,
@@ -40,7 +43,10 @@ import {
   Award,
   Frown,
   Smile,
-  Meh
+  Meh,
+  LineChart,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 
 // Helper functions
@@ -100,9 +106,18 @@ export default function MiniLeague() {
   const [submittedLeagueId, setSubmittedLeagueId] = useState<number | null>(null);
   const [selectedManager, setSelectedManager] = useState<any>(null);
   const [showRivalry, setShowRivalry] = useState(false);
+  const [showPositionTracker, setShowPositionTracker] = useState(false);
   
   // Fetch league data only when league ID is submitted
   const { data: leagueData, isLoading: leagueLoading, error: leagueError } = useMiniLeague(submittedLeagueId);
+  
+  // Fetch historical data for position tracking (gameweeks 1 to current)
+  const gameweeksToFetch = useMemo(() => {
+    if (!currentGW?.id) return [];
+    return Array.from({ length: Math.min(currentGW.id, 10) }, (_, i) => i + 1); // Limit to last 10 GWs for performance
+  }, [currentGW?.id]);
+  
+  const historicalStandings = useHistoricalStandings(submittedLeagueId, gameweeksToFetch);
 
   // Get saved mini-league IDs from user profile
   const savedMiniLeagues = useMemo(() => {
@@ -348,12 +363,25 @@ export default function MiniLeague() {
   const standings = (leagueData as any)?.standings?.results || [];
   const leagueInfo = (leagueData as any)?.league || {};
   
-  // Get best and worst performers this gameweek
-  const bestPerformer = standings.reduce((best: any, current: any) => 
-    current.event_total > (best?.event_total || 0) ? current : best, standings[0]);
+  // Get best and worst performers this gameweek (or most recent if gameweek is over)
+  // Filter out zero scores if all games are finished and everyone has 0 for current event
+  const validStandings = standings.filter((manager: any) => manager.event_total > 0);
   
-  const worstPerformer = standings.reduce((worst: any, current: any) => 
-    current.event_total < (worst?.event_total || Number.MAX_VALUE) ? current : worst, standings[0]);
+  // If no one has points this "gameweek" (likely because it's between gameweeks),
+  // we'll show overall best/worst based on recent performance or total points
+  const hasCurrentGameweekData = validStandings.length > 0;
+  
+  const bestPerformer = hasCurrentGameweekData 
+    ? validStandings.reduce((best: any, current: any) =>
+        current.event_total > (best?.event_total || 0) ? current : best, validStandings[0])
+    : standings.reduce((best: any, current: any) =>
+        current.total > (best?.total || 0) ? current : best, standings[0]);
+  
+  const worstPerformer = hasCurrentGameweekData 
+    ? validStandings.reduce((worst: any, current: any) =>
+        current.event_total < (worst?.event_total || Number.MAX_VALUE) ? current : worst, validStandings[0])
+    : standings.reduce((worst: any, current: any) =>
+        current.total < (worst?.total || Number.MAX_VALUE) ? current : worst, standings[0]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-yellow-50">
@@ -376,14 +404,22 @@ export default function MiniLeague() {
             {standings.length} managers battling it out! Time to settle who's the real boet! 🏆
           </p>
           
-          {/* Change League Button */}
-          <div className="mt-4">
+          {/* Action Buttons */}
+          <div className="mt-4 flex gap-3 justify-center">
             <button 
               onClick={resetLeagueId}
-              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium flex items-center gap-2 mx-auto"
+              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium flex items-center gap-2"
             >
               <RefreshCw className="w-4 h-4" />
               Change League
+            </button>
+            
+            <button 
+              onClick={() => setShowPositionTracker(!showPositionTracker)}
+              className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-sm font-medium flex items-center gap-2"
+            >
+              {showPositionTracker ? <EyeOff className="w-4 h-4" /> : <LineChart className="w-4 h-4" />}
+              {showPositionTracker ? 'Hide Tracker' : 'Position Tracker'}
             </button>
           </div>
         </div>
@@ -397,8 +433,8 @@ export default function MiniLeague() {
                 <Flame className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-xl font-bold">Boet of the Week! 🔥</h3>
-                <p className="text-green-100">GW{currentGW?.id} Top Scorer</p>
+                <h3 className="text-xl font-bold">{hasCurrentGameweekData ? 'Boet of the Week! 🔥' : 'League Leader! 🏆'}</h3>
+                <p className="text-green-100">{hasCurrentGameweekData ? `GW${currentGW?.id} Top Scorer` : 'Overall Top Position'}</p>
               </div>
             </div>
             <div className="flex items-center justify-between">
@@ -411,8 +447,8 @@ export default function MiniLeague() {
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-3xl font-black">{bestPerformer?.event_total || 0}</div>
-                <div className="text-sm text-green-100">points</div>
+                <div className="text-3xl font-black">{hasCurrentGameweekData ? (bestPerformer?.event_total || 0) : (bestPerformer?.total || 0)}</div>
+                <div className="text-sm text-green-100">{hasCurrentGameweekData ? 'points' : 'total pts'}</div>
               </div>
             </div>
             <div className="mt-4 p-3 bg-white/10 rounded-lg">
@@ -429,8 +465,8 @@ export default function MiniLeague() {
                 <Skull className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-xl font-bold">Braai Duty! 💀</h3>
-                <p className="text-red-100">GW{currentGW?.id} Wooden Spoon</p>
+                <h3 className="text-xl font-bold">{hasCurrentGameweekData ? 'Braai Duty! 💀' : 'Needs Work! 📈'}</h3>
+                <p className="text-red-100">{hasCurrentGameweekData ? `GW${currentGW?.id} Wooden Spoon` : 'Bottom of the League'}</p>
               </div>
             </div>
             <div className="flex items-center justify-between">
@@ -443,8 +479,8 @@ export default function MiniLeague() {
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-3xl font-black">{worstPerformer?.event_total || 0}</div>
-                <div className="text-sm text-red-100">points</div>
+                <div className="text-3xl font-black">{hasCurrentGameweekData ? (worstPerformer?.event_total || 0) : (worstPerformer?.total || 0)}</div>
+                <div className="text-sm text-red-100">{hasCurrentGameweekData ? 'points' : 'total pts'}</div>
               </div>
             </div>
             <div className="mt-4 p-3 bg-white/10 rounded-lg">
@@ -589,6 +625,27 @@ export default function MiniLeague() {
             </table>
           </div>
         </div>
+
+        {/* Position Tracker */}
+        {showPositionTracker && (
+          <div className="mb-8">
+            <PositionTracker 
+              historicalData={historicalStandings.map(item => ({
+                gameweek: item.gameweek,
+                data: item.data ? {
+                  standings: {
+                    results: (item.data as any)?.standings?.results || []
+                  }
+                } : null,
+                error: item.error,
+                isLoading: item.isLoading
+              }))}
+              currentGameweek={currentGW?.id || 1}
+              leagueName={leagueInfo.name || ''}
+              exportable={true}
+            />
+          </div>
+        )}
 
         {/* League Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">

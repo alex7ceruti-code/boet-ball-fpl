@@ -191,3 +191,25 @@ export function useMultipleManagers(managerIds: number[]) {
   const results = managerIds.map(id => useManagerTeam(id));
   return results;
 }
+
+// Get historical mini league standings for position tracking
+export function useHistoricalMiniLeague(leagueId: number | null, gameweek: number | null) {
+  return useFplApi(
+    leagueId && gameweek ? `leagues-classic/${leagueId}/standings/?page_standings=1&page_new_entries=1&phase=1&le-page=1&ls-page=1` : ''
+  );
+}
+
+// Hook to fetch historical standings for multiple gameweeks
+export function useHistoricalStandings(leagueId: number | null, gameweeks: number[]) {
+  const results = gameweeks.map(gw => {
+    const { data, error, isLoading } = useHistoricalMiniLeague(leagueId, gw);
+    return {
+      gameweek: gw,
+      data,
+      error,
+      isLoading
+    };
+  });
+  
+  return results;
+}
