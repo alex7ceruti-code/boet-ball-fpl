@@ -192,22 +192,82 @@ export function useMultipleManagers(managerIds: number[]) {
   return results;
 }
 
-// Get historical mini league standings for position tracking
-export function useHistoricalMiniLeague(leagueId: number | null, gameweek: number | null) {
-  return useFplApi(
-    leagueId && gameweek ? `leagues-classic/${leagueId}/standings/?page_standings=1&page_new_entries=1&phase=1&le-page=1&ls-page=1` : ''
-  );
+// Get manager's gameweek history to reconstruct historical positions
+export function useManagerGameweekHistory(managerId: number | null) {
+  return useFplApi(managerId ? `entry/${managerId}/history/` : '');
 }
 
-// Hook to fetch historical standings for multiple gameweeks
+// Hook to fetch and reconstruct historical standings for multiple gameweeks
 export function useHistoricalStandings(leagueId: number | null, gameweeks: number[]) {
-  const results = gameweeks.map(gw => {
-    const { data, error, isLoading } = useHistoricalMiniLeague(leagueId, gw);
+  // First get current league standings to get all manager IDs
+  const { data: currentLeague, error: leagueError, isLoading: leagueLoading } = useMiniLeague(leagueId);
+  
+  // Get all manager histories
+  const managerIds = (currentLeague as any)?.standings?.results?.map((manager: any) => manager.entry) || [];
+  const managerHistories = managerIds.map((managerId: number) => {
+    const { data, error, isLoading } = useManagerGameweekHistory(managerId);
+    return { managerId, data, error, isLoading };
+  });
+  
+  // Reconstruct historical standings for each gameweek
+  const results = gameweeks.map(targetGameweek => {
+    if (leagueLoading || managerHistories.some((h: any) => h.isLoading)) {
+      return {
+        gameweek: targetGameweek,
+        data: null,
+        error: null,
+        isLoading: true
+      };
+    }
+    
+    if (leagueError || managerHistories.some((h: any) => h.error)) {
+      return {
+        gameweek: targetGameweek,
+        data: null,
+        error: leagueError || managerHistories.find((h: any) => h.error)?.error,
+        isLoading: false
+      };
+    }
+    
+    // Reconstruct standings for this gameweek
+    const gameweekStandings: any[] = [];
+    
+    for (const managerHistory of managerHistories) {
+      if (!managerHistory.data?.current) continue;
+      
+      const manager = (currentLeague as any)?.standings?.results?.find((m: any) => m.entry === managerHistory.managerId);
+      if (!manager) continue;
+      
+      // Find the gameweek data
+      const gameweekData = managerHistory.data.current.find((gw: any) => gw.event === targetGameweek);
+      
+      if (gameweekData) {
+        gameweekStandings.push({
+          entry: manager.entry,
+          player_name: manager.player_name,
+          entry_name: manager.entry_name,
+          total: gameweekData.total_points,
+          event_total: gameweekData.points,
+          rank: 1 // Will be calculated after sorting
+        });
+      }
+    }
+    
+    // Sort by total points and assign ranks
+    gameweekStandings.sort((a, b) => b.total - a.total);
+    gameweekStandings.forEach((manager, index) => {
+      manager.rank = index + 1;
+    });
+    
     return {
-      gameweek: gw,
-      data,
-      error,
-      isLoading
+      gameweek: targetGameweek,
+      data: gameweekStandings.length > 0 ? {
+        standings: {
+          results: gameweekStandings
+        }
+      } : null,
+      error: null,
+      isLoading: false
     };
   });
   

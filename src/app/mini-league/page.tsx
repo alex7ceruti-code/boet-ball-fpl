@@ -111,10 +111,11 @@ export default function MiniLeague() {
   // Fetch league data only when league ID is submitted
   const { data: leagueData, isLoading: leagueLoading, error: leagueError } = useMiniLeague(submittedLeagueId);
   
-  // Fetch historical data for position tracking (gameweeks 1 to current)
+  // Fetch historical data for position tracking (last 6 gameweeks for better performance)
   const gameweeksToFetch = useMemo(() => {
     if (!currentGW?.id) return [];
-    return Array.from({ length: Math.min(currentGW.id, 10) }, (_, i) => i + 1); // Limit to last 10 GWs for performance
+    const startGW = Math.max(1, currentGW.id - 5); // Last 6 gameweeks
+    return Array.from({ length: currentGW.id - startGW + 1 }, (_, i) => startGW + i);
   }, [currentGW?.id]);
   
   const historicalStandings = useHistoricalStandings(submittedLeagueId, gameweeksToFetch);

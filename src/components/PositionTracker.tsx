@@ -32,18 +32,35 @@ interface PositionTrackerProps {
   exportable?: boolean;
 }
 
-// Generate colors for different managers
+// Generate distinct, readable colors for different managers
 const generateColors = (count: number) => {
   const colors = [
-    '#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6',
-    '#f97316', '#06b6d4', '#84cc16', '#ec4899', '#6366f1',
-    '#14b8a6', '#f472b6', '#a855f7', '#22d3ee', '#facc15',
-    '#fb7185', '#34d399', '#60a5fa', '#fbbf24', '#f87171'
+    '#1f77b4', // blue
+    '#ff7f0e', // orange  
+    '#2ca02c', // green
+    '#d62728', // red
+    '#9467bd', // purple
+    '#8c564b', // brown
+    '#e377c2', // pink
+    '#7f7f7f', // gray
+    '#bcbd22', // olive
+    '#17becf', // cyan
+    '#aec7e8', // light blue
+    '#ffbb78', // light orange
+    '#98df8a', // light green
+    '#ff9896', // light red
+    '#c5b0d5', // light purple
+    '#c49c94', // light brown
+    '#f7b6d3', // light pink
+    '#c7c7c7', // light gray
+    '#dbdb8d', // light olive
+    '#9edae5'  // light cyan
   ];
   
-  // If we need more colors than available, generate more
+  // If we need more colors than available, generate more using HSL
   while (colors.length < count) {
-    colors.push(`hsl(${Math.floor(Math.random() * 360)}, 70%, 50%)`);
+    const hue = (colors.length * 137.508) % 360; // Golden angle approximation for better distribution
+    colors.push(`hsl(${hue}, 65%, 55%)`);
   }
   
   return colors.slice(0, count);
@@ -178,15 +195,22 @@ export default function PositionTracker({
               <XAxis 
                 dataKey="gameweek" 
                 stroke="#6b7280"
-                fontSize={12}
+                fontSize={13}
                 tickFormatter={(value) => `GW${value}`}
+                axisLine={{ stroke: '#d1d5db', strokeWidth: 1 }}
+                tickLine={{ stroke: '#d1d5db', strokeWidth: 1 }}
+                tick={{ fill: '#6b7280', fontSize: 13 }}
               />
               <YAxis 
                 stroke="#6b7280"
-                fontSize={12}
+                fontSize={13}
                 reversed={true} // Reverse so position 1 is at top
                 domain={[1, 'dataMax']}
                 tickFormatter={(value) => `#${value}`}
+                axisLine={{ stroke: '#d1d5db', strokeWidth: 1 }}
+                tickLine={{ stroke: '#d1d5db', strokeWidth: 1 }}
+                tick={{ fill: '#6b7280', fontSize: 13 }}
+                label={{ value: 'Position', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#6b7280', fontSize: 12 } }}
               />
               <Tooltip 
                 contentStyle={{
@@ -216,9 +240,15 @@ export default function PositionTracker({
                   type="monotone"
                   dataKey={`manager_${manager.entry}`}
                   stroke={colors[index]}
-                  strokeWidth={2}
-                  dot={{ fill: colors[index], strokeWidth: 2, r: 4 }}
-                  activeDot={{ r: 6, stroke: colors[index], strokeWidth: 2 }}
+                  strokeWidth={3}
+                  dot={{ fill: colors[index], strokeWidth: 2, r: 5, fillOpacity: 0.8 }}
+                  activeDot={{ 
+                    r: 8, 
+                    stroke: colors[index], 
+                    strokeWidth: 3, 
+                    fill: colors[index],
+                    fillOpacity: 1
+                  }}
                   connectNulls={false}
                 />
               ))}
