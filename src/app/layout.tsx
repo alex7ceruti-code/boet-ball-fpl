@@ -37,7 +37,7 @@ export default function RootLayout({
       >
         <SessionProvider>
           <Navigation />
-          <main className="min-h-[calc(100vh-4rem)]">
+          <main className="min-h-[calc(100vh-5rem)] pt-2">
             {children}
           </main>
         </SessionProvider>

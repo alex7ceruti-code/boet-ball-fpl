@@ -1,0 +1,72 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Elegant gradient background -->
+    <radialGradient id="monogramBg" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" style="stop-color:#1a472a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#003D20;stop-opacity:1" />
+    </radialGradient>
+    
+    <!-- Premium monogram gold -->
+    <linearGradient id="monogramGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFE55C;stop-opacity:1" />
+      <stop offset="30%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="70%" style="stop-color:#FFF700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DAA520;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Subtle flame accent -->
+    <linearGradient id="accentFlame" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#FF6B35;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#FFD700;stop-opacity:0.8" />
+    </linearGradient>
+    
+    <!-- Premium shadow -->
+    <filter id="monogramShadow">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-opacity="0.2"/>
+    </filter>
+    
+    <!-- Text shadow -->
+    <filter id="textShadow">
+      <feDropShadow dx="2" dy="4" stdDeviation="6" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- Clean background circle -->
+  <circle cx="256" cy="256" r="240" fill="url(#monogramBg)" stroke="url(#monogramGold)" stroke-width="8"/>
+  
+  <!-- Small flame accent at top -->
+  <g transform="translate(256, 120)">
+    <path d="M-8 15 C-12 8, -6 2, -2 6 C2 -5, 8 -3, 10 3 C12 -1, 16 4, 14 8 C16 12, 10 16, 4 15 C6 18, -2 20, -4 15 C-10 16, -12 10, -8 15 Z" 
+          fill="url(#accentFlame)"/>
+  </g>
+  
+  <!-- Large monogram letters -->
+  <g transform="translate(256, 280)">
+    <!-- BB monogram -->
+    <text x="0" y="0" font-family="Times New Roman, Georgia, serif" font-size="200" font-weight="700" 
+          text-anchor="middle" fill="url(#monogramGold)" filter="url(#monogramShadow)">
+      BB
+    </text>
+  </g>
+  
+  <!-- Small premium text -->
+  <g transform="translate(256, 380)">
+    <text x="0" y="0" font-family="Montserrat, Arial, sans-serif" font-size="18" font-weight="500" 
+          text-anchor="middle" fill="#FFD700" opacity="0.7" letter-spacing="3px">
+      PREMIUM FPL
+    </text>
+    
+    <!-- Small decorative line -->
+    <line x1="-40" y1="-10" x2="40" y2="-10" stroke="#FFD700" stroke-width="1" opacity="0.4"/>
+  </g>
+  
+  <!-- Minimalist SA elements -->
+  <g transform="translate(256, 420)">
+    <rect x="-12" y="0" width="8" height="2" fill="#FFD700" opacity="0.6"/>
+    <rect x="0" y="0" width="8" height="2" fill="#007A3D" opacity="0.6"/>
+    <rect x="12" y="0" width="8" height="2" fill="#FF6B35" opacity="0.6"/>
+  </g>
+  
+  <!-- Elegant outer ring -->
+  <circle cx="256" cy="256" r="250" fill="none" stroke="url(#monogramGold)" stroke-width="1" opacity="0.4"/>
+</svg>

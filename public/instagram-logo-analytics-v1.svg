@@ -1,0 +1,130 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Premium background gradient -->
+    <radialGradient id="analyticsBg" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" style="stop-color:#1a472a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#003D20;stop-opacity:1" />
+    </radialGradient>
+    
+    <!-- Gold gradient for text and elements -->
+    <linearGradient id="analyticsGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFE55C;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DAA520;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Chart gradient -->
+    <linearGradient id="chartGradient" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#007A3D;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#FFD700;stop-opacity:0.8" />
+    </linearGradient>
+    
+    <!-- Premium shadow -->
+    <filter id="analyticsShadow">
+      <feDropShadow dx="2" dy="6" stdDeviation="8" flood-opacity="0.25"/>
+    </filter>
+    
+    <!-- Glow effect -->
+    <filter id="analyticsGlow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="url(#analyticsBg)" stroke="#FFD700" stroke-width="6"/>
+  
+  <!-- Football at top -->
+  <g transform="translate(256, 120)">
+    <!-- Football/Soccer ball -->
+    <circle cx="0" cy="0" r="25" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
+    <!-- Football pattern -->
+    <polygon points="0,-15 8,-8 8,8 0,15 -8,8 -8,-8" fill="#333333"/>
+    <path d="M-8,-8 L0,-15 L8,-8" fill="none" stroke="#333333" stroke-width="1"/>
+    <path d="M-8,8 L0,15 L8,8" fill="none" stroke="#333333" stroke-width="1"/>
+    <path d="M-8,-8 L-8,8" fill="none" stroke="#333333" stroke-width="1"/>
+    <path d="M8,-8 L8,8" fill="none" stroke="#333333" stroke-width="1"/>
+  </g>
+  
+  <!-- Analytics Chart in center -->
+  <g transform="translate(256, 200)">
+    <!-- Chart background -->
+    <rect x="-60" y="-30" width="120" height="60" fill="rgba(0,122,61,0.1)" stroke="#FFD700" stroke-width="1" rx="8"/>
+    
+    <!-- Chart bars representing player performance -->
+    <rect x="-50" y="-10" width="8" height="20" fill="url(#chartGradient)" filter="url(#analyticsGlow)"/>
+    <rect x="-35" y="-20" width="8" height="30" fill="url(#chartGradient)" filter="url(#analyticsGlow)"/>
+    <rect x="-20" y="-15" width="8" height="25" fill="url(#chartGradient)" filter="url(#analyticsGlow)"/>
+    <rect x="-5" y="-25" width="8" height="35" fill="url(#chartGradient)" filter="url(#analyticsGlow)"/>
+    <rect x="10" y="-18" width="8" height="28" fill="url(#chartGradient)" filter="url(#analyticsGlow)"/>
+    <rect x="25" y="-12" width="8" height="22" fill="url(#chartGradient)" filter="url(#analyticsGlow)"/>
+    <rect x="40" y="-22" width="8" height="32" fill="url(#chartGradient)" filter="url(#analyticsGlow)"/>
+    
+    <!-- Trend line -->
+    <path d="M-46,0 L-31,-10 L-16,-5 L-1,-15 L14,-8 L29,-2 L44,-12" 
+          fill="none" stroke="#FFD700" stroke-width="2" opacity="0.8"/>
+    
+    <!-- Data points -->
+    <circle cx="-46" cy="0" r="2" fill="#FFD700"/>
+    <circle cx="-31" cy="-10" r="2" fill="#FFD700"/>
+    <circle cx="-16" cy="-5" r="2" fill="#FFD700"/>
+    <circle cx="-1" cy="-15" r="2" fill="#FFD700"/>
+    <circle cx="14" cy="-8" r="2" fill="#FFD700"/>
+    <circle cx="29" cy="-2" r="2" fill="#FFD700"/>
+    <circle cx="44" cy="-12" r="2" fill="#FFD700"/>
+  </g>
+  
+  <!-- Brand name -->
+  <g transform="translate(256, 290)">
+    <text x="0" y="0" font-family="SF Pro Display, Arial, sans-serif" font-size="42" font-weight="700" 
+          text-anchor="middle" fill="url(#analyticsGold)" filter="url(#analyticsShadow)" letter-spacing="1px">
+      BOET BALL
+    </text>
+    
+    <!-- Analytics tagline -->
+    <text x="0" y="25" font-family="SF Pro Display, Arial, sans-serif" font-size="16" font-weight="600" 
+          text-anchor="middle" fill="#FFD700" opacity="0.9" letter-spacing="2px">
+      FPL ANALYTICS
+    </text>
+  </g>
+  
+  <!-- Analytics icons around the bottom -->
+  <g transform="translate(256, 360)">
+    <!-- Trophy icon -->
+    <g transform="translate(-40, 0)">
+      <path d="M-6,-8 L-4,-12 L4,-12 L6,-8 L6,0 L4,4 L-4,4 L-6,0 Z" fill="#FFD700" opacity="0.7"/>
+      <rect x="-2" y="4" width="4" height="6" fill="#FFD700" opacity="0.7"/>
+      <rect x="-4" y="10" width="8" height="2" fill="#FFD700" opacity="0.7"/>
+    </g>
+    
+    <!-- Stats/Graph icon -->
+    <g transform="translate(0, 0)">
+      <rect x="-2" y="-8" width="2" height="8" fill="#FFD700" opacity="0.7"/>
+      <rect x="0" y="-12" width="2" height="12" fill="#FFD700" opacity="0.7"/>
+      <rect x="2" y="-6" width="2" height="6" fill="#FFD700" opacity="0.7"/>
+      <circle cx="-1" cy="-8" r="1" fill="#FFD700"/>
+      <circle cx="1" cy="-12" r="1" fill="#FFD700"/>
+      <circle cx="3" cy="-6" r="1" fill="#FFD700"/>
+    </g>
+    
+    <!-- Target/Analysis icon -->
+    <g transform="translate(40, 0)">
+      <circle cx="0" cy="-4" r="6" fill="none" stroke="#FFD700" stroke-width="1" opacity="0.7"/>
+      <circle cx="0" cy="-4" r="3" fill="none" stroke="#FFD700" stroke-width="1" opacity="0.7"/>
+      <circle cx="0" cy="-4" r="1" fill="#FFD700" opacity="0.7"/>
+    </g>
+  </g>
+  
+  <!-- South African flag accent -->
+  <g transform="translate(256, 410)">
+    <rect x="-20" y="0" width="13" height="3" fill="#FFD700" opacity="0.6"/>
+    <rect x="-4" y="0" width="14" height="3" fill="#FFFFFF" opacity="0.6"/>
+    <rect x="13" y="0" width="13" height="3" fill="#007A3D" opacity="0.6"/>
+  </g>
+  
+  <!-- Subtle outer ring -->
+  <circle cx="256" cy="256" r="248" fill="none" stroke="url(#analyticsGold)" stroke-width="1" opacity="0.3"/>
+</svg>

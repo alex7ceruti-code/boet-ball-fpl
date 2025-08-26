@@ -60,8 +60,8 @@ export default function Navigation() {
               <Image 
                 src="/boet-ball-logo.svg"
                 alt="Boet Ball Logo"
-                width={32}
-                height={32}
+                width={64}
+                height={64}
                 className="transition-transform duration-200 group-hover:scale-110"
               />
             </div>

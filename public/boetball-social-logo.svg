@@ -1,0 +1,81 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradient definitions -->
+    <linearGradient id="backgroundGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#007A3D;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#005A2D;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFA500;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="flameGradient" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#FF6B35;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFF200;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Drop shadow filter -->
+    <filter id="dropshadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="2" dy="4" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- Background Circle -->
+  <circle cx="256" cy="256" r="240" fill="url(#backgroundGradient)" stroke="#FFD700" stroke-width="8"/>
+  
+  <!-- Subtle football pattern background -->
+  <g opacity="0.1">
+    <!-- Football hexagon pattern -->
+    <polygon points="256,120 290,140 290,180 256,200 222,180 222,140" fill="#FFD700"/>
+    <polygon points="200,160 234,180 234,220 200,240 166,220 166,180" fill="#FFD700"/>
+    <polygon points="312,160 346,180 346,220 312,240 278,220 278,180" fill="#FFD700"/>
+    <polygon points="200,280 234,300 234,340 200,360 166,340 166,300" fill="#FFD700"/>
+    <polygon points="312,280 346,300 346,340 312,360 278,340 278,300" fill="#FFD700"/>
+    <polygon points="256,320 290,340 290,380 256,400 222,380 222,340" fill="#FFD700"/>
+  </g>
+  
+  <!-- Main flame icon -->
+  <g transform="translate(256, 160)">
+    <!-- Flame shape -->
+    <path d="M-25 40 C-35 20, -20 0, -10 10 C0 -20, 20 -15, 25 0 C30 -10, 40 5, 35 20 C40 35, 25 50, 10 45 C15 55, -5 60, -15 45 C-30 50, -35 30, -25 40 Z" 
+          fill="url(#flameGradient)" 
+          filter="url(#dropshadow)"/>
+    
+    <!-- Inner flame detail -->
+    <path d="M-10 35 C-15 25, -8 15, -2 20 C5 5, 15 8, 18 18 C22 12, 28 20, 25 30 C28 38, 18 42, 8 40 C10 45, -2 47, -8 40 C-18 42, -20 32, -10 35 Z" 
+          fill="#FFF200" 
+          opacity="0.8"/>
+  </g>
+  
+  <!-- "BOET BALL" text -->
+  <g transform="translate(256, 280)">
+    <text x="0" y="0" font-family="Arial Black, Arial, sans-serif" font-size="48" font-weight="900" 
+          text-anchor="middle" fill="url(#textGradient)" filter="url(#dropshadow)">
+      BOET BALL
+    </text>
+    
+    <!-- Subtitle -->
+    <text x="0" y="35" font-family="Arial, sans-serif" font-size="20" font-weight="600" 
+          text-anchor="middle" fill="#FFD700" opacity="0.9">
+      PREMIUM FPL
+    </text>
+  </g>
+  
+  <!-- South African flag-inspired accent -->
+  <g transform="translate(256, 380)">
+    <!-- Small decorative elements inspired by SA flag -->
+    <rect x="-40" y="-8" width="20" height="4" fill="#FFD700"/>
+    <rect x="-15" y="-8" width="30" height="4" fill="#FFFFFF"/>
+    <rect x="20" y="-8" width="20" height="4" fill="#007A3D"/>
+    
+    <rect x="-40" y="4" width="20" height="4" fill="#FF6B35"/>
+    <rect x="-15" y="4" width="30" height="4" fill="#000000"/>
+    <rect x="20" y="4" width="20" height="4" fill="#0066CC"/>
+  </g>
+  
+  <!-- Outer glow ring -->
+  <circle cx="256" cy="256" r="248" fill="none" stroke="url(#textGradient)" stroke-width="3" opacity="0.6"/>
+</svg>

@@ -1,0 +1,93 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Luxury background gradient -->
+    <radialGradient id="luxuryBg" cx="50%" cy="30%" r="80%">
+      <stop offset="0%" style="stop-color:#2D5A3D;stop-opacity:1" />
+      <stop offset="70%" style="stop-color:#1a472a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#003D20;stop-opacity:1" />
+    </radialGradient>
+    
+    <!-- Premium gold with metallic effect -->
+    <linearGradient id="luxuryGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFE55C;stop-opacity:1" />
+      <stop offset="20%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FFF700;stop-opacity:1" />
+      <stop offset="80%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DAA520;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Elegant flame gradient -->
+    <linearGradient id="luxuryFlame" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#FF6B35;stop-opacity:1" />
+      <stop offset="30%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="70%" style="stop-color:#FFF700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFFACD;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Luxury shadow -->
+    <filter id="luxuryShadow">
+      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-opacity="0.25"/>
+    </filter>
+    
+    <!-- Inner glow -->
+    <filter id="innerGlow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Luxury background circle -->
+  <circle cx="256" cy="256" r="240" fill="url(#luxuryBg)" stroke="url(#luxuryGold)" stroke-width="8"/>
+  
+  <!-- Inner circle for depth -->
+  <circle cx="256" cy="256" r="220" fill="none" stroke="url(#luxuryGold)" stroke-width="1" opacity="0.3"/>
+  
+  <!-- Elegant flame icon -->
+  <g transform="translate(256, 170)">
+    <path d="M-28 45 C-40 22, -22 0, -8 18 C2 -25, 32 -18, 38 5 C45 -8, 58 12, 52 32 C58 52, 35 72, 12 65 C22 85, -8 92, -20 65 C-42 72, -48 42, -28 45 Z" 
+          fill="url(#luxuryFlame)" 
+          filter="url(#luxuryShadow)"/>
+    
+    <!-- Inner flame details -->
+    <path d="M-12 38 C-18 28, -8 18, 2 25 C10 8, 22 15, 26 28 C32 18, 40 32, 36 42 C40 50, 26 58, 12 52 C16 62, -2 66, -10 52 C-24 58, -28 42, -12 38 Z" 
+          fill="#FFFACD" 
+          opacity="0.7" 
+          filter="url(#innerGlow)"/>
+  </g>
+  
+  <!-- Luxury typography with serif font -->
+  <g transform="translate(256, 285)">
+    <!-- Main title -->
+    <text x="0" y="0" font-family="Playfair Display, Georgia, serif" font-size="48" font-weight="700" 
+          text-anchor="middle" fill="url(#luxuryGold)" filter="url(#luxuryShadow)" letter-spacing="2px">
+      BOET BALL
+    </text>
+    
+    <!-- Decorative lines -->
+    <line x1="-100" y1="20" x2="-40" y2="20" stroke="#FFD700" stroke-width="1" opacity="0.6"/>
+    <line x1="40" y1="20" x2="100" y2="20" stroke="#FFD700" stroke-width="1" opacity="0.6"/>
+    
+    <!-- Premium subtitle -->
+    <text x="0" y="40" font-family="Montserrat, Arial, sans-serif" font-size="14" font-weight="500" 
+          text-anchor="middle" fill="#FFD700" opacity="0.8" letter-spacing="4px">
+      PREMIUM FPL COMPANION
+    </text>
+  </g>
+  
+  <!-- Elegant SA flag interpretation -->
+  <g transform="translate(256, 380)">
+    <!-- Stylized flag elements -->
+    <circle cx="-20" cy="0" r="4" fill="#FFD700" opacity="0.8"/>
+    <circle cx="0" cy="0" r="4" fill="#007A3D" opacity="0.8"/>
+    <circle cx="20" cy="0" r="4" fill="#FF6B35" opacity="0.8"/>
+    
+    <!-- Connecting line -->
+    <line x1="-20" y1="0" x2="20" y2="0" stroke="#FFD700" stroke-width="0.5" opacity="0.3"/>
+  </g>
+  
+  <!-- Luxury border details -->
+  <circle cx="256" cy="256" r="250" fill="none" stroke="url(#luxuryGold)" stroke-width="0.5" opacity="0.5"/>
+</svg>
