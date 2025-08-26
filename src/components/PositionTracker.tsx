@@ -119,14 +119,16 @@ export default function PositionTracker({
 
   const colors = useMemo(() => generateColors(managers.length), [managers.length]);
 
-  // Debug logging
-  console.log('Position Tracker Debug:', {
-    historicalDataLength: historicalData.length,
-    chartDataLength: chartData.length,
-    managersLength: managers.length,
-    chartData: chartData.slice(0, 2), // First 2 entries for debugging
-    historicalData: historicalData.map(d => ({ gw: d.gameweek, hasData: !!d.data, isLoading: d.isLoading }))
-  });
+  // Debug info available in development only
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Position Tracker Debug:', {
+      historicalDataLength: historicalData.length,
+      chartDataLength: chartData.length,
+      managersLength: managers.length,
+      chartData: chartData.slice(0, 2),
+      historicalData: historicalData.map(d => ({ gw: d.gameweek, hasData: !!d.data, isLoading: d.isLoading }))
+    });
+  }
 
   if (!chartData.length || !managers.length) {
     return (
