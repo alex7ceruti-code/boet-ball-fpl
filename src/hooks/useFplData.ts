@@ -238,26 +238,54 @@ export function useHistoricalStandings(leagueId: number | null, gameweeks: numbe
       const manager = (currentLeague as any)?.standings?.results?.find((m: any) => m.entry === managerHistory.managerId);
       if (!manager) continue;
       
-      // Find the gameweek data
-      const gameweekData = managerHistory.data.current.find((gw: any) => gw.event === targetGameweek);
+      // Find the gameweek data - look for exact match first
+      let gameweekData = managerHistory.data.current.find((gw: any) => gw.event === targetGameweek);
+      
+      // If not found and it's GW1, try to use current standings as fallback
+      if (!gameweekData && targetGameweek === 1 && managerHistory.data.current.length === 0) {
+        // For GW1, if no history yet, use current league position
+        gameweekData = {
+          event: 1,
+          total_points: manager.total || 0,
+          points: manager.event_total || 0
+        };
+      }
       
       if (gameweekData) {
         gameweekStandings.push({
           entry: manager.entry,
           player_name: manager.player_name,
           entry_name: manager.entry_name,
-          total: gameweekData.total_points,
-          event_total: gameweekData.points,
+          total: gameweekData.total_points || 0,
+          event_total: gameweekData.points || 0,
           rank: 1 // Will be calculated after sorting
         });
       }
     }
     
+    // If we have no data for this gameweek but have current league data,
+    // use the current standings as a fallback
+    if (gameweekStandings.length === 0 && currentLeague) {
+      const currentResults = (currentLeague as any)?.standings?.results || [];
+      currentResults.forEach((manager: any) => {
+        gameweekStandings.push({
+          entry: manager.entry,
+          player_name: manager.player_name,
+          entry_name: manager.entry_name,
+          total: manager.total || 0,
+          event_total: manager.event_total || 0,
+          rank: manager.rank || 1
+        });
+      });
+    }
+    
     // Sort by total points and assign ranks
-    gameweekStandings.sort((a, b) => b.total - a.total);
-    gameweekStandings.forEach((manager, index) => {
-      manager.rank = index + 1;
-    });
+    if (gameweekStandings.length > 0) {
+      gameweekStandings.sort((a, b) => b.total - a.total);
+      gameweekStandings.forEach((manager, index) => {
+        manager.rank = index + 1;
+      });
+    }
     
     return {
       gameweek: targetGameweek,
