@@ -58,8 +58,8 @@ export default function Navigation() {
           <Link href="/" className="flex items-center space-x-3 group" onClick={closeMobileMenu}>
             <div className="relative">
               <Image 
-                src="/boet-ball-logo.svg"
-                alt="Boet Ball Logo"
+                src="/instagram-logo-analytics-v3.svg"
+                alt="Boet Ball FPL Analytics Logo"
                 width={64}
                 height={64}
                 className="transition-transform duration-200 group-hover:scale-110"
