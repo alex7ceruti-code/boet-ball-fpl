@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
+import Image from 'next/image';
 import { 
   Home, 
   BarChart3, 
@@ -13,13 +14,13 @@ import {
   Shield, 
   Menu,
   X,
-  Flame,
   User,
   LogIn,
   LogOut,
   Crown,
   Newspaper,
-  TrendingUp
+  TrendingUp,
+  Info
 } from 'lucide-react';
 import { getTimeBasedGreeting } from '@/utils/slang';
 
@@ -32,7 +33,7 @@ const navigationItems = [
   { href: '/mini-league', label: 'Mini League', icon: Trophy },
   { href: '/my-team', label: 'My Team', icon: Shield },
   { href: '/news', label: 'News', icon: Newspaper },
-  { href: '/about', label: 'About', icon: Flame },
+  { href: '/about', label: 'About', icon: Info },
 ];
 
 export default function Navigation() {
@@ -56,9 +57,12 @@ export default function Navigation() {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3 group" onClick={closeMobileMenu}>
             <div className="relative">
-              <Flame 
-                className="h-8 w-8 transition-colors duration-200" 
-                style={{color: '#007A3D'}}
+              <Image 
+                src="/boet-ball-logo.svg"
+                alt="Boet Ball Logo"
+                width={32}
+                height={32}
+                className="transition-transform duration-200 group-hover:scale-110"
               />
             </div>
             <div className="flex flex-col">

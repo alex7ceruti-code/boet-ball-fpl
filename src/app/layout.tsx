@@ -18,6 +18,11 @@ export const metadata: Metadata = {
   title: "Boet Ball - Premium FPL for Mzansi",
   description: "Sharp, lekker Fantasy Premier League companion app built for South African fans. Get the latest fixtures, player stats, and FPL insights with a local twist.",
   keywords: "Fantasy Premier League, FPL, South Africa, Football, Soccer, Statistics",
+  icons: {
+    icon: '/boet-ball-logo.png',
+    shortcut: '/favicon-16x16.png',
+    apple: '/boet-ball-logo-512.png',
+  },
 };
 
 export default function RootLayout({
