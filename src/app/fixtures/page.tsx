@@ -66,47 +66,22 @@ export default function Fixtures() {
   const [sortBy, setSortBy] = useState<'fdr' | 'team'>('fdr');
   const [showSettings, setShowSettings] = useState(false);
 
-  if (bootstrapLoading || fixturesLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-yellow-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-          <p className="text-lg text-gray-600 font-medium">{getLoadingText()}</p>
-          <p className="text-sm text-gray-500 mt-2">Loading fixture data...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (bootstrapError || fixturesError || !bootstrap || !fixtures) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center">
-        <div className="text-center max-w-md">
-          <div className="text-6xl mb-4">😅</div>
-          <h2 className="text-2xl font-bold text-red-800 mb-4">Eish, no fixtures boet...</h2>
-          <p className="text-red-600 mb-6">Having trouble loading fixture data. Check your connection!</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // Get current gameweek
-  const currentGW = bootstrap.events.find(event => event.is_current) || bootstrap.events[0];
-  const actualStartGW = startGameweek || currentGW.id;
+  // Calculate derived values (moved before early returns to follow Rules of Hooks)
+  const currentGW = bootstrap?.events.find(event => event.is_current) || bootstrap?.events[0];
+  const actualStartGW = startGameweek || currentGW?.id || 1;
   
   // Get future gameweeks within horizon
-  const planningGameweeks = bootstrap.events
-    .filter(gw => gw.id >= actualStartGW && gw.id < actualStartGW + gameweekHorizon)
-    .sort((a, b) => a.id - b.id);
+  const planningGameweeks = useMemo(() => {
+    if (!bootstrap) return [];
+    return bootstrap.events
+      .filter(gw => gw.id >= actualStartGW && gw.id < actualStartGW + gameweekHorizon)
+      .sort((a, b) => a.id - b.id);
+  }, [bootstrap, actualStartGW, gameweekHorizon]);
 
   // Group fixtures by team for the planning period
   const teamFixtures = useMemo(() => {
+    if (!bootstrap || !fixtures) return {};
+    
     const teamData: { [teamId: number]: any } = {};
     
     bootstrap.teams.forEach(team => {
@@ -174,9 +149,42 @@ export default function Fixtures() {
   }, [teamFixtures, sortBy]);
 
   // Filter teams if selection is active
-  const displayTeams = selectedTeams.length > 0 
-    ? sortedTeams.filter((team: any) => selectedTeams.includes(team.id))
-    : sortedTeams;
+  const displayTeams = useMemo(() => {
+    return selectedTeams.length > 0 
+      ? sortedTeams.filter((team: any) => selectedTeams.includes(team.id))
+      : sortedTeams;
+  }, [selectedTeams, sortedTeams]);
+
+  // Early returns after all hooks
+  if (bootstrapLoading || fixturesLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-yellow-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-lg text-gray-600 font-medium">{getLoadingText()}</p>
+          <p className="text-sm text-gray-500 mt-2">Loading fixture data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (bootstrapError || fixturesError || !bootstrap || !fixtures) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <div className="text-6xl mb-4">😅</div>
+          <h2 className="text-2xl font-bold text-red-800 mb-4">Eish, no fixtures boet...</h2>
+          <p className="text-red-600 mb-6">Having trouble loading fixture data. Check your connection!</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const toggleTeamSelection = (teamId: number) => {
     setSelectedTeams(prev => 
