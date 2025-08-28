@@ -60,7 +60,7 @@ const SocialMediaImageGenerator: React.FC<SocialMediaImageGeneratorProps> = ({
   const [selectedStyle, setSelectedStyle] = useState<'totw' | 'inform' | 'icon' | 'hero'>('totw');
   
   // Check if user is admin for FUT card access
-  const isAdmin = session?.user?.role === 'ADMIN';
+  const isAdmin = session?.user?.role === 'ADMIN' || session?.user?.role === 'SUPER_ADMIN';
   
   // Prevent FUT card generation for non-admin users
   if (template === 'fut-card' && !isAdmin) {

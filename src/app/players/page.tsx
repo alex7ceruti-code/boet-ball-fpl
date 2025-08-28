@@ -413,7 +413,7 @@ export default function PlayersDatabase() {
   const { watchlist, isLoading: watchlistLoading, error: watchlistError, isOnWatchlist, getWatchlistData, getPriorityIcon, getConfidenceLevel } = useWatchlist();
   
   // Check if user is admin
-  const isAdmin = session?.user?.role === 'ADMIN';
+  const isAdmin = session?.user?.role === 'ADMIN' || session?.user?.role === 'SUPER_ADMIN';
   const [searchTerm, setSearchTerm] = useState('');
   const [positionFilter, setPositionFilter] = useState<number | null>(null);
   const [teamFilter, setTeamFilter] = useState<number | null>(null);
