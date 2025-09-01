@@ -47,7 +47,7 @@ import {
 
 // Helper functions
 const getPlayerPhotoUrl = (playerCode: number) =>
-  `https://resources.premierleague.com/premierleague/photos/players/110x140/p${playerCode}.png`;
+  `/api/proxy/player-image?code=${playerCode}`;
 
 const getTeamBadgeUrl = (teamCode: number) => 
   `https://resources.premierleague.com/premierleague/badges/25/t${teamCode}.png`;

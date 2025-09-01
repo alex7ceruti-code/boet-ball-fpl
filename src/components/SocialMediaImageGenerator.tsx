@@ -47,6 +47,55 @@ interface PlayerData {
   code?: number;
 }
 
+// Player Image component with export-friendly fallback handling
+const PlayerImageWithFallback: React.FC<{
+  player: PlayerData;
+  playerImageUrl: string | null;
+  className: string;
+}> = ({ player, playerImageUrl, className }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  return (
+    <div className={`${className} bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center`}>
+      {playerImageUrl && !imageError ? (
+        <>
+          <img 
+            src={playerImageUrl} 
+            alt={player.web_name}
+            className="w-full h-full object-cover"
+            onLoad={() => setImageLoaded(true)}
+            onError={() => {
+              console.log('Image failed to load:', playerImageUrl);
+              setImageError(true);
+            }}
+            style={{ display: imageError ? 'none' : 'block' }}
+          />
+          {/* Fallback overlay that shows while image is loading or on error */}
+          <div 
+            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
+              imageLoaded && !imageError ? 'opacity-0 pointer-events-none' : 'opacity-100'
+            }`}
+          >
+            <div className="text-5xl font-black text-gray-400">
+              {player.web_name.charAt(0)}
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
+          {/* Player Initial fallback */}
+          <div className="text-5xl font-black text-gray-400">
+            {player.web_name.charAt(0)}
+          </div>
+        </>
+      )}
+      {/* Gradient overlay for better text readability */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+    </div>
+  );
+};
+
 const SocialMediaImageGenerator: React.FC<SocialMediaImageGeneratorProps> = ({ 
   data, 
   template, 
@@ -87,17 +136,59 @@ const SocialMediaImageGenerator: React.FC<SocialMediaImageGeneratorProps> = ({
     );
   }
 
+  // Preload all images before generating canvas
+  const preloadImages = async (element: HTMLElement): Promise<void> => {
+    const images = element.querySelectorAll('img');
+    const imagePromises = Array.from(images).map((img) => {
+      return new Promise<void>((resolve) => {
+        if (img.complete) {
+          resolve();
+        } else {
+          const handleLoad = () => {
+            img.removeEventListener('load', handleLoad);
+            img.removeEventListener('error', handleError);
+            resolve();
+          };
+          const handleError = () => {
+            img.removeEventListener('load', handleLoad);
+            img.removeEventListener('error', handleError);
+            // Replace failed image with fallback
+            const playerName = img.alt || 'Player';
+            const fallbackDiv = document.createElement('div');
+            fallbackDiv.className = 'w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-5xl font-black text-gray-400';
+            fallbackDiv.textContent = playerName.charAt(0);
+            img.parentElement?.appendChild(fallbackDiv);
+            img.style.display = 'none';
+            resolve();
+          };
+          img.addEventListener('load', handleLoad);
+          img.addEventListener('error', handleError);
+        }
+      });
+    });
+    
+    await Promise.all(imagePromises);
+  };
+
   const generateImage = async () => {
     if (!canvasRef.current) return;
 
     setIsGenerating(true);
-
+    
     try {
+      // Preload all images first
+      await preloadImages(canvasRef.current);
+      
+      // Wait a bit more for images to fully render
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
       const canvas = await html2canvas(canvasRef.current, {
         scale: 2, // High DPI for social media
         backgroundColor: '#ffffff',
         useCORS: true,
-        allowTaint: false,
+        allowTaint: true, // Allow cross-origin images
+        foreignObjectRendering: false, // Better compatibility
+        logging: true, // Enable logging for debugging
         width: selectedFormat === 'instagram-post' ? 1080 : selectedFormat === 'instagram-story' ? 1080 : 1200,
         height: selectedFormat === 'instagram-post' ? 1080 : selectedFormat === 'instagram-story' ? 1920 : 675,
       });
@@ -541,8 +632,8 @@ const SocialMediaImageGenerator: React.FC<SocialMediaImageGeneratorProps> = ({
     if (!playerCode) {
       return null;
     }
-    // Use the Premier League player image URL
-    return `https://resources.premierleague.com/premierleague/photos/players/250x250/p${playerCode}.png`;
+    // Use our proxy API to handle CORS and caching
+    return `/api/proxy/player-image?code=${playerCode}`;
   };
 
   const renderFUTCard = () => {
@@ -683,35 +774,11 @@ const SocialMediaImageGenerator: React.FC<SocialMediaImageGeneratorProps> = ({
 
           {/* Center - Player Image (Larger) */}
           <div className="relative mx-3">
-            <div className="w-36 h-48 relative overflow-hidden rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-              {playerImageUrl ? (
-                <img 
-                  src={playerImageUrl} 
-                  alt={player.web_name}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    // Fallback to player initial if image fails to load
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                    target.parentElement!.innerHTML = `
-                      <div class="text-5xl font-black text-gray-400">
-                        ${player.web_name.charAt(0)}
-                      </div>
-                      <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                    `;
-                  }}
-                />
-              ) : (
-                <>
-                  {/* Player Initial fallback */}
-                  <div className="text-5xl font-black text-gray-400">
-                    {player.web_name.charAt(0)}
-                  </div>
-                  {/* Gradient overlay for better text readability */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                </>
-              )}
-            </div>
+            <PlayerImageWithFallback 
+              player={player} 
+              playerImageUrl={playerImageUrl}
+              className="w-36 h-48 relative overflow-hidden rounded-xl"
+            />
             
             {/* Team Badge */}
             <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-white/90 rounded-full p-1.5 border-2 border-white shadow-lg flex items-center justify-center">
