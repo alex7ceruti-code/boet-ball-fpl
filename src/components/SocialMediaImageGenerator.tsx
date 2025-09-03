@@ -627,6 +627,22 @@ const SocialMediaImageGenerator: React.FC<SocialMediaImageGeneratorProps> = ({
     }
   };
 
+  // Get actual gradient CSS colors for background
+  const getGradientColors = (variant = 'totw') => {
+    switch (variant) {
+      case 'totw':
+        return '#000000, #1f2937, #92400e';
+      case 'inform':
+        return '#312e81, #581c87, #9d174d';
+      case 'icon':
+        return '#92400e, #ca8a04, #ea580c';
+      case 'hero':
+        return '#064e3b, #0f766e, #164e63';
+      default:
+        return '#000000, #1f2937, #92400e';
+    }
+  };
+
   // Get player image with proper fallback handling
   const getPlayerImage = (playerCode: number, playerName: string) => {
     if (!playerCode) {
@@ -640,77 +656,28 @@ const SocialMediaImageGenerator: React.FC<SocialMediaImageGeneratorProps> = ({
     if (!data || typeof data !== 'object') return null;
 
     const player = data as PlayerData;
-    const colors = getCardColors(selectedStyle); // Use selected premium styling
+    const colors = getCardColors(selectedStyle);
     
     // Get player image with fallback
     const playerImageUrl = getPlayerImage(player.code || 0, player.web_name);
 
-    // Enhanced analytics matching site's analysis data model
+    // Enhanced analytics
     const enhancedStats = {
-      // Points per game (like analysis tab)
       pointsPerGame: player.total_points > 0 ? (player.total_points / Math.max(player.minutes || 90, 90) * 90).toFixed(1) : '0.0',
-      
-      // Value rating (matches analysis tab calculation)
-      valueRating: player.total_points > 0 ? (player.total_points / (player.now_cost / 10)).toFixed(2) : '0.00',
-      
-      // Expected points (enhanced calculation)
-      expectedPoints: (() => {
-        const basePoints = parseFloat(player.points_per_game || '0');
-        const formMultiplier = 1 + ((parseFloat(player.form || '0') - basePoints) / Math.max(basePoints, 0.1) * 0.3);
-        return (basePoints * formMultiplier * 1.1).toFixed(1); // Slight fixture boost
-      })(),
-      
-      // Consistency percentage (like analysis tab)
-      consistency: (() => {
-        const bonusConsistency = (player.bonus || 0) / Math.max(player.total_points, 1);
-        const minutesConsistency = Math.min((player.minutes || 0) / (38 * 90), 1);
-        return Math.round(((bonusConsistency * 0.3) + (minutesConsistency * 0.7)) * 100);
-      })(),
-      
-      // Form trend (matches analysis tab)
-      formTrend: (() => {
-        const form = parseFloat(player.form || '0');
-        const avg = parseFloat(player.points_per_game || '0');
-        const trend = (form - avg) / Math.max(avg, 0.1);
-        if (trend > 0.1) return { status: 'Stable', change: '+7%' };
-        if (trend < -0.1) return { status: 'Declining', change: '-5%' };
-        return { status: 'Stable', change: '+7%' };
-      })(),
-      
-      // Rotation risk (like analysis tab)
-      rotationRisk: (() => {
-        const minutesPercentage = (player.minutes || 0) / (38 * 90);
-        if (minutesPercentage > 0.8) return 'Low';
-        if (minutesPercentage > 0.6) return 'Medium';
-        return 'High';
-      })(),
-      
-      // Expected goals & assists (raw values like analysis)
-      expectedGoals: parseFloat(player.expected_goals || '0').toFixed(2),
-      expectedAssists: parseFloat(player.expected_assists || '0').toFixed(2),
-      
-      // ICT Index (matches analysis tab)
-      ictIndex: parseFloat(player.ict_index || '0').toFixed(1),
-      
-      // Ownership percentage
+      valueRating: player.total_points > 0 ? (player.total_points / (player.now_cost / 10)).toFixed(1) : '0.0',
+      expectedGoals: parseFloat(player.expected_goals || '0').toFixed(1),
+      expectedAssists: parseFloat(player.expected_assists || '0').toFixed(1),
+      ictIndex: parseFloat(player.ict_index || '0').toFixed(0),
       ownership: parseFloat(player.selected_by_percent || '0').toFixed(1)
     };
 
-    // Overall rating calculation (more sophisticated, matches analysis quality)
+    // Calculate overall rating
     const calculateOverallRating = () => {
       const points = player.total_points;
       const form = parseFloat(player.form || '0');
-      const valueScore = parseFloat(enhancedStats.valueRating);
-      const consistency = enhancedStats.consistency;
-      
-      // More sophisticated weighting matching analysis tab
-      const pointsScore = Math.min(99, Math.max(45, (points / 100) * 99));
-      const formScore = Math.min(99, Math.max(45, form * 8));
-      const valueWeight = Math.min(25, valueScore * 8);
-      const consistencyWeight = Math.min(15, consistency * 0.15);
-      
-      const totalScore = (pointsScore * 0.35) + (formScore * 0.35) + valueWeight + consistencyWeight;
-      return Math.round(Math.max(45, Math.min(99, totalScore)));
+      const pointsScore = Math.min(99, Math.max(50, (points / 150) * 99));
+      const formScore = Math.min(99, Math.max(50, form * 10));
+      return Math.round((pointsScore * 0.7) + (formScore * 0.3));
     };
 
     const overallRating = calculateOverallRating();
@@ -718,147 +685,167 @@ const SocialMediaImageGenerator: React.FC<SocialMediaImageGeneratorProps> = ({
     return (
       <div 
         ref={canvasRef}
-        className={`bg-gradient-to-br ${colors.gradient} text-white relative overflow-hidden`}
-        style={formatDimensions}
+        className="relative overflow-hidden"
+        style={{
+          ...formatDimensions,
+          background: `linear-gradient(135deg, ${getGradientColors(selectedStyle)})`,
+        }}
       >
-        {/* Card Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          {/* Hexagonal pattern inspired by FIFA cards */}
-          <div className="absolute inset-0" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='m36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-          }}></div>
+        {/* Premium Background Effects */}
+        <div className="absolute inset-0">
+          {/* Animated gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-black/40 via-transparent to-black/20"></div>
+          
+          {/* Geometric pattern */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-8 left-8 w-16 h-16 border-2 border-white rotate-45"></div>
+            <div className="absolute top-12 right-12 w-12 h-12 border border-white rounded-full"></div>
+            <div className="absolute bottom-16 left-12 w-8 h-8 bg-white/30 rotate-12"></div>
+            <div className="absolute bottom-8 right-8 w-6 h-6 bg-white/40 rounded-full"></div>
+          </div>
+          
+          {/* Premium shine effect */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent"></div>
         </div>
 
-        {/* Premium border effect */}
-        <div className={`absolute inset-2 border-4 ${colors.border} rounded-xl opacity-60`}></div>
-        <div className={`absolute inset-1 border-2 ${colors.border} rounded-xl opacity-30`}></div>
-
-        {/* Card Header - More Compact */}
-        <div className="relative z-10 px-3 pt-2 pb-1 text-center">
-          <div className="flex items-center justify-between mb-1">
-            {/* Style Badge */}
-            <div className={`px-2 py-0.5 rounded-full text-xs font-black ${colors.accent} bg-white/20 backdrop-blur-sm border ${colors.border}`}>
-              {selectedStyle.toUpperCase()}
+        {/* Header Section */}
+        <div className="relative z-10 p-6 text-center">
+          <div className="flex items-center justify-between mb-3">
+            {/* Boet Ball Branding */}
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-white/20 backdrop-blur rounded-lg flex items-center justify-center border border-white/30">
+                <span className="text-sm font-black text-white">BB</span>
+              </div>
+              <div className="text-left">
+                <div className="text-sm font-black text-white tracking-wider">BOET BALL</div>
+                <div className="text-xs text-white/70 font-medium">FPL PREMIUM</div>
+              </div>
             </div>
             
-            {/* Overall Rating */}
-            <div className={`w-10 h-10 rounded-full ${colors.accent} bg-white/20 backdrop-blur-sm border-2 ${colors.border} flex items-center justify-center`}>
-              <span className="text-sm font-black">{overallRating}</span>
+            {/* Overall Rating Badge */}
+            <div className="relative">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center border-2 border-white/50 shadow-xl">
+                <span className="text-lg font-black text-white drop-shadow-lg">{overallRating}</span>
+              </div>
+              <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 text-xs font-bold text-white/90 bg-black/30 px-2 py-0.5 rounded-full">
+                OVR
+              </div>
             </div>
           </div>
-
-          <div className={`text-xs font-bold ${colors.accent} opacity-80`}>BOET BALL • FPL 25</div>
+          
+          {/* Card Type Badge */}
+          <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/30 rounded-full px-4 py-1.5">
+            <span className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span>
+            <span className="text-xs font-bold text-white tracking-widest">{selectedStyle.toUpperCase()} CARD</span>
+          </div>
         </div>
 
-        {/* Main Layout - Player Image Centered with Side Stats */}
-        <div className="relative z-10 flex items-center justify-between px-3 mb-2">
-          {/* Left Stats Column */}
-          <div className="flex flex-col items-center space-y-2 w-20">
-            <div className={`bg-white/10 backdrop-blur-sm rounded-lg p-1.5 border ${colors.border}/30 text-center w-full`}>
-              <div className={`text-lg font-black ${colors.accent}`}>{player.total_points}</div>
-              <div className="text-xs opacity-80">PTS</div>
+        {/* Main Content Area */}
+        <div className="relative z-10 px-6 mb-6">
+          {/* Player Image Section */}
+          <div className="text-center mb-4">
+            <div className="relative inline-block">
+              <PlayerImageWithFallback 
+                player={player} 
+                playerImageUrl={playerImageUrl}
+                className="w-32 h-40 relative overflow-hidden rounded-2xl shadow-2xl border-2 border-white/20"
+              />
+              
+              {/* Team Badge Overlay */}
+              <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-white rounded-full p-1.5 border-2 border-gray-200 shadow-lg">
+                <div className="text-xs font-bold text-gray-700">
+                  {player.team_info?.short_name?.substring(0, 3) || 'TBD'}
+                </div>
+              </div>
             </div>
-            <div className={`bg-white/10 backdrop-blur-sm rounded-lg p-1.5 border ${colors.border}/30 text-center w-full`}>
-              <div className={`text-sm font-bold ${colors.accent}`}>{enhancedStats.pointsPerGame}</div>
-              <div className="text-xs opacity-80">PPG</div>
-            </div>
-            <div className={`bg-white/10 backdrop-blur-sm rounded-lg p-1.5 border ${colors.border}/30 text-center w-full`}>
-              <div className={`text-sm font-bold ${colors.accent}`}>{enhancedStats.expectedGoals}</div>
-              <div className="text-xs opacity-80">xG</div>
-            </div>
-            <div className={`bg-white/10 backdrop-blur-sm rounded-lg p-1.5 border ${colors.border}/30 text-center w-full`}>
-              <div className={`text-sm font-bold ${colors.accent}`}>{enhancedStats.consistency}%</div>
-              <div className="text-xs opacity-80">CON</div>
-            </div>
-          </div>
-
-          {/* Center - Player Image (Larger) */}
-          <div className="relative mx-3">
-            <PlayerImageWithFallback 
-              player={player} 
-              playerImageUrl={playerImageUrl}
-              className="w-36 h-48 relative overflow-hidden rounded-xl"
-            />
             
-            {/* Team Badge */}
-            <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-white/90 rounded-full p-1.5 border-2 border-white shadow-lg flex items-center justify-center">
-              <div className="text-xs font-bold text-gray-600">
-                {player.team_info?.short_name?.substring(0, 3) || 'TBD'}
+            {/* Player Name & Position */}
+            <div className="mt-4">
+              <h2 className="text-2xl font-black text-white mb-1 tracking-wide drop-shadow-lg">
+                {player.web_name.toUpperCase()}
+              </h2>
+              <div className="flex items-center justify-center gap-2 text-white/90">
+                <span className="text-sm font-semibold">{player.team_info?.short_name}</span>
+                <span className="w-1 h-1 bg-white/60 rounded-full"></span>
+                <span className="text-sm font-semibold">{player.position_info?.singular_name}</span>
               </div>
             </div>
           </div>
 
-          {/* Right Stats Column */}
-          <div className="flex flex-col items-center space-y-2 w-20">
-            <div className={`bg-white/10 backdrop-blur-sm rounded-lg p-1.5 border ${colors.border}/30 text-center w-full`}>
-              <div className={`text-lg font-black ${colors.accent}`}>{player.form}</div>
-              <div className="text-xs opacity-80">FORM</div>
+          {/* Key Stats Grid */}
+          <div className="grid grid-cols-3 gap-3 mb-4">
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center border border-white/20">
+              <div className="text-xl font-black text-white mb-1">{player.total_points}</div>
+              <div className="text-xs font-medium text-white/80">TOTAL PTS</div>
             </div>
-            <div className={`bg-white/10 backdrop-blur-sm rounded-lg p-1.5 border ${colors.border}/30 text-center w-full`}>
-              <div className={`text-sm font-bold ${colors.accent}`}>{enhancedStats.valueRating}</div>
-              <div className="text-xs opacity-80">VAL</div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center border border-white/20">
+              <div className="text-xl font-black text-white mb-1">{player.form}</div>
+              <div className="text-xs font-medium text-white/80">FORM</div>
             </div>
-            <div className={`bg-white/10 backdrop-blur-sm rounded-lg p-1.5 border ${colors.border}/30 text-center w-full`}>
-              <div className={`text-sm font-bold ${colors.accent}`}>{enhancedStats.expectedAssists}</div>
-              <div className="text-xs opacity-80">xA</div>
-            </div>
-            <div className={`bg-white/10 backdrop-blur-sm rounded-lg p-1.5 border ${colors.border}/30 text-center w-full`}>
-              <div className={`text-sm font-bold ${colors.accent}`}>£{(player.now_cost / 10).toFixed(1)}m</div>
-              <div className="text-xs opacity-80">PRICE</div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center border border-white/20">
+              <div className="text-xl font-black text-white mb-1">£{(player.now_cost / 10).toFixed(1)}m</div>
+              <div className="text-xs font-medium text-white/80">PRICE</div>
             </div>
           </div>
-        </div>
 
-        {/* Player Info - Below Image */}
-        <div className="relative z-10 text-center px-3 mb-2">
-          <h2 className={`text-xl font-black ${colors.accent} mb-0.5`}>{player.web_name}</h2>
-          <p className={`text-sm opacity-90 mb-1`}>{player.team_info?.short_name} • {player.position_info?.singular_name}</p>
-        </div>
-
-        {/* Bottom Analytics Bar */}
-        <div className="relative z-10 px-3 mb-2">
-          <div className="grid grid-cols-3 gap-2">
-            <div className={`bg-white/10 backdrop-blur-sm rounded-lg p-1.5 border ${colors.border}/30 text-center`}>
-              <div className={`text-sm font-bold ${colors.accent}`}>{enhancedStats.expectedPoints}</div>
-              <div className="text-xs opacity-90">xPts</div>
+          {/* Performance Metrics */}
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-xs font-medium text-white/80">Goals + Assists</span>
+                <span className="text-lg font-black text-white">{(player.goals_scored || 0) + (player.assists || 0)}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-medium text-white/80">Expected (xG+xA)</span>
+                <span className="text-sm font-bold text-white">{(parseFloat(enhancedStats.expectedGoals) + parseFloat(enhancedStats.expectedAssists)).toFixed(1)}</span>
+              </div>
             </div>
-            <div className={`bg-white/10 backdrop-blur-sm rounded-lg p-1.5 border ${colors.border}/30 text-center`}>
-              <div className={`text-sm font-bold ${colors.accent}`}>{enhancedStats.formTrend.status}</div>
-              <div className="text-xs opacity-90">Trend</div>
-            </div>
-            <div className={`bg-white/10 backdrop-blur-sm rounded-lg p-1.5 border ${colors.border}/30 text-center`}>
-              <div className={`text-sm font-bold ${colors.accent}`}>{enhancedStats.rotationRisk}</div>
-              <div className="text-xs opacity-90">Risk</div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-xs font-medium text-white/80">Value Rating</span>
+                <span className="text-lg font-black text-white">{enhancedStats.valueRating}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-medium text-white/80">Ownership</span>
+                <span className="text-sm font-bold text-white">{enhancedStats.ownership}%</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* ICT Index & Final Stats */}
-        <div className="relative z-10 px-3 mb-1">
-          <div className={`bg-white/10 backdrop-blur-sm rounded-lg p-2.5 border ${colors.border}/30`}>
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm opacity-90 font-medium">ICT INDEX</span>
-              <span className={`text-lg font-black ${colors.accent}`}>{enhancedStats.ictIndex}</span>
+          {/* ICT Index Bar */}
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+            <div className="flex justify-between items-center mb-3">
+              <span className="text-sm font-bold text-white/90">ICT INDEX</span>
+              <span className="text-2xl font-black text-yellow-400">{enhancedStats.ictIndex}</span>
             </div>
-            <div className="w-full bg-white/20 rounded-full h-3">
+            <div className="w-full bg-white/20 rounded-full h-2 mb-2">
               <div 
-                className={`bg-gradient-to-r from-yellow-400 to-yellow-600 h-3 rounded-full transition-all duration-500 ${colors.glow} shadow-lg`}
+                className="bg-gradient-to-r from-yellow-400 to-orange-400 h-2 rounded-full shadow-lg"
                 style={{ width: `${Math.min(100, (parseFloat(enhancedStats.ictIndex) / 200) * 100)}%` }}
               ></div>
             </div>
-            <div className="flex justify-between items-center text-sm opacity-80 mt-2">
-              <span>{enhancedStats.ownership}% Owned</span>
-              <span className={`font-bold ${colors.accent}`}>Rating: {overallRating}</span>
+            <div className="text-center text-xs text-white/80 font-medium">
+              Influence • Creativity • Threat
             </div>
           </div>
         </div>
 
-        {/* Footer - Compact */}
-        <div className="absolute bottom-0 left-0 right-0 bg-black/40 p-2">
-          <div className="flex items-center justify-between text-xs">
-            <span className={colors.accent}>GW {new Date().getDate()}</span>
-            <span className="opacity-80">boetball.com</span>
-            <span className={`${colors.accent} font-bold`}>#BoetBall #FPL</span>
+        {/* Premium Footer */}
+        <div className="relative z-10 bg-black/30 backdrop-blur-sm p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full flex items-center justify-center">
+                <span className="text-xs font-black text-white">🇿🇦</span>
+              </div>
+              <div>
+                <div className="text-xs font-bold text-white">BOETBALL.COM</div>
+                <div className="text-xs text-white/70">Premium FPL Analytics</div>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-xs font-bold text-white">GW{new Date().getDate()} • 2024/25</div>
+              <div className="text-xs text-white/70">#BoetBall #FPL</div>
+            </div>
           </div>
         </div>
       </div>

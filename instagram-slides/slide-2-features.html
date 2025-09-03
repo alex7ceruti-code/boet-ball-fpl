@@ -1,0 +1,86 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .slide { 
+      width: 1080px; 
+      height: 1080px; 
+      position: relative; 
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+  </style>
+</head>
+<body>
+  
+<div class="slide" style="background: linear-gradient(135deg, #2563eb 0%, #7c3aed 50%, #db2777 100%); color: white; position: relative; overflow: hidden;">
+  <!-- Background Pattern -->
+  <div style="position: absolute; inset: 0; opacity: 0.1;">
+    <div style="position: absolute; top: 64px; right: 64px; width: 160px; height: 160px; border: 8px solid white; border-radius: 50%;"></div>
+    <div style="position: absolute; bottom: 64px; left: 64px; width: 128px; height: 128px; border: 8px solid white; transform: rotate(45deg);"></div>
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px; height: 320px; border: 4px solid rgba(255,255,255,0.2); border-radius: 50%;"></div>
+  </div>
+
+  <!-- Header -->
+  <div style="position: relative; z-index: 10; text-align: center; padding-top: 64px; padding-left: 48px; padding-right: 48px;">
+    <h1 style="font-size: 48px; font-weight: 900; margin-bottom: 16px;">WHAT WE OFFER</h1>
+    <div style="width: 128px; height: 4px; background: #fbbf24; margin: 0 auto 64px;"></div>
+  </div>
+
+  <!-- Features Grid -->
+  <div style="position: relative; z-index: 10; padding: 0 48px; display: flex; flex-direction: column; gap: 32px;">
+    <div style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 24px; padding: 32px; border: 2px solid rgba(255,255,255,0.2);">
+      <div style="display: flex; align-items: center; gap: 24px; margin-bottom: 16px;">
+        <div style="width: 80px; height: 80px; background: #fbbf24; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+          <div style="width: 40px; height: 40px; background: #000; border-radius: 4px;"></div>
+        </div>
+        <h3 style="font-weight: 700; font-size: 36px;">Advanced Analytics</h3>
+      </div>
+      <p style="font-size: 24px; opacity: 0.9;">Deep player insights, xG, xA, form trends & more</p>
+    </div>
+
+    <div style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 24px; padding: 32px; border: 2px solid rgba(255,255,255,0.2);">
+      <div style="display: flex; align-items: center; gap: 24px; margin-bottom: 16px;">
+        <div style="width: 80px; height: 80px; background: #4ade80; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+          <div style="width: 32px; height: 32px; border: 4px solid #000; border-radius: 50%;"></div>
+        </div>
+        <h3 style="font-weight: 700; font-size: 36px;">Player Comparison</h3>
+      </div>
+      <p style="font-size: 24px; opacity: 0.9;">Compare up to 4 players side-by-side</p>
+    </div>
+
+    <div style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 24px; padding: 32px; border: 2px solid rgba(255,255,255,0.2);">
+      <div style="display: flex; align-items: center; gap: 24px; margin-bottom: 16px;">
+        <div style="width: 80px; height: 80px; background: #fb923c; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+          <div style="color: #000; font-size: 32px;">★</div>
+        </div>
+        <h3 style="font-weight: 700; font-size: 36px;">FUT-Style Cards</h3>
+      </div>
+      <p style="font-size: 24px; opacity: 0.9;">Create stunning player cards for social media</p>
+    </div>
+
+    <div style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 24px; padding: 32px; border: 2px solid rgba(255,255,255,0.2);">
+      <div style="display: flex; align-items: center; gap: 24px; margin-bottom: 16px;">
+        <div style="width: 80px; height: 80px; background: #f472b6; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+          <div style="color: #000; font-size: 24px;">👥</div>
+        </div>
+        <h3 style="font-weight: 700; font-size: 36px;">South African Flair</h3>
+      </div>
+      <p style="font-size: 24px; opacity: 0.9;">Local slang, culture & community vibes</p>
+    </div>
+  </div>
+
+  <!-- Bottom -->
+  <div style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.3); padding: 32px; text-align: center;">
+    <p style="font-size: 24px; font-weight: 600;">#BoetBall • Your FPL Advantage</p>
+  </div>
+</div>
+
+</body>
+</html>
+  
