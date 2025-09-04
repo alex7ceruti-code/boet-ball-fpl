@@ -175,8 +175,8 @@ const MLAnalyticsGuide: React.FC<MLAnalyticsGuideProps> = ({ isOpen, onClose }) 
                   <div className="border-l-4 border-green-500 pl-4">
                     <div className="font-medium text-slate-800">High Confidence Factors (+)</div>
                     <ul className="text-sm text-slate-600 mt-1 space-y-1">
-                      <li>• Regular starter (>80% of games)</li>
-                      <li>• Consistent minutes (>80% season minutes)</li>
+                      <li>• Regular starter (&gt;80% of games)</li>
+                      <li>• Consistent minutes (&gt;80% season minutes)</li>
                       <li>• Good team data availability</li>
                       <li>• Known upcoming fixtures</li>
                       <li>• No injury/suspension concerns</li>
@@ -187,7 +187,7 @@ const MLAnalyticsGuide: React.FC<MLAnalyticsGuideProps> = ({ isOpen, onClose }) 
                     <div className="font-medium text-slate-800">Low Confidence Factors (-)</div>
                     <ul className="text-sm text-slate-600 mt-1 space-y-1">
                       <li>• Injury or suspension flags</li>
-                      <li>• Low ownership (<5% selected)</li>
+                      <li>• Low ownership (&lt;5% selected)</li>
                       <li>• Irregular playing time</li>
                       <li>• Limited historical data</li>
                       <li>• Recent transfers/rotation</li>
@@ -385,9 +385,9 @@ const MLAnalyticsGuide: React.FC<MLAnalyticsGuideProps> = ({ isOpen, onClose }) 
                       Rotation Risk
                     </h5>
                     <ul className="text-xs text-slate-600 space-y-1">
-                      <li>• <span className="text-red-600">High:</span> <60min avg or <70% starts</li>
+                      <li>• <span className="text-red-600">High:</span> &lt;60min avg or &lt;70% starts</li>
                       <li>• <span className="text-yellow-600">Medium:</span> 60-75min avg or 70-85% starts</li>
-                      <li>• <span className="text-green-600">Low:</span> >75min avg and >85% starts</li>
+                      <li>• <span className="text-green-600">Low:</span> &gt;75min avg and &gt;85% starts</li>
                     </ul>
                   </div>
 
@@ -397,9 +397,9 @@ const MLAnalyticsGuide: React.FC<MLAnalyticsGuideProps> = ({ isOpen, onClose }) 
                       Injury Risk
                     </h5>
                     <ul className="text-xs text-slate-600 space-y-1">
-                      <li>• <span className="text-red-600">High:</span> <60% expected appearances</li>
+                      <li>• <span className="text-red-600">High:</span> &lt;60% expected appearances</li>
                       <li>• <span className="text-yellow-600">Medium:</span> 60-80% expected appearances</li>
-                      <li>• <span className="text-green-600">Low:</span> >80% expected appearances</li>
+                      <li>• <span className="text-green-600">Low:</span> &gt;80% expected appearances</li>
                     </ul>
                   </div>
 
@@ -422,8 +422,8 @@ const MLAnalyticsGuide: React.FC<MLAnalyticsGuideProps> = ({ isOpen, onClose }) 
                     </h5>
                     <ul className="text-xs text-slate-600 space-y-1">
                       <li>• High bonus points = boom/bust tendency</li>
-                      <li>• >0.8 bonus per start = high volatility</li>
-                      <li>• <0.2 bonus per start = very consistent</li>
+                      <li>• &gt;0.8 bonus per start = high volatility</li>
+                      <li>• &lt;0.2 bonus per start = very consistent</li>
                     </ul>
                   </div>
                 </div>
