@@ -84,6 +84,7 @@ model User {
   articles          NewsArticle[]
   adminUser         AdminUser?
   watchlistPlayers  PlayerWatchlist[]
+  analyticsPreferences UserAnalyticsPreferences?
   
   @@map("users")
 }
@@ -331,4 +332,213 @@ enum WatchlistPriority {
   MEDIUM
   HIGH
   URGENT
+}
+
+// Enhanced Analytics Tables for Predictions and Risk Assessment
+
+// Player performance predictions for future gameweeks
+model PlayerPrediction {
+  id              String   @id @default(cuid())
+  
+  // Player identification
+  fplPlayerId     Int
+  playerName      String
+  position        String
+  teamId          Int
+  
+  // Prediction details
+  gameweek        Int
+  predictedPoints Float    // Specific point prediction
+  confidence      Float    // 0-1 confidence score
+  
+  // Prediction breakdown
+  basePoints      Float    // Historical average baseline
+  formAdjustment  Float    // Form-based adjustment
+  fixtureAdjustment Float  // Fixture difficulty adjustment
+  teamFormAdjustment Float // Team form impact
+  injuryRiskAdjustment Float // Injury risk discount
+  rotationRiskAdjustment Float // Rotation risk discount
+  
+  // Model metadata
+  modelVersion    String   // Version of prediction model used
+  predictionDate  DateTime @default(now())
+  
+  // Validation tracking
+  actualPoints    Float?   // Filled in after gameweek
+  accuracy        Float?   // |predicted - actual| / predicted
+  
+  @@unique([fplPlayerId, gameweek, modelVersion])
+  @@map("player_predictions")
+}
+
+// Historical player performance data for trend analysis
+model PlayerGameweekHistory {
+  id              String   @id @default(cuid())
+  
+  // Player and gameweek
+  fplPlayerId     Int
+  gameweek        Int
+  season          String   // e.g., "2024-25"
+  
+  // Basic performance
+  points          Int
+  minutes         Int
+  goals           Int
+  assists         Int
+  cleanSheets     Int
+  goalsConceded   Int
+  saves           Int
+  bonus           Int
+  bps             Int
+  
+  // Advanced stats
+  expectedGoals   Float?
+  expectedAssists Float?
+  influence       Float?
+  creativity      Float?
+  threat          Float?
+  
+  // Match context
+  wasHome         Boolean
+  opponentTeamId  Int
+  fixturedifficulty Int
+  teamGoalsFor    Int?
+  teamGoalsAgainst Int?
+  
+  // Status
+  started         Boolean  @default(false)
+  played          Boolean  @default(false)
+  
+  recordedAt      DateTime @default(now())
+  
+  @@unique([fplPlayerId, gameweek, season])
+  @@map("player_gameweek_history")
+}
+
+// Risk assessment data for each player
+model PlayerRiskAssessment {
+  id              String   @id @default(cuid())
+  
+  fplPlayerId     Int      @unique
+  playerName      String
+  position        String
+  teamId          Int
+  
+  // Risk scores (0-100, higher = more risky)
+  rotationRisk    Int      // Likelihood of being rotated
+  injuryRisk      Int      // Injury proneness score
+  priceChangeRisk Int      // Price drop probability
+  formVolatility  Int      // Boom/bust tendency
+  
+  // Risk factors breakdown
+  minutesConsistency Float // How consistent minutes are
+  injuryHistory   Json?    // Historical injury data
+  transferTrend   String?  // Recent transfer activity
+  teamDepth       Int?     // Competition for position
+  
+  // Overall risk profile
+  overallRiskScore Int     // Composite risk score
+  riskCategory    RiskCategory
+  
+  // Recommendation flags
+  conservativePickSuitability Int  // 0-100 how suitable for conservative users
+  aggressivePickSuitability   Int  // 0-100 how suitable for aggressive users
+  
+  lastUpdated     DateTime @default(now())
+  
+  @@map("player_risk_assessments")
+}
+
+// Team form and strength data
+model TeamAnalytics {
+  id              String   @id @default(cuid())
+  
+  fplTeamId       Int      @unique
+  teamName        String
+  shortName       String
+  
+  // Current form metrics
+  last5Games      Json     // Results of last 5 games
+  goalsForPer90   Float
+  goalsAgainstPer90 Float
+  xGForPer90      Float?
+  xGAgainstPer90  Float?
+  
+  // Strength ratings (dynamic, updated weekly)
+  attackStrength  Int      // 1-5 attack rating
+  defenseStrength Int      // 1-5 defense rating
+  homeAdvantage   Float    // Home performance boost
+  
+  // Fixture analysis
+  upcomingFixtures Json    // Next 6 gameweeks fixture data
+  difficultyRating Float   // Average upcoming difficulty
+  
+  lastUpdated     DateTime @default(now())
+  
+  @@map("team_analytics")
+}
+
+// Track model performance for continuous improvement
+model PredictionAccuracy {
+  id              String   @id @default(cuid())
+  
+  modelVersion    String
+  gameweek        Int
+  
+  // Aggregate accuracy metrics
+  totalPredictions Int
+  meanAbsoluteError Float  // Average |predicted - actual|
+  rootMeanSquaredError Float
+  accuracyWithin1  Float   // % of predictions within 1 point
+  accuracyWithin2  Float   // % of predictions within 2 points
+  
+  // By position breakdown
+  gkAccuracy      Float?
+  defAccuracy     Float?
+  midAccuracy     Float?
+  fwdAccuracy     Float?
+  
+  calculatedAt    DateTime @default(now())
+  
+  @@unique([modelVersion, gameweek])
+  @@map("prediction_accuracy")
+}
+
+// User preference for recommendation style
+model UserAnalyticsPreferences {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  
+  // Risk tolerance settings
+  riskTolerance   RiskTolerance @default(BALANCED)
+  
+  // Prediction preferences
+  predictionHorizon Int    @default(6) // How many GWs ahead
+  minConfidence   Float    @default(0.6) // Minimum prediction confidence
+  
+  // Budget constraints
+  maxPlayerPrice  Float?   // Maximum price per player
+  totalBudget     Float?   // Total team budget
+  
+  // Position preferences
+  favoritePositions Json? // Which positions to focus on
+  avoidHighRisk   Boolean @default(false)
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("user_analytics_preferences")
+}
+
+enum RiskCategory {
+  VERY_LOW
+  LOW
+  MEDIUM
+  HIGH
+  VERY_HIGH
+}
+
+enum RiskTolerance {
+  CONSERVATIVE  // High accuracy, fewer opportunities
+  BALANCED      // Middle ground
+  AGGRESSIVE    // More opportunities, some noise
 }

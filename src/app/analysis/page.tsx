@@ -1,10 +1,10 @@
-import PlayerAnalysisSelector from '@/components/PlayerAnalysisSelector';
+import EnhancedAnalyticsDashboard from '@/components/EnhancedAnalyticsDashboard';
 
 export const metadata = {
-  title: 'Advanced Player Analysis | Boet Ball FPL',
-  description: 'In-depth analysis and comparison tool for Fantasy Premier League players',
+  title: 'Enhanced ML Analytics | Boet Ball FPL',
+  description: 'Advanced ML-powered player analysis with predictive insights and risk assessment',
 };
 
 export default function AnalysisPage() {
-  return <PlayerAnalysisSelector />;
+  return <EnhancedAnalyticsDashboard />;
 }
