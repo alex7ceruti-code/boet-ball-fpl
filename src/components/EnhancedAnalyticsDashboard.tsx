@@ -154,59 +154,87 @@ const EnhancedAnalyticsDashboard: React.FC = () => {
         playerCount: selectedPlayers.length
       });
 
-      // Call our real prediction API for each player
-      const results: PredictionResult[] = [];
+      // Call our batch prediction API with all selected players
+      const playerIds = selectedPlayers.map(p => p.id);
+      let results: PredictionResult[] = [];
       
-      for (const player of selectedPlayers) {
-        try {
-          const response = await fetch('/api/analytics/predictions', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              playerId: player.id,
-              gameweeksAhead: predictionHorizon,
-              riskTolerance: riskTolerance,
-              includeRiskAssessment: true
-            })
-          });
-
-          if (!response.ok) {
-            console.error(`Failed to get prediction for player ${player.id}:`, response.status);
-            continue;
+      const response = await fetch('/api/analytics/predictions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          playerIds: playerIds,
+          config: {
+            riskTolerance: riskTolerance.toUpperCase(),
+            predictionHorizon: predictionHorizon,
+            minConfidence: 0.6,
+            useExternalData: false
           }
+        })
+      });
 
-          const predictionData = await response.json();
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Failed to get predictions:', response.status, errorData);
+        throw new Error(`API returned ${response.status}: ${errorData.error || 'Unknown error'}`);
+      }
+
+      const apiResponse = await response.json();
+      
+      if (!apiResponse.success || !apiResponse.data) {
+        console.error('API response indicates failure:', apiResponse);
+        throw new Error(apiResponse.error || 'API response was not successful');
+      }
+
+      const predictions = apiResponse.data;
+      console.log('Raw API predictions:', predictions);
+      
+        // Transform the API response to match our UI structure
+        results = predictions.map((prediction: any) => {
+          const player = selectedPlayers.find(p => p.id === prediction.playerId);
           
-          // Transform the API response to match our UI structure
-          const result: PredictionResult = {
-            playerId: player.id,
-            playerName: player.web_name,
-            team: getTeamName(player.team),
-            position: getPositionName(player.element_type),
-            currentPrice: player.now_cost / 10,
-            predictions: predictionData.predictions || [],
-            totalPredictedPoints: predictionData.totalExpectedPoints || 0,
-            averageConfidence: predictionData.averageConfidence || 0,
-            riskAssessment: predictionData.riskAssessment || {
-              overallRisk: 'MEDIUM',
-              suitability: { Conservative: 50, Balanced: 50, Aggressive: 50 },
+          // Transform risk profile to our expected format
+          const riskProfile = prediction.riskProfile || { overall: 50, rotation: 50, injury: 50, priceChange: 50, formVolatility: 50 };
+          const overallRiskLevel = riskProfile.overall > 60 ? 'HIGH' : riskProfile.overall > 30 ? 'MEDIUM' : 'LOW';
+          
+          return {
+            playerId: prediction.playerId,
+            playerName: prediction.playerName || player?.web_name || 'Unknown Player',
+            team: prediction.team || getTeamName(player?.team || 0),
+            position: prediction.position || getPositionName(player?.element_type || 0),
+            currentPrice: prediction.currentPrice || (player ? player.now_cost / 10 : 0),
+            predictions: prediction.predictions || [],
+            totalPredictedPoints: prediction.outlookSummary?.totalExpectedPoints || 0,
+            averageConfidence: prediction.outlookSummary?.confidence || 0,
+            riskAssessment: {
+              overallRisk: overallRiskLevel,
+              suitability: {
+                Conservative: prediction.recommendation?.suitableFor?.includes('CONSERVATIVE') ? 80 : 20,
+                Balanced: prediction.recommendation?.suitableFor?.includes('BALANCED') ? 80 : 20,
+                Aggressive: prediction.recommendation?.suitableFor?.includes('AGGRESSIVE') ? 80 : 20
+              },
               factors: {
-                rotation: { risk: 'MEDIUM', score: 50 },
-                injury: { risk: 'MEDIUM', score: 50 },
-                priceChange: { risk: 'MEDIUM', score: 50 },
-                formVolatility: { risk: 'MEDIUM', score: 50 }
+                rotation: { 
+                  risk: riskProfile.rotation > 60 ? 'HIGH' : riskProfile.rotation > 30 ? 'MEDIUM' : 'LOW', 
+                  score: riskProfile.rotation 
+                },
+                injury: { 
+                  risk: riskProfile.injury > 60 ? 'HIGH' : riskProfile.injury > 30 ? 'MEDIUM' : 'LOW', 
+                  score: riskProfile.injury 
+                },
+                priceChange: { 
+                  risk: riskProfile.priceChange > 60 ? 'HIGH' : riskProfile.priceChange > 30 ? 'MEDIUM' : 'LOW', 
+                  score: riskProfile.priceChange 
+                },
+                formVolatility: { 
+                  risk: riskProfile.formVolatility > 60 ? 'HIGH' : riskProfile.formVolatility > 30 ? 'MEDIUM' : 'LOW', 
+                  score: riskProfile.formVolatility 
+                }
               }
             }
           };
-          
-          results.push(result);
-          
-        } catch (error) {
-          console.error(`Error processing player ${player.id}:`, error);
-        }
-      }
+        });
       
       console.log('Analysis completed:', results.length, 'results');
       setAnalysisResults(results);
