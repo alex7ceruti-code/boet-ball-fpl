@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Search, TrendingUp, BarChart3, Users, DollarSign, Activity, Calendar, AlertCircle, Shield, Target, Brain } from 'lucide-react';
+import { Search, TrendingUp, BarChart3, Users, DollarSign, Activity, Calendar, AlertCircle, Shield, Target, Brain, HelpCircle } from 'lucide-react';
+import MLAnalyticsGuide from './analytics/MLAnalyticsGuide';
 
 interface Player {
   id: number;
@@ -73,6 +74,7 @@ const EnhancedAnalyticsDashboard: React.FC = () => {
   // New analytics settings
   const [riskTolerance, setRiskTolerance] = useState<'Conservative' | 'Balanced' | 'Aggressive'>('Balanced');
   const [predictionHorizon, setPredictionHorizon] = useState(4);
+  const [showGuide, setShowGuide] = useState(false);
   
   const positions = {
     1: 'GKP',
@@ -311,9 +313,18 @@ const EnhancedAnalyticsDashboard: React.FC = () => {
               </p>
             </div>
           </div>
-          <p className="text-slate-600 text-lg max-w-2xl mx-auto">
-            Advanced predictive analytics with risk assessment and personalized recommendations
-          </p>
+          <div className="flex flex-col items-center space-y-4">
+            <p className="text-slate-600 text-lg max-w-2xl text-center">
+              Advanced predictive analytics with risk assessment and personalized recommendations
+            </p>
+            <button
+              onClick={() => setShowGuide(true)}
+              className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-700 font-medium text-sm transition-colors"
+            >
+              <HelpCircle className="h-4 w-4" />
+              <span>How does this work?</span>
+            </button>
+          </div>
         </div>
 
         {/* Analytics Settings */}
@@ -761,6 +772,12 @@ const EnhancedAnalyticsDashboard: React.FC = () => {
           </div>
         )}
       </div>
+      
+      {/* ML Analytics Guide Modal */}
+      <MLAnalyticsGuide 
+        isOpen={showGuide}
+        onClose={() => setShowGuide(false)}
+      />
     </div>
   );
 };
